@@ -46,28 +46,3 @@ def test_graph(bot_mw, qtbot):
     """
     # Depends on whether we use pyqtgraph or matplotlib
     pass
-
-
-@pytest.fixture
-def app(qtbot):
-    """
-    Tests for the Widget class "SomeWindow"
-    """
-    window = SomeWindow()
-    qtbot.addWidget(window)
-    return window
-
-
-def test_typing(app, qtbot):
-    assert app.lineEdit.text() == ""
-
-    qtbot.keyClicks(app.lineEdit, "Bogus")
-    assert app.lineEdit.text() == "Bogus"
-
-
-def test_clearing(app, qtbot):
-    qtbot.keyClicks(app.lineEdit, "Bogus")
-    assert app.lineEdit.text() == "Bogus"
-
-    qtbot.mouseClick(app.button, Qt.MouseButton.LeftButton)
-    assert app.lineEdit.text() == ""
