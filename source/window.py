@@ -6,6 +6,7 @@ from PyQt6.QtGui import (
 )
 from PyQt6.QtWidgets import (
     QApplication,
+    QFileDialog,
     QHBoxLayout,
     QLineEdit,
     QMainWindow,
@@ -15,11 +16,13 @@ from PyQt6.QtWidgets import (
 
 
 Const = {
-    "WINDOW_TITLE": "Latent Space Visualizer",
     "FILE_FILTERS": [
-        "PyTorch Files (*.pt)",
         "All Files (*.*)",
+        "PyTorch Files (*.pt)",
     ],
+    "OPEN_FILE_LABEL": "&Open File",
+    "STATUS_TIP_TEMP": "TODO: What's a good status tip guide?",
+    "WINDOW_TITLE": "Latent Space Visualizer",
 }
 
 
@@ -29,27 +32,36 @@ class MainWindow(QMainWindow):
 
         self.initiate_menu_bar()
 
-        self.setWindowTitle(Const["WINDOW_TITLE"])
+        self.open_file_button = QPushButton(Const["OPEN_FILE_LABEL"])
+        self.open_file_button.clicked.connect(self.get_filename)
+        # TODO: Should this be an action?     ^^^^^^^^^^^^^^^^^
 
-        button = QPushButton("Button")
-        self.setCentralWidget(button)
+        self.setWindowTitle(Const["WINDOW_TITLE"])
+        self.setCentralWidget(self.open_file_button)
 
     def initiate_menu_bar(self):
         menu = self.menuBar()
-        action_to_open_file = QAction("&Open File", self)
-        action_to_open_file.setStatusTip("TODO: Make real status tip")
-        action_to_open_file.setCheckable(True)
-        action_to_open_file.setShortcut(QKeySequence("Ctrl+O"))
+        self.action_to_open_file = QAction("&Open File", self)
+        self.action_to_open_file.setStatusTip(Const["STATUS_TIP_TEMP"])
+        self.action_to_open_file.setShortcut(QKeySequence("Ctrl+O"))
+        self.action_to_open_file.triggered.connect(self.get_filename)
+        # Note the function Raference              ^^^^^^^^^^^^^^^^^
 
-        bogus_menu = menu.addMenu("&Bogus")
-        bogus_menu.addAction(action_to_open_file)
-        bogus_menu.addAction(QAction("Scrogus", self))
+        self.file_menu = menu.addMenu("&File")
+        self.file_menu.addAction(self.action_to_open_file)
 
     def get_filename(self):
-        initial_filter = Const["FILE_FILTERS"][3]  # Select one from the list.
+        initial_filter = Const["FILE_FILTERS"][0]  # Select one from the list.
         filters = ";;".join(Const["FILE_FILTERS"])
         print("Filters are:", filters)
         print("Initial filter:", initial_filter)
+
+        filename, selected_filter = QFileDialog.getOpenFileName(
+            self,
+            filter=filters,
+            initialFilter=initial_filter,
+        )
+        print("Result:", filename, selected_filter)
 
 
 class SomeWindow(QWidget):
