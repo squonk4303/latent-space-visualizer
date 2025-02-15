@@ -17,7 +17,7 @@ def bot_mw(qtbot):
 def test_window(bot_mw, qtbot):
     """ Tests the main window and its properties """
     # It exists
-    assert bot_mw.windowTitle() == const["WINDOW_TITLE"]
+    assert bot_mw.windowTitle() == Const["WINDOW_TITLE"]
     assert bot_mw.centralWidget()
     # It starts in normal state
     # There's a menu bar
@@ -28,6 +28,7 @@ def test_window(bot_mw, qtbot):
 def test_file_select(bot_mw, qtbot):
     """ Tests the action for selecting a file """
     pass
+
 
 def test_graph(bot_mw, qtbot):
     """ Tests our graph widget """
