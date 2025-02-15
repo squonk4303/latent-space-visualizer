@@ -4,11 +4,11 @@ from PyQt6.QtCore import Qt
 from window import SomeWindow, MainWindow, Const
 
 
-"""
-Tests for the QMainWindow class "MainWindow"
-"""
 @pytest.fixture
 def bot_mw(qtbot):
+    """
+    Tests for the QMainWindow class "MainWindow"
+    """
     window = MainWindow()
     qtbot.addWidget(window)
     return window
@@ -36,11 +36,11 @@ def test_graph(bot_mw, qtbot):
     pass
 
 
-"""
-Tests for the Widget class "SomeWindow"
-"""
 @pytest.fixture
 def app(qtbot):
+    """
+    Tests for the Widget class "SomeWindow"
+    """
     window = SomeWindow()
     qtbot.addWidget(window)
     return window

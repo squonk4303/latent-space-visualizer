@@ -9,8 +9,6 @@ from PyQt6.QtWidgets import (
     QHBoxLayout,
     QLineEdit,
     QMainWindow,
-    QMenu,
-    QMenuBar,
     QPushButton,
     QWidget,
 )
@@ -36,7 +34,6 @@ class MainWindow(QMainWindow):
         button = QPushButton("Button")
         self.setCentralWidget(button)
 
-
     def initiate_menu_bar(self):
         menu = self.menuBar()
         action_to_open_file = QAction("&Open File", self)
@@ -44,15 +41,13 @@ class MainWindow(QMainWindow):
         action_to_open_file.setCheckable(True)
         action_to_open_file.setShortcut(QKeySequence("Ctrl+O"))
 
-
         bogus_menu = menu.addMenu("&Bogus")
         bogus_menu.addAction(action_to_open_file)
         bogus_menu.addAction(QAction("Scrogus", self))
 
-
     def get_filename(self):
-        initial_filter = FILE_FILTERS[3] # Select one from the list.
-        filters = ";;".join(FILE_FILTERS)
+        initial_filter = Const["FILE_FILTERS"][3]  # Select one from the list.
+        filters = ";;".join(Const["FILE_FILTERS"])
         print("Filters are:", filters)
         print("Initial filter:", initial_filter)
 
