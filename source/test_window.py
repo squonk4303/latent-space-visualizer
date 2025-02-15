@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 import pytest
+from consts import Const
 from PyQt6.QtCore import Qt
-from window import SomeWindow, MainWindow, Const
+from window import MainWindow
 
 
 @pytest.fixture
@@ -19,7 +20,7 @@ def test_window(bot_mw, qtbot):
     Tests the main window and its properties
     """
     # Window exists
-    assert bot_mw.windowTitle() == Const["WINDOW_TITLE"]
+    assert bot_mw.windowTitle() == Const.WINDOW_TITLE
     assert bot_mw.centralWidget()
 
     # Window starts in normal state
