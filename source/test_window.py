@@ -1,8 +1,13 @@
 #!/usr/bin/env python3
 import pytest
-from consts import Const
+
 from PyQt6.QtCore import Qt
-from window import MainWindow
+from PyQt6.QtWidgets import (
+    QWidget,
+)
+
+from consts import Const
+from window import MainWindow, StackedLayoutManager
 
 
 @pytest.fixture
@@ -39,6 +44,39 @@ def test_file_select(bot_mw, qtbot):
 
     # File select can be reached by menu bar and "mouse"
     # TODO: How the hell does one select an item in a menu?
+
+
+def test_layout_manager():
+    """
+    Tests the layout manager for all it's worth
+    """
+    # Check correct initialization
+    mylayout = StackedLayoutManager()
+    assert len(mylayout.layers) == 0
+    assert mylayout.structure.currentWidget() is None
+    assert mylayout.selected_layer == -1
+    # Adding widgets
+    widget0 = QWidget()
+    widget1 = QWidget()
+    widget2 = QWidget()
+    mylayout.add_widget(widget0)
+    mylayout.add_widget(widget1)
+    mylayout.add_widget(widget2)
+    assert len(mylayout.layers) == 3
+    assert mylayout.selected_layer == 2
+    # Scroll around
+    mylayout.scroll_back()
+    mylayout.scroll_back()
+    assert mylayout.selected_layer == 0
+    mylayout.scroll_forth()
+    assert mylayout.selected_layer == 1
+    # Scroll over until after end of list
+    mylayout.scroll_forth()
+    mylayout.scroll_forth()
+    assert mylayout.selected_layer == 0
+    # Scroll back and roll over to top of list
+    mylayout.scroll_back()
+    assert mylayout.selected_layer == 2
 
 
 def test_graph(bot_mw, qtbot):

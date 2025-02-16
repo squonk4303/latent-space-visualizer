@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import sys
-from consts import Const
 from PyQt6.QtGui import (
     QAction,
     QKeySequence,
@@ -10,25 +9,77 @@ from PyQt6.QtWidgets import (
     QFileDialog,
     QMainWindow,
     QPushButton,
+    QStackedLayout,
 )
+
+from consts import Const
+# from debug import Color
+
+
+class StackedLayoutManager():
+    """
+    Class to handle the layout
+    It's like a data structure I made
+    """
+    def __init__(self):
+        """ Creates an empty stacked layout """
+        self.structure = QStackedLayout()
+        self.layers = []
+        self.selected_layer = -1
+
+    # TODO: removing widgets
+
+    # TODO: Look into overloads to make this constructor
+    def alt_constructor(self, t):
+        """ Overload which makes a structure based on the given list """
+        self.structure = QStackedLayout()
+        self.layers = t
+        self.selected_layer = len(t) - 1
+        for i in t:
+            self.structure.addWidget(i)
+
+    def add_widget(self, widget):
+        """ Appends a widget to the layout """
+        self.structure.addWidget(widget)
+        self.layers.append(widget)
+        self.selected_layer += 1
+
+    def scroll_forth(self, n=1):
+        """ Scrolls to next layer """
+        maximum = len(self.layers)
+        self.selected_layer = (self.selected_layer + n) % maximum
+        self.structure.setCurrentIndex(self.selected_layer)
+
+    def scroll_back(self, n=1):
+        """ Scrolls to next layer """
+        maximum = len(self.layers)
+        self.selected_layer = (self.selected_layer - n) % maximum
+        self.structure.setCurrentIndex(self.selected_layer)
 
 
 class MainWindow(QMainWindow):
+    """
+    Main window of the program
+    This is where all the action happens
+    """
     def __init__(self, *args, **kwargs):
+        """
+        Constructor for the main window
+        """
         super().__init__(*args, **kwargs)
 
         self.initiate_menu_bar()
 
         self.open_file_button = QPushButton(Const.OPEN_FILE_LABEL)
         self.open_file_button.clicked.connect(self.get_filename)
-        # TODO: Should this be an action?     ^^^^^^^^^^^^^^^^^
+        # TODO: Should this be a qaction?     ^^^^^^^^^^^^^^^^^
 
         self.setWindowTitle(Const.WINDOW_TITLE)
         self.setCentralWidget(self.open_file_button)
 
     def initiate_menu_bar(self):
         menu = self.menuBar()
-        self.action_to_open_file = QAction("&Open File", self)
+        self.action_to_open_file = QAction(Const.OPEN_FILE_LABEL, self)
         self.action_to_open_file.setStatusTip(Const.STATUS_TIP_TEMP)
         self.action_to_open_file.setShortcut(QKeySequence("Ctrl+O"))
         self.action_to_open_file.triggered.connect(self.get_filename)
@@ -38,11 +89,10 @@ class MainWindow(QMainWindow):
         self.file_menu.addAction(self.action_to_open_file)
 
     def get_filename(self):
-        initial_filter = Const.FILE_FILTERS[0]  # Select one from the list.
+        initial_filter = Const.FILE_FILTERS[0]
         filters = ";;".join(Const.FILE_FILTERS)
-        print("Filters are:", filters)
-        print("Initial filter:", initial_filter)
 
+        # TODO: Consider QFileDialog: {FileMode, Acceptmode, "Options"}
         filename, selected_filter = QFileDialog.getOpenFileName(
             self,
             filter=filters,
