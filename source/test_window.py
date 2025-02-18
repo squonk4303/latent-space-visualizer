@@ -55,27 +55,43 @@ def test_layout_manager():
     assert len(mylayout.layers) == 0
     assert mylayout.structure.currentWidget() is None
     assert mylayout.selected_layer == -1
-    # Adding widgets
+
+    # Check alt. initialization
     widget0 = QWidget()
     widget1 = QWidget()
     widget2 = QWidget()
+    mylayout2 = StackedLayoutManager([widget0, widget1, widget2])
+    assert len(mylayout2.layers) == 3
+    assert mylayout2.structure.currentWidget() is None
+    assert mylayout2.selected_layer == 2
+
+    # Adding widgets
     mylayout.add_widget(widget0)
     mylayout.add_widget(widget1)
     mylayout.add_widget(widget2)
     assert len(mylayout.layers) == 3
     assert mylayout.selected_layer == 2
+
     # Scroll around
     mylayout.scroll_back()
     mylayout.scroll_back()
     assert mylayout.selected_layer == 0
     mylayout.scroll_forth()
     assert mylayout.selected_layer == 1
+
     # Scroll over until after end of list
     mylayout.scroll_forth()
     mylayout.scroll_forth()
     assert mylayout.selected_layer == 0
+
     # Scroll back and roll over to top of list
     mylayout.scroll_back()
+    assert mylayout.selected_layer == 2
+
+    # Scroll multiple
+    mylayout.scroll_back(2)
+    assert mylayout.selected_layer == 0
+    mylayout.scroll_forth(2)
     assert mylayout.selected_layer == 2
 
 

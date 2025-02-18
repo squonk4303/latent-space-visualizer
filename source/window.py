@@ -21,22 +21,13 @@ class StackedLayoutManager():
     Class to handle the layout
     It's like a data structure I made
     """
-    def __init__(self):
+    def __init__(self, layers=None):
         """ Creates an empty stacked layout """
         self.structure = QStackedLayout()
-        self.layers = []
-        self.selected_layer = -1
+        self.layers = list() if layers is None else layers
+        self.selected_layer = -1 if layers is None else len(layers) - 1
 
     # TODO: removing widgets
-
-    # TODO: Look into overloads to make this constructor
-    def alt_constructor(self, t):
-        """ Overload which makes a structure based on the given list """
-        self.structure = QStackedLayout()
-        self.layers = t
-        self.selected_layer = len(t) - 1
-        for i in t:
-            self.structure.addWidget(i)
 
     def add_widget(self, widget):
         """ Appends a widget to the layout """
