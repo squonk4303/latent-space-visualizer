@@ -24,8 +24,8 @@ class StackedLayoutManager():
     def __init__(self, layers=None):
         """ Creates an empty stacked layout """
         self.structure = QStackedLayout()
-        self.layers = list() if layers is None else layers
-        self.selected_layer = -1 if layers is None else len(layers) - 1
+        self.layers         = list() if layers is None else layers
+        self.selected_layer = len(self.layers) - 1  # [sic.] -1 on no widgets
 
     # TODO: removing widgets
 
@@ -59,12 +59,18 @@ class MainWindow(QMainWindow):
         """
         super().__init__(*args, **kwargs)
 
+        # Initiations
         self.initiate_menu_bar()
+
+        # Layout
+        main_layout = StackedLayoutManager()
 
         self.open_file_button = QPushButton(Const.OPEN_FILE_LABEL)
         self.open_file_button.clicked.connect(self.get_filename)
         # TODO: Should this be a qaction?     ^^^^^^^^^^^^^^^^^
 
+        # Window Settings
+        self.resize(650, 450)
         self.setWindowTitle(Const.WINDOW_TITLE)
         self.setCentralWidget(self.open_file_button)
 
