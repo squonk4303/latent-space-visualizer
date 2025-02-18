@@ -7,6 +7,7 @@ from PyQt6.QtGui import (
 from PyQt6.QtWidgets import (
     QApplication,
     QFileDialog,
+    QHBoxLayout,
     QMainWindow,
     QPushButton,
     QStackedLayout,
@@ -21,31 +22,37 @@ class StackedLayoutManager():
     Class to handle the layout
     It's like a data structure I made
     """
-    def __init__(self, layers=None):
+    def __init__(self, items=None):
         """ Creates an empty stacked layout """
-        self.structure = QStackedLayout()
-        self.layers         = list() if layers is None else layers
-        self.selected_layer = len(self.layers) - 1  # [sic.] -1 on no widgets
+        self.layout = QStackedLayout()
+        self.items = list() if items is None else items
+        self.selected_item = len(self.items) - 1  # [sic.], -1 on no items
 
-    # TODO: removing widgets
+    # TODO: removing items
 
     def add_widget(self, widget):
         """ Appends a widget to the layout """
-        self.structure.addWidget(widget)
-        self.layers.append(widget)
-        self.selected_layer += 1
+        self.layout.addWidget(widget)
+        self.items.append(widget)
+        self.selected_item += 1
+
+    # def add_layout(self, layout):
+    #     """ Appends a layout to the layout """
+    #     self.structure.addWidget(QWidget(layout))
+    #     self.layers.append(layout)
+    #     self.selected_layer += 1
 
     def scroll_forth(self, n=1):
         """ Scrolls to next layer """
-        maximum = len(self.layers)
-        self.selected_layer = (self.selected_layer + n) % maximum
-        self.structure.setCurrentIndex(self.selected_layer)
+        maximum = len(self.items)
+        self.selected_item = (self.selected_item + n) % maximum
+        self.layout.setCurrentIndex(self.selected_item)
 
     def scroll_back(self, n=1):
         """ Scrolls to next layer """
-        maximum = len(self.layers)
-        self.selected_layer = (self.selected_layer - n) % maximum
-        self.structure.setCurrentIndex(self.selected_layer)
+        maximum = len(self.items)
+        self.selected_item = (self.selected_item - n) % maximum
+        self.layout.setCurrentIndex(self.selected_item)
 
 
 class MainWindow(QMainWindow):
@@ -54,22 +61,27 @@ class MainWindow(QMainWindow):
     This is where all the action happens
     """
     def __init__(self, *args, **kwargs):
-        """
-        Constructor for the main window
-        """
+        """ Constructor for the main window """
         super().__init__(*args, **kwargs)
 
-        # Initiations
+        # --- Initiations ---
         self.initiate_menu_bar()
 
-        # Layout
-        main_layout = StackedLayoutManager()
-
+        # --- Layout ---
+        # Definitions
+        stack_layout = StackedLayoutManager()
+        open_file_layout = QHBoxLayout()
         self.open_file_button = QPushButton(Const.OPEN_FILE_LABEL)
+
+        # Layout Organization
+        # stack_layout.addLayoutwidget(open_file_layout)
+        # open_file_layout.addWidget(self.open_file_button)
+
+        # Widgets
         self.open_file_button.clicked.connect(self.get_filename)
         # TODO: Should this be a qaction?     ^^^^^^^^^^^^^^^^^
 
-        # Window Settings
+        # --- Window Settings ---
         self.resize(650, 450)
         self.setWindowTitle(Const.WINDOW_TITLE)
         self.setCentralWidget(self.open_file_button)
