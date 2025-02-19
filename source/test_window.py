@@ -7,7 +7,7 @@ from PyQt6.QtWidgets import (
     QHBoxLayout,
 )
 
-from consts import Const
+import consts
 from window import MainWindow, StackedLayoutManager
 
 
@@ -26,7 +26,7 @@ def test_window(bot_mw, qtbot):
     Tests the main window and its properties
     """
     # Window exists
-    assert bot_mw.windowTitle() == Const.WINDOW_TITLE
+    assert bot_mw.windowTitle() == consts.WINDOW_TITLE
     assert bot_mw.centralWidget()
 
     # Window starts in normal state

@@ -14,8 +14,7 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-from consts import Const
-# from debug import Color
+import consts
 
 
 class StackedLayoutManager():
@@ -75,7 +74,7 @@ class MainWindow(QMainWindow):
         # Definitions
         stack_layout = StackedLayoutManager()
         open_file_layout = QHBoxLayout()
-        self.open_file_button = QPushButton(Const.OPEN_FILE_LABEL)
+        self.open_file_button = QPushButton(consts.OPEN_FILE_LABEL)
 
         # Layout Organization
         open_file_layout.addWidget(self.open_file_button)
@@ -87,15 +86,15 @@ class MainWindow(QMainWindow):
 
         # --- Window Settings ---
         self.resize(650, 450)
-        self.setWindowTitle(Const.WINDOW_TITLE)
+        self.setWindowTitle(consts.WINDOW_TITLE)
         widget = QWidget()
         widget.setLayout(stack_layout.layout)
         self.setCentralWidget(widget)
 
     def initiate_menu_bar(self):
         menu = self.menuBar()
-        self.action_to_open_file = QAction(Const.OPEN_FILE_LABEL, self)
-        self.action_to_open_file.setStatusTip(Const.STATUS_TIP_TEMP)
+        self.action_to_open_file = QAction(consts.OPEN_FILE_LABEL, self)
+        self.action_to_open_file.setStatusTip(consts.STATUS_TIP_TEMP)
         self.action_to_open_file.setShortcut(QKeySequence("Ctrl+O"))
         self.action_to_open_file.triggered.connect(self.get_filename)
         # Note the function Raference              ^^^^^^^^^^^^^^^^^
@@ -104,8 +103,8 @@ class MainWindow(QMainWindow):
         self.file_menu.addAction(self.action_to_open_file)
 
     def get_filename(self):
-        initial_filter = Const.FILE_FILTERS[0]
-        filters = ";;".join(Const.FILE_FILTERS)
+        initial_filter = consts.FILE_FILTERS[0]
+        filters = ";;".join(consts.FILE_FILTERS)
 
         # TODO: Consider QFileDialog: {FileMode, Acceptmode, "Options"}
         filename, selected_filter = QFileDialog.getOpenFileName(
