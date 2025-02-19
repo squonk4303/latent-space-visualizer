@@ -11,6 +11,7 @@ from PyQt6.QtWidgets import (
     QMainWindow,
     QPushButton,
     QStackedLayout,
+    QWidget,
 )
 
 from consts import Const
@@ -36,11 +37,14 @@ class StackedLayoutManager():
         self.items.append(widget)
         self.selected_item += 1
 
-    # def add_layout(self, layout):
-    #     """ Appends a layout to the layout """
-    #     self.structure.addWidget(QWidget(layout))
-    #     self.layers.append(layout)
-    #     self.selected_layer += 1
+    def add_layout(self, layout):
+        """ Appends a layout to the layout """
+        tab = QWidget()
+        tab_layout = layout
+        tab.setLayout(tab_layout)
+        self.layout.addWidget(tab)
+        self.items.append(self.layout)
+        self.selected_item += 1
 
     def scroll_forth(self, n=1):
         """ Scrolls to next layer """
@@ -74,8 +78,8 @@ class MainWindow(QMainWindow):
         self.open_file_button = QPushButton(Const.OPEN_FILE_LABEL)
 
         # Layout Organization
-        # stack_layout.addLayoutwidget(open_file_layout)
-        # open_file_layout.addWidget(self.open_file_button)
+        open_file_layout.addWidget(self.open_file_button)
+        stack_layout.add_layout(open_file_layout)
 
         # Widgets
         self.open_file_button.clicked.connect(self.get_filename)
@@ -84,7 +88,9 @@ class MainWindow(QMainWindow):
         # --- Window Settings ---
         self.resize(650, 450)
         self.setWindowTitle(Const.WINDOW_TITLE)
-        self.setCentralWidget(self.open_file_button)
+        widget = QWidget()
+        widget.setLayout(stack_layout.layout)
+        self.setCentralWidget(widget)
 
     def initiate_menu_bar(self):
         menu = self.menuBar()

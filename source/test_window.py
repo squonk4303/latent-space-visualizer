@@ -4,6 +4,7 @@ import pytest
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (
     QWidget,
+    QHBoxLayout,
 )
 
 from consts import Const
@@ -93,6 +94,13 @@ def test_layout_manager():
     assert mylayout.selected_item == 0
     mylayout.scroll_forth(2)
     assert mylayout.selected_item == 2
+
+    # --- Adding layers ---
+    mylayout3 = StackedLayoutManager()
+    layout0 = QHBoxLayout()
+    mylayout3.add_layout(layout0)
+    assert len(mylayout3.items) == 1
+    assert mylayout3.selected_item == 0
 
 
 def test_graph(bot_mw, qtbot):
