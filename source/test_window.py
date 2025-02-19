@@ -29,11 +29,24 @@ def test_window(bot_mw, qtbot):
     assert bot_mw.windowTitle() == consts.WINDOW_TITLE
     assert bot_mw.centralWidget()
 
-    # Scrolls to next tab after selecting file
+    # Different ways to switch to other tabs
     assert bot_mw.tab_layout.layout.currentIndex() == 0
     qtbot.mouseClick(bot_mw.TEMP_button, Qt.MouseButton.LeftButton)
-    assert bot_mw.TEMP_label.text() == "Hi welcome to the graph tab :3"  # Doesn't prove anything
+    assert bot_mw.TEMP_label.text() == "Hi welcome to the graph tab :3"
     assert bot_mw.tab_layout.layout.currentIndex() == 1
+
+    #assert bot_mw.tab_layout.layout.currentIndex() == 0
+    #qtbot.mouseClick(bot_mw.navigate_menu, Qt.MouseButton.LeftButton)
+    #qtbot.mouseClick(bot_mw.tab_right, Qt.MouseButton.LeftButton)
+    #assert bot_mw.tab_layout.layout.currentIndex() == 1
+
+    qtbot.mouseClick(bot_mw.empty_tab_button, Qt.MouseButton.LeftButton)
+    assert bot_mw.tab_layout.layout.currentIndex() == 0
+    qtbot.mouseClick(bot_mw.graph_tab_button, Qt.MouseButton.LeftButton)
+    assert bot_mw.tab_layout.layout.currentIndex() == 1
+
+    # --- TODO ---
+    # Switches to next tab after selecting file
 
     # Window starts in normal state
     # Window remembers the pos and size the user left it in
