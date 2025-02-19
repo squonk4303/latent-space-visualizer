@@ -8,9 +8,11 @@ from PyQt6.QtWidgets import (
     QApplication,
     QFileDialog,
     QHBoxLayout,
+    QLabel,
     QMainWindow,
     QPushButton,
     QStackedLayout,
+    QVBoxLayout,
     QWidget,
 )
 
@@ -21,6 +23,7 @@ class StackedLayoutManager():
     """
     Class to handle the layout
     It's like a data structure I made
+    TODO: removing items
     """
     def __init__(self, items=None):
         """ Creates an empty stacked layout """
@@ -28,19 +31,16 @@ class StackedLayoutManager():
         self.items = list() if items is None else items
         self.selected_item = len(self.items) - 1  # [sic.], -1 on no items
 
-    # TODO: removing items
-
     def add_widget(self, widget):
         """ Appends a widget to the layout """
         self.layout.addWidget(widget)
         self.items.append(widget)
         self.selected_item += 1
 
-    def add_layout(self, layout):
+    def add_layout(self, qlayout):
         """ Appends a layout to the layout """
         tab = QWidget()
-        tab_layout = layout
-        tab.setLayout(tab_layout)
+        tab.setLayout(qlayout)
         self.layout.addWidget(tab)
         self.items.append(self.layout)
         self.selected_item += 1
@@ -49,6 +49,7 @@ class StackedLayoutManager():
         """ Scrolls to next layer """
         maximum = len(self.items)
         self.selected_item = (self.selected_item + n) % maximum
+        print("Setting", self.selected_item)
         self.layout.setCurrentIndex(self.selected_item)
 
     def scroll_back(self, n=1):
@@ -72,23 +73,35 @@ class MainWindow(QMainWindow):
 
         # --- Layout ---
         # Definitions
-        stack_layout = StackedLayoutManager()
-        open_file_layout = QHBoxLayout()
-        self.open_file_button = QPushButton(consts.OPEN_FILE_LABEL)
+        greater_layout = QVBoxLayout()
+        self.tab_layout = StackedLayoutManager()
+
+        openfile_tab = QVBoxLayout()
+        graph_tab = QHBoxLayout()
+
+        self.openfile_button = QPushButton(consts.OPEN_FILE_LABEL)
+        self.TEMP_button = QPushButton("-->")
 
         # Layout Organization
-        open_file_layout.addWidget(self.open_file_button)
-        stack_layout.add_layout(open_file_layout)
+        openfile_tab.addWidget(self.openfile_button)
+        openfile_tab.addWidget(self.TEMP_button)
 
-        # Widgets
-        self.open_file_button.clicked.connect(self.get_filename)
-        # TODO: Should this be a qaction?     ^^^^^^^^^^^^^^^^^
+        self.TEMP_label = QLabel("Hi welcome to the graph tab :3")
+        graph_tab.addWidget(self.TEMP_label)
+
+        self.tab_layout.add_layout(openfile_tab)
+        self.tab_layout.add_layout(graph_tab)
+
+        # Actions
+        self.TEMP_button.clicked.connect(self.tab_layout.scroll_forth)
+        self.openfile_button.clicked.connect(self.get_filename)
+        # TODO: Should this be a qaction?    ^^^^^^^^^^^^^^^^^
 
         # --- Window Settings ---
         self.resize(650, 450)
         self.setWindowTitle(consts.WINDOW_TITLE)
         widget = QWidget()
-        widget.setLayout(stack_layout.layout)
+        widget.setLayout(self.tab_layout.layout)
         self.setCentralWidget(widget)
 
     def initiate_menu_bar(self):
@@ -97,7 +110,7 @@ class MainWindow(QMainWindow):
         self.action_to_open_file.setStatusTip(consts.STATUS_TIP_TEMP)
         self.action_to_open_file.setShortcut(QKeySequence("Ctrl+O"))
         self.action_to_open_file.triggered.connect(self.get_filename)
-        # Note the function Raference              ^^^^^^^^^^^^^^^^^
+        # Note --->function Raference              ^^^^^^^^^^^^^^^^^
 
         self.file_menu = menu.addMenu("&File")
         self.file_menu.addAction(self.action_to_open_file)

@@ -29,6 +29,12 @@ def test_window(bot_mw, qtbot):
     assert bot_mw.windowTitle() == consts.WINDOW_TITLE
     assert bot_mw.centralWidget()
 
+    # Scrolls to next tab after selecting file
+    assert bot_mw.tab_layout.layout.currentIndex() == 0
+    qtbot.mouseClick(bot_mw.TEMP_button, Qt.MouseButton.LeftButton)
+    assert bot_mw.TEMP_label.text() == "Hi welcome to the graph tab :3"  # Doesn't prove anything
+    assert bot_mw.tab_layout.layout.currentIndex() == 1
+
     # Window starts in normal state
     # Window remembers the pos and size the user left it in
     # Menu bar is accessible and functional
@@ -50,6 +56,7 @@ def test_file_select(bot_mw, qtbot):
 def test_layout_manager():
     """
     Tests the layout manager for all it's worth
+    Doesn't even use the qtbot. Just tests the class.
     """
     # Check correct initialization
     mylayout = StackedLayoutManager()
