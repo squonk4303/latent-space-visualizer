@@ -19,8 +19,6 @@ class StackedLayoutManager(QStackedLayout):
         # Casts to list() in case 'items' is a tuple or something
         # TODO: Include an error check here
         self.items = list() if items is None else list(items)
-        self.setCurrentIndex(len(self.items))
-        self.setCurrentIndex(400)
 
     def add_widget(self, widget):
         """ Appends a widget to the layout """
