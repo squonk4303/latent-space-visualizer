@@ -29,13 +29,11 @@ class StackedLayoutManager():
         """ Creates an empty stacked layout """
         self.layout = QStackedLayout()
         self.items = list() if items is None else items
-        self.selected_item = len(self.items) - 1       # [sic.], -1 on no items
 
     def add_widget(self, widget):
         """ Appends a widget to the layout """
         self.layout.addWidget(widget)
         self.items.append(widget)
-        self.selected_item += 1
 
     def add_layout(self, qlayout):
         """ Appends a layout to the layout """
@@ -43,20 +41,21 @@ class StackedLayoutManager():
         tab.setLayout(qlayout)
         self.layout.addWidget(tab)
         self.items.append(self.layout)
-        self.selected_item += 1
 
-    def scroll_forth(self, n=1):
-        """ Scrolls to next layer """
+    def scroll_somewhere(self, n=1):
+        """ Scrolls to a layer relatively , according to n """
         maximum = len(self.items)
-        self.selected_item = (self.selected_item + n) % maximum
-        print("Setting", self.selected_item)
-        self.layout.setCurrentIndex(self.selected_item)
+        current_index = self.layout.currentIndex()
+        new_index = (current_index + int(n)) % maximum
+        self.layout.setCurrentIndex(new_index)
 
-    def scroll_back(self, n=1):
+    def scroll_forth(self):
         """ Scrolls to next layer """
-        maximum = len(self.items)
-        self.selected_item = (self.selected_item - n) % maximum
-        self.layout.setCurrentIndex(self.selected_item)
+        self.scroll_somewhere(1)
+
+    def scroll_back(self):
+        """ Scrolls to prev layer """
+        self.scroll_somewhere(-1)
 
 
 class MainWindow(QMainWindow):
@@ -67,9 +66,6 @@ class MainWindow(QMainWindow):
     def __init__(self, *args, **kwargs):
         """ Constructor for the main window """
         super().__init__(*args, **kwargs)
-
-        # --- Initiations ---
-        self.initiate_menu_bar()
 
         # --- Layout ---
         # --- Definitions
@@ -86,8 +82,8 @@ class MainWindow(QMainWindow):
         self.empty_tab_button = QPushButton("0")
         self.graph_tab_button = QPushButton("1")
 
-        next_tab = QAction("TEMP: &Next tab")
-        next_tab.setStatusTip(consts.STATUS_TIP_TEMP)
+        # --- Initiations
+        self.initiate_menu_bar()
 
         # --- Signals
         self.TEMP_button.clicked.connect(self.tab_layout.scroll_forth)
@@ -95,8 +91,6 @@ class MainWindow(QMainWindow):
 
         self.empty_tab_button.clicked.connect(self.activate_tab_0)
         self.graph_tab_button.clicked.connect(self.activate_tab_1)
-
-        next_tab.triggered.connect(self.tab_layout.scroll_forth)
 
         # --- Layout Organization
         greater_layout.addLayout(tab_buttons_layout)
@@ -122,15 +116,35 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(widget)
 
     def initiate_menu_bar(self):
-        menu = self.menuBar()
-        self.action_to_open_file = QAction(consts.OPEN_FILE_LABEL, self)
-        self.action_to_open_file.setStatusTip(consts.STATUS_TIP_TEMP)
-        self.action_to_open_file.setShortcut(QKeySequence("Ctrl+O"))
-        self.action_to_open_file.triggered.connect(self.get_filename)
-        # Note --->function Raference              ^^^^^^^^^^^^^^^^^
+        menubar = self.menuBar()
 
-        self.file_menu = menu.addMenu("&File")
-        self.file_menu.addAction(self.action_to_open_file)
+        # Open file action
+        action_to_open_file = QAction(consts.OPEN_FILE_LABEL, self)
+        action_to_open_file.setStatusTip(consts.STATUS_TIP_TEMP)
+        action_to_open_file.setShortcut(QKeySequence("Ctrl+O"))
+        action_to_open_file.triggered.connect(self.get_filename)
+        # Note --->function Raference         ^^^^^^^^^^^^^^^^^
+
+        next_tab = QAction("TEMP: &Next tab")
+        next_tab.setStatusTip(consts.STATUS_TIP_TEMP)
+        prev_tab = QAction("TEMP: &Previous tab")
+        prev_tab.setStatusTip(consts.STATUS_TIP_TEMP)
+
+        next_tab.triggered.connect(self.tab_layout.scroll_forth)
+        prev_tab.triggered.connect(self.tab_layout.scroll_back)
+
+        file_menu = menubar.addMenu("&File")
+        file_menu.addAction(action_to_open_file)
+
+        self.navigate_menu = menubar.addMenu("&Tab")
+        self.navigate_menu.addAction(next_tab)
+        self.navigate_menu.addAction(prev_tab)
+
+        # Export these as "public attributes"
+        self.action_to_open_file = action_to_open_file
+        self.next_tab = next_tab
+        self.prev_tab = prev_tab
+        self.file_menu = file_menu
 
     def get_filename(self):
         initial_filter = consts.FILE_FILTERS[0]
