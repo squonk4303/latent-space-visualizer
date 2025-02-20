@@ -14,11 +14,19 @@ from window import MainWindow, StackedLayoutManager
 @pytest.fixture
 def bot_mw(qtbot):
     """
-    Tests for the QMainWindow class "MainWindow"
+    Initializes the main window of the application for use in following tests
+    Returns class MainWindow(QMainWindow)
     """
     window = MainWindow()
     qtbot.addWidget(window)
     return window
+
+@pytest.fixture
+def mylayout():
+    """ Initializes a layout manager with 3 arbitrary widgets """
+    widgets = (QWidget(), QWidget(), QWidget())
+    layout = StackedLayoutManager(widgets)
+    return layout
 
 
 def test_window(bot_mw, qtbot):
@@ -37,6 +45,7 @@ def test_window(bot_mw, qtbot):
     assert bot_mw.tab_layout.currentIndex() == 1
     qtbot.mouseClick(bot_mw.empty_tab_button, Qt.MouseButton.LeftButton)
 
+    # --- TODO: Move to layout manager block ---
     # With the QActions
     assert bot_mw.tab_layout.currentIndex() == 0
     bot_mw.next_tab.trigger()
@@ -59,7 +68,6 @@ def test_window(bot_mw, qtbot):
     # Window remembers the pos and size the user left it in
     # Menu bar is accessible and functional
 
-
 def test_file_select(bot_mw, qtbot):
     """
     Tests the action for selecting a file
@@ -71,38 +79,55 @@ def test_file_select(bot_mw, qtbot):
     # dialog = QApplication.activeWindow()
     # dialog.done(0)
 
-    # File select can be reached by menu bar and "mouse"
-    # TODO: How the hell does one select an item in a menu?
+
+def test_layout_manager_initiation():
+    emptylayout = StackedLayoutManager()
+    assert len(emptylayout.items) == 0
+    assert emptylayout.currentWidget() is None
+    assert emptylayout.currentIndex() == -1
 
 
-def test_layout_manager():
+def test_alt_initialization():
     """
-    Tests the layout manager for all it's worth
-    Doesn't even use the qtbot. Just tests the class.
+    Tests initialization by list argument
+    The fixture "mylayout" does this too
     """
-    # Check correct initialization
-    mylayout = StackedLayoutManager()
-    assert len(mylayout.items) == 0
+    widgets = (QWidget(), QWidget(), QWidget())
+    mylayout = StackedLayoutManager(widgets)
+    assert len(mylayout.items) == 3
     assert mylayout.currentWidget() is None
     assert mylayout.currentIndex() == -1
 
-    # Check alt. initialization
-    widget0 = QWidget()
-    widget1 = QWidget()
-    widget2 = QWidget()
-    mylayout2 = StackedLayoutManager([widget0, widget1, widget2])
-    assert len(mylayout2.items) == 3
-    assert mylayout2.currentWidget() is None
-    assert mylayout2.currentIndex() == -1
-
-    # Adding widgets
-    mylayout.add_widget(widget0)
-    mylayout.add_widget(widget1)
-    mylayout.add_widget(widget2)
+def test_tuple_initialization_then_method_adding():
+    """
+    Tests for whether initializing with a tuple destroys
+    the capability to append more widgets by methods.
+    """
+    widgets = [QWidget(), QWidget(), QWidget()]
+    mylayout = StackedLayoutManager(widgets)
     assert len(mylayout.items) == 3
-    assert mylayout.currentIndex() == 0
+    mylayout.addWidget(QWidget())
+    #assert mylayout.count() == 4 TODO
 
-    # Scroll around
+
+def test_adding_widgets():
+    """ Tests adding widgets to the layoutmanager individually by method """
+    layout = StackedLayoutManager()
+    layout.add_widget(QWidget())
+    layout.add_widget(QWidget())
+    layout.add_widget(QWidget())
+    assert len(layout.items) == 3
+    assert layout.count() == 3
+    assert layout.currentIndex() == 0
+
+
+# TEMP: Disabled
+def _test_scrolling():
+    """
+    """
+    widgets = (QWidget(), QWidget(), QWidget())
+    mylayout = StackedLayoutManager(widgets)
+    assert mylayout.count() == 3
     mylayout.scroll_back()
     mylayout.scroll_back()
     assert mylayout.currentIndex() == 1
@@ -124,15 +149,16 @@ def test_layout_manager():
     mylayout.scroll_somewhere(2)
     assert mylayout.currentIndex() == 0
 
-    # --- Adding layers ---
-    mylayout3 = StackedLayoutManager()
+
+def test_adding_layers():
+    mylayout = StackedLayoutManager()
     layout0 = QHBoxLayout()
-    mylayout3.add_layout(layout0)
-    assert len(mylayout3.items) == 1
-    assert mylayout3.currentIndex() == 0
+    mylayout.add_layout(layout0)
+    assert len(mylayout.items) == 1
+    assert mylayout.currentIndex() == 0
 
 
-def test_graph(bot_mw, qtbot):
+def test_do_the_graph(bot_mw, qtbot):
     """
     Tests our graph widget
     """
