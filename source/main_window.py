@@ -11,51 +11,12 @@ from PyQt6.QtWidgets import (
     QLabel,
     QMainWindow,
     QPushButton,
-    QStackedLayout,
     QVBoxLayout,
     QWidget,
 )
 
 import consts
-
-
-class StackedLayoutManager(QStackedLayout):
-    """
-    Class to handle the layout
-    It's like a data structure I made
-    TODO: removing items
-    """
-    def __init__(self, items=None):
-        """ Creates an empty stacked layout """
-        super().__init__()
-        self.items = list() if items is None else items
-
-    def add_widget(self, widget):
-        """ Appends a widget to the layout """
-        self.addWidget(widget)
-        self.items.append(widget)
-
-    def add_layout(self, qlayout):
-        """ Appends a layout to the layout """
-        tab = QWidget()
-        tab.setLayout(qlayout)
-        self.addWidget(tab)
-        self.items.append(self)
-
-    def scroll_somewhere(self, n=1):
-        """ Scrolls to a layer relatively , according to n """
-        maximum = len(self.items)
-        current_index = self.currentIndex()
-        new_index = (current_index + int(n)) % maximum
-        self.setCurrentIndex(new_index)
-
-    def scroll_forth(self):
-        """ Scrolls to next layer """
-        self.scroll_somewhere(1)
-
-    def scroll_back(self):
-        """ Scrolls to prev layer """
-        self.scroll_somewhere(-1)
+from stacked_layout_manager import StackedLayoutManager
 
 
 class MainWindow(QMainWindow):
