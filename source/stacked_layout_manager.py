@@ -20,6 +20,10 @@ class StackedLayoutManager(QStackedLayout):
         # TODO: Include an error check here
         self.items = list() if items is None else list(items)
 
+        if items is not None:
+            for item in items:
+                self.add_widget(item)
+
     def add_widget(self, widget):
         """ Appends a widget to the layout """
         self.addWidget(widget)

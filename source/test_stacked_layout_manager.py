@@ -29,25 +29,23 @@ def test_layout_manager_initiation():
 def test_alt_initialization():
     """
     Tests initialization by list argument
-    The fixture "mylayout" does this too
+    Uses "mylayout" fixture
     """
     widgets = (QWidget(), QWidget(), QWidget())
-    mylayout = StackedLayoutManager(widgets)
-    assert len(mylayout.items) == 3
-    assert mylayout.currentWidget() is None
-    assert mylayout.currentIndex() == -1
+    layout = StackedLayoutManager(widgets)
+    assert layout.count() == 3
+    assert layout.currentWidget() == widgets[0]
+    assert layout.currentIndex() == 0
 
 
-def test_tuple_initialization_then_method_adding():
+def test_tuple_initialization_then_method_adding(mylayout):
     """
     Tests for whether initializing with a tuple destroys
     the capability to append more widgets by methods.
     """
-    widgets = [QWidget(), QWidget(), QWidget()]
-    mylayout = StackedLayoutManager(widgets)
-    assert len(mylayout.items) == 3
+    assert mylayout.count() == 3
     mylayout.addWidget(QWidget())
-    # assert mylayout.count() == 4 TODO
+    assert mylayout.count() == 4
 
 
 def test_adding_widgets():
@@ -61,12 +59,8 @@ def test_adding_widgets():
     assert layout.currentIndex() == 0
 
 
-# TEMP: Disabled
-def _test_scrolling():
-    """
-    """
-    widgets = (QWidget(), QWidget(), QWidget())
-    mylayout = StackedLayoutManager(widgets)
+def test_scrolling(mylayout):
+    """ Tests for scrolling back and forth and wrap around """
     assert mylayout.count() == 3
     mylayout.scroll_back()
     mylayout.scroll_back()
