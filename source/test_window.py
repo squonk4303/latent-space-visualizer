@@ -31,26 +31,26 @@ def test_window(bot_mw, qtbot):
 
     # Different ways to switch to other tabs
     # With TEMP button
-    assert bot_mw.tab_layout.layout.currentIndex() == 0
+    assert bot_mw.tab_layout.currentIndex() == 0
     qtbot.mouseClick(bot_mw.TEMP_button, Qt.MouseButton.LeftButton)
     assert bot_mw.TEMP_label.text() == "Hi welcome to the graph tab :3"
-    assert bot_mw.tab_layout.layout.currentIndex() == 1
+    assert bot_mw.tab_layout.currentIndex() == 1
     qtbot.mouseClick(bot_mw.empty_tab_button, Qt.MouseButton.LeftButton)
 
     # With the QActions
-    assert bot_mw.tab_layout.layout.currentIndex() == 0
+    assert bot_mw.tab_layout.currentIndex() == 0
     bot_mw.next_tab.trigger()
-    assert bot_mw.tab_layout.layout.currentIndex() == 1
+    assert bot_mw.tab_layout.currentIndex() == 1
     bot_mw.next_tab.trigger()
-    assert bot_mw.tab_layout.layout.currentIndex() == 0
+    assert bot_mw.tab_layout.currentIndex() == 0
     bot_mw.prev_tab.trigger()
-    assert bot_mw.tab_layout.layout.currentIndex() == 1
+    assert bot_mw.tab_layout.currentIndex() == 1
 
     # With the tab buttons
     qtbot.mouseClick(bot_mw.empty_tab_button, Qt.MouseButton.LeftButton)
-    assert bot_mw.tab_layout.layout.currentIndex() == 0
+    assert bot_mw.tab_layout.currentIndex() == 0
     qtbot.mouseClick(bot_mw.graph_tab_button, Qt.MouseButton.LeftButton)
-    assert bot_mw.tab_layout.layout.currentIndex() == 1
+    assert bot_mw.tab_layout.currentIndex() == 1
 
     # --- TODO ---
     # Switches to next tab after selecting file
@@ -83,8 +83,8 @@ def test_layout_manager():
     # Check correct initialization
     mylayout = StackedLayoutManager()
     assert len(mylayout.items) == 0
-    assert mylayout.layout.currentWidget() is None
-    assert mylayout.layout.currentIndex() == -1
+    assert mylayout.currentWidget() is None
+    assert mylayout.currentIndex() == -1
 
     # Check alt. initialization
     widget0 = QWidget()
@@ -92,44 +92,44 @@ def test_layout_manager():
     widget2 = QWidget()
     mylayout2 = StackedLayoutManager([widget0, widget1, widget2])
     assert len(mylayout2.items) == 3
-    assert mylayout2.layout.currentWidget() is None
-    assert mylayout2.layout.currentIndex() == -1
+    assert mylayout2.currentWidget() is None
+    assert mylayout2.currentIndex() == -1
 
     # Adding widgets
     mylayout.add_widget(widget0)
     mylayout.add_widget(widget1)
     mylayout.add_widget(widget2)
     assert len(mylayout.items) == 3
-    assert mylayout.layout.currentIndex() == 0
+    assert mylayout.currentIndex() == 0
 
     # Scroll around
     mylayout.scroll_back()
     mylayout.scroll_back()
-    assert mylayout.layout.currentIndex() == 1
+    assert mylayout.currentIndex() == 1
     mylayout.scroll_forth()
-    assert mylayout.layout.currentIndex() == 2
+    assert mylayout.currentIndex() == 2
 
     # Scroll over until after end of list
     mylayout.scroll_forth()
     mylayout.scroll_forth()
-    assert mylayout.layout.currentIndex() == 1
+    assert mylayout.currentIndex() == 1
 
     # Scroll back and roll over to top of list
     mylayout.scroll_back()
-    assert mylayout.layout.currentIndex() == 0
+    assert mylayout.currentIndex() == 0
 
     # Scroll multiple
     mylayout.scroll_somewhere(-2)
-    assert mylayout.layout.currentIndex() == 1
+    assert mylayout.currentIndex() == 1
     mylayout.scroll_somewhere(2)
-    assert mylayout.layout.currentIndex() == 0
+    assert mylayout.currentIndex() == 0
 
     # --- Adding layers ---
     mylayout3 = StackedLayoutManager()
     layout0 = QHBoxLayout()
     mylayout3.add_layout(layout0)
     assert len(mylayout3.items) == 1
-    assert mylayout3.layout.currentIndex() == 0
+    assert mylayout3.currentIndex() == 0
 
 
 def test_graph(bot_mw, qtbot):

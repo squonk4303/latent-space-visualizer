@@ -19,7 +19,7 @@ from PyQt6.QtWidgets import (
 import consts
 
 
-class StackedLayoutManager():
+class StackedLayoutManager(QStackedLayout):
     """
     Class to handle the layout
     It's like a data structure I made
@@ -27,27 +27,27 @@ class StackedLayoutManager():
     """
     def __init__(self, items=None):
         """ Creates an empty stacked layout """
-        self.layout = QStackedLayout()
+        super().__init__()
         self.items = list() if items is None else items
 
     def add_widget(self, widget):
         """ Appends a widget to the layout """
-        self.layout.addWidget(widget)
+        self.addWidget(widget)
         self.items.append(widget)
 
     def add_layout(self, qlayout):
         """ Appends a layout to the layout """
         tab = QWidget()
         tab.setLayout(qlayout)
-        self.layout.addWidget(tab)
-        self.items.append(self.layout)
+        self.addWidget(tab)
+        self.items.append(self)
 
     def scroll_somewhere(self, n=1):
         """ Scrolls to a layer relatively , according to n """
         maximum = len(self.items)
-        current_index = self.layout.currentIndex()
+        current_index = self.currentIndex()
         new_index = (current_index + int(n)) % maximum
-        self.layout.setCurrentIndex(new_index)
+        self.setCurrentIndex(new_index)
 
     def scroll_forth(self):
         """ Scrolls to next layer """
@@ -94,7 +94,7 @@ class MainWindow(QMainWindow):
 
         # --- Layout Organization
         greater_layout.addLayout(tab_buttons_layout)
-        greater_layout.addLayout(self.tab_layout.layout)
+        greater_layout.addLayout(self.tab_layout)
 
         tab_buttons_layout.addWidget(self.empty_tab_button)
         tab_buttons_layout.addWidget(self.graph_tab_button)
@@ -159,10 +159,10 @@ class MainWindow(QMainWindow):
         print("Result:", filename, selected_filter)
 
     def activate_tab_0(self):
-        self.tab_layout.layout.setCurrentIndex(0)
+        self.tab_layout.setCurrentIndex(0)
 
     def activate_tab_1(self):
-        self.tab_layout.layout.setCurrentIndex(1)
+        self.tab_layout.setCurrentIndex(1)
 
 
 if __name__ == "__main__":
