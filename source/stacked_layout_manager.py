@@ -17,7 +17,6 @@ class StackedLayoutManager(QStackedLayout):
         """ Creates an empty stacked layout """
         super().__init__()
         # Casts to list() in case 'items' is a tuple or something
-        # TODO: Include an error check here
         self.items = list() if items is None else list(items)
 
         if items is not None:
@@ -38,12 +37,11 @@ class StackedLayoutManager(QStackedLayout):
 
     def scroll_somewhere(self, n=1):
         """ Scrolls to a layer relatively , according to n """
-        if n <= 0:
-            pass  # TODO: Implement error message
-        maximum = self.count()
-        current_index = self.currentIndex()
-        new_index = (current_index + int(n)) % maximum
-        self.setCurrentIndex(new_index)
+        if self.count() != 0:
+            maximum = self.count()
+            current_index = self.currentIndex()
+            new_index = (current_index + int(n)) % maximum
+            self.setCurrentIndex(new_index)
 
     def scroll_forth(self):
         """ Scrolls to next layer """
