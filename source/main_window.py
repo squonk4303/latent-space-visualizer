@@ -48,7 +48,7 @@ class MainWindow(QMainWindow):
 
         # --- Signals
         self.TEMP_button.clicked.connect(self.tab_layout.scroll_forth)
-        self.openfile_button.clicked.connect(self.get_filename)
+        self.openfile_button.clicked.connect(self.open_file_dialog)
 
         self.empty_tab_button.clicked.connect(self.activate_tab_0)
         self.graph_tab_button.clicked.connect(self.activate_tab_1)
@@ -83,8 +83,8 @@ class MainWindow(QMainWindow):
         action_to_open_file = QAction(consts.OPEN_FILE_LABEL, self)
         action_to_open_file.setStatusTip(consts.STATUS_TIP_TEMP)
         action_to_open_file.setShortcut(QKeySequence("Ctrl+O"))
-        action_to_open_file.triggered.connect(self.get_filename)
-        # Note --->function Raference         ^^^^^^^^^^^^^^^^^
+        action_to_open_file.triggered.connect(self.open_file_dialog)
+        # Note --->function Raference         ^^^^^^^^^^^^^^^^^^^^^
 
         next_tab = QAction("TEMP: &Next tab")
         next_tab.setStatusTip(consts.STATUS_TIP_TEMP)
@@ -107,7 +107,7 @@ class MainWindow(QMainWindow):
         self.prev_tab = prev_tab
         self.file_menu = file_menu
 
-    def get_filename(self):
+    def open_file_dialog(self):
         initial_filter = consts.FILE_FILTERS[0]
         filters = ";;".join(consts.FILE_FILTERS)
 
