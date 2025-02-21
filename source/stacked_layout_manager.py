@@ -10,8 +10,6 @@ class StackedLayoutManager(QStackedLayout):
     Class to handle the layout
     It's like a data structure I made
     TODO: method to remove items
-    TODO: See about doing some overload to make the items part of the class
-          itself. Ex: mystackedlayout[2]; self.append(QWidget()); # et.c.
     """
     def __init__(self, items=None):
         """ Creates an empty stacked layout """
