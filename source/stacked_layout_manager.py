@@ -17,8 +17,6 @@ class StackedLayoutManager(QStackedLayout):
         """ Creates an empty stacked layout """
         super().__init__()
         # Casts to list() in case 'items' is a tuple or something
-        self.items = list() if items is None else list(items)
-
         if items is not None:
             for item in items:
                 self.add_widget(item)
@@ -26,14 +24,12 @@ class StackedLayoutManager(QStackedLayout):
     def add_widget(self, widget):
         """ Appends a widget to the layout """
         self.addWidget(widget)
-        self.items.append(widget)
 
     def add_layout(self, qlayout):
         """ Appends a layout to the layout """
         tab = QWidget()
         tab.setLayout(qlayout)
         self.addWidget(tab)
-        self.items.append(self)
 
     def scroll_somewhere(self, n=1):
         """ Scrolls to a layer relatively , according to n """

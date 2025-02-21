@@ -24,7 +24,7 @@ def filledlayout():
 def test_layout_manager_initiation():
     """ Tests initialization of a layout """
     emptylayout = StackedLayoutManager()
-    assert len(emptylayout.items) == 0
+    assert emptylayout.count() == 0
     assert emptylayout.currentWidget() is None
     assert emptylayout.currentIndex() == -1
 
@@ -83,7 +83,6 @@ def test_adding_widgets():
     layout.add_widget(QWidget())
     layout.add_widget(QWidget())
     layout.add_widget(QWidget())
-    assert len(layout.items) == 3
     assert layout.count() == 3
     assert layout.currentIndex() == 0
 
