@@ -3,8 +3,10 @@ import pytest
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (
-    QWidget,
     QHBoxLayout,
+    QLayout,
+    QVBoxLayout,
+    QWidget,
 )
 
 import consts
@@ -12,7 +14,7 @@ from stacked_layout_manager import StackedLayoutManager
 
 
 @pytest.fixture
-def mylayout():
+def filledlayout():
     """ Initializes a layout manager with 3 arbitrary widgets """
     widgets = (QWidget(), QWidget(), QWidget())
     layout = StackedLayoutManager(widgets)
@@ -20,6 +22,7 @@ def mylayout():
 
 
 def test_layout_manager_initiation():
+    """ Tests initialization of a layout """
     emptylayout = StackedLayoutManager()
     assert len(emptylayout.items) == 0
     assert emptylayout.currentWidget() is None
@@ -27,10 +30,7 @@ def test_layout_manager_initiation():
 
 
 def test_alt_initialization():
-    """
-    Tests initialization by list argument
-    Uses "mylayout" fixture
-    """
+    """ Tests initialization by list argument """
     widgets = (QWidget(), QWidget(), QWidget())
     layout = StackedLayoutManager(widgets)
     assert layout.count() == 3
@@ -38,14 +38,43 @@ def test_alt_initialization():
     assert layout.currentIndex() == 0
 
 
-def test_tuple_initialization_then_method_adding(mylayout):
+def test_adding_layers():
+    """
+    Tests adding QHBoxLayouts by method. QHBoxlayouts are just examples of
+    layouts. This should be valid for all layouts except QLayouts.
+    See below error test.
+    """
+    layout = StackedLayoutManager()
+    layouts = (QHBoxLayout(), QVBoxLayout(), QHBoxLayout())
+    layout.add_layout(layouts[0])
+    layout.add_layout(layouts[1])
+    layout.add_layout(layouts[2])
+    assert layout.count() == 3
+    assert layout.currentIndex() == 0
+
+
+def test_alt_initalization_with_qlayouts_error():
+    """
+    Tries to initiate QLayouts by list argument,
+    and fails at putting QLayouts in a list.
+    NOTE: This fails because QLayouts are a C++ abstract class
+    """
+    with pytest.raises(TypeError):
+        layouts = (QLayout(), QLayout(), QLayout())
+        layout = StackedLayoutManager(layouts)
+        assert layout.count() == 3
+        assert layout.currentlayout() == layouts[0]
+        assert layout.currentIndex() == 0
+
+
+def test_tuple_initialization_then_method_adding(filledlayout):
     """
     Tests for whether initializing with a tuple destroys
-    the capability to append more widgets by methods.
+    the capability to append more widgets by method
     """
-    assert mylayout.count() == 3
-    mylayout.addWidget(QWidget())
-    assert mylayout.count() == 4
+    assert filledlayout.count() == 3
+    filledlayout.addWidget(QWidget())
+    assert filledlayout.count() == 4
 
 
 def test_adding_widgets():
@@ -59,34 +88,26 @@ def test_adding_widgets():
     assert layout.currentIndex() == 0
 
 
-def test_scrolling(mylayout):
+def test_scrolling(filledlayout):
     """ Tests for scrolling back and forth and wrap around """
-    assert mylayout.count() == 3
-    mylayout.scroll_back()
-    mylayout.scroll_back()
-    assert mylayout.currentIndex() == 1
-    mylayout.scroll_forth()
-    assert mylayout.currentIndex() == 2
+    assert filledlayout.count() == 3
+    filledlayout.scroll_back()
+    filledlayout.scroll_back()
+    assert filledlayout.currentIndex() == 1
+    filledlayout.scroll_forth()
+    assert filledlayout.currentIndex() == 2
 
     # Scroll over until after end of list
-    mylayout.scroll_forth()
-    mylayout.scroll_forth()
-    assert mylayout.currentIndex() == 1
+    filledlayout.scroll_forth()
+    filledlayout.scroll_forth()
+    assert filledlayout.currentIndex() == 1
 
     # Scroll back and roll over to top of list
-    mylayout.scroll_back()
-    assert mylayout.currentIndex() == 0
+    filledlayout.scroll_back()
+    assert filledlayout.currentIndex() == 0
 
     # Scroll multiple
-    mylayout.scroll_somewhere(-2)
-    assert mylayout.currentIndex() == 1
-    mylayout.scroll_somewhere(2)
-    assert mylayout.currentIndex() == 0
-
-
-def test_adding_layers():
-    mylayout = StackedLayoutManager()
-    layout0 = QHBoxLayout()
-    mylayout.add_layout(layout0)
-    assert len(mylayout.items) == 1
-    assert mylayout.currentIndex() == 0
+    filledlayout.scroll_somewhere(-2)
+    assert filledlayout.currentIndex() == 1
+    filledlayout.scroll_somewhere(2)
+    assert filledlayout.currentIndex() == 0
