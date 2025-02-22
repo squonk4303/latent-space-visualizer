@@ -1,19 +1,28 @@
-name: workflow
+# Action which runs the pytest unit tests
+name: Pytest Unit Testing
 on: [push]
+permissions:
+  # Access to check-out code and install dependencies for f.ex. setup-python
+  contents: read
 jobs:
   test:
+    # ubuntu-latest (24.04) does not support all required packages
     runs-on: ubuntu-22.04
     env:
       # Ignores pip warnings about running as root
+      # Not *best* practice, but I do not predict this to betray us
       PIP_ROOT_USER_ACTION: ignore
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
 
-      - name: Set up Python
-        uses: actions/setup-python@v3
+    steps:
+      - name: Check-out repo so the workflow can access it
+        uses: actions/checkout@v4
+
+      - name: Install Python and add it to PATH
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          # Caches pip dependencies
+          cache: 'pip'
 
       - name: Install system dependencies
         run: |
@@ -23,19 +32,18 @@ jobs:
               libxcb-render-util0 libxcb-xfixes0 libxcb-xinerama0 \
               libxkbcommon-x11-0 x11-utils xvfb
 
-      - name: Sets up Virtual environment
+      - name: Set up Python virtual environment
         run: |
           python -m venv venv
           source venv/bin/activate
 
       - name: Install python dependencies
         run: |
-          python -m pip install --upgrade pip 
+          python -m pip install --upgrade pip
           pip install pyqt6 pytest pytest-qt
           pip install -r requirements.txt
 
-      - name: Run pytest with Xvfb
+      - name: Run pytest through Xvfb
         env:
           QT_QPA_PLATFORM: offscreen
-        run: |
-          xvfb-run pytest -v
+        run: xvfb-run pytest -v
