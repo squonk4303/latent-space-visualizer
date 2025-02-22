@@ -17,7 +17,7 @@ jobs:
       - name: CHECK-OUT REPO SO THE WORKFLOW CAN ACCESS IT
         uses: actions/checkout@v4
 
-      - name: CACHE APT PACKAGES
+      - name: INSTALL/CACHE APT PACKAGES
         uses: awalsh128/cache-apt-pkgs-action@v1
         with:
           packages: libegl1-mesa libgl1-mesa-dev libglib2.0-0 libxcb-icccm4 \
