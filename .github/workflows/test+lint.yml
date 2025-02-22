@@ -17,20 +17,19 @@ jobs:
       - name: Check-out repo so the workflow can access it
         uses: actions/checkout@v4
 
+      - name: Cache apt packages
+        uses: awalsh128/cache-apt-pkgs-action@v1
+        with:
+          packages: libegl1-mesa libgl1-mesa-dev libglib2.0-0 libxcb-icccm4 \
+            libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 \
+            libxcb-xfixes0 libxcb-xinerama0 libxkbcommon-x11-0 x11-utils xvfb
+
       - name: Install Python and add it to PATH
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
           # Caches pip dependencies
           cache: 'pip'
-
-      - name: Install system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libegl1-mesa libgl1-mesa-dev libglib2.0-0 \
-              libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 \
-              libxcb-render-util0 libxcb-xfixes0 libxcb-xinerama0 \
-              libxkbcommon-x11-0 x11-utils xvfb
 
       - name: Set up Python virtual environment
         run: |
