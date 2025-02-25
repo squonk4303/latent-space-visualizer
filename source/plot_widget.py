@@ -12,6 +12,9 @@ import matplotlib
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 
+import consts
+import read_this
+
 # TODO: Set matplotlib backend explicitly somewhere
 # https://matplotlib.org/stable/users/explain/figure/backends.html
 
@@ -31,11 +34,17 @@ class PlotWidget(QWidget):
 
         layout = QVBoxLayout(self)
         self.canvas = MplCanvas(self)
-        self.plot_sine()
+
+        self.plot_from_file(consts.SINE_COSINE)
         layout.addWidget(self.canvas)
 
     def plot_sine(self):
         x = np.linspace(0, 20, 50)
         y = np.sin(x)
         self.canvas.axes.plot(x, y)
+        self.canvas.draw()
+
+    def plot_from_file(self, filepath):
+        data = read_this.csv_as_list(filepath)
+        self.canvas.axes.plot(data)
         self.canvas.draw()
