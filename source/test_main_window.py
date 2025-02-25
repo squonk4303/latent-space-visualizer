@@ -2,10 +2,6 @@
 import pytest
 
 from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import (
-    QWidget,
-    QHBoxLayout,
-)
 
 import consts
 from main_window import MainWindow

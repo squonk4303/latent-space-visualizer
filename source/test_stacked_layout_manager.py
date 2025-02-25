@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import pytest
 
-from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (
     QHBoxLayout,
     QLayout,
@@ -9,7 +8,6 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-import consts
 from stacked_layout_manager import StackedLayoutManager
 
 

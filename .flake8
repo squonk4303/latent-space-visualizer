@@ -1,0 +1,12 @@
+[flake8]
+# File is automatically called, upon invoking flake8
+# https://flake8.pycqa.org/en/latest/user/configuration.html
+
+# Ignored files
+exclude =
+    .git
+    __pycache__
+    .pytest_cache
+    .venv
+
+max-line-length = 79
