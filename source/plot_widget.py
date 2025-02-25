@@ -3,8 +3,6 @@
 import numpy as np
 
 from PyQt6.QtWidgets import (
-    QApplication,
-    QMainWindow,
     QWidget,
     QVBoxLayout,
 )
@@ -16,6 +14,7 @@ from matplotlib.figure import Figure
 
 # TODO: Set matplotlib backend explicitly somewhere
 # https://matplotlib.org/stable/users/explain/figure/backends.html
+
 
 class MplCanvas(FigureCanvasQTAgg):
     """Make a canvas for the plot to render onto."""

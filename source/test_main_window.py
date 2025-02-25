@@ -35,6 +35,7 @@ def test_qaction_to_switch_tabs(mainwindow, qtbot):
     mainwindow.prev_tab.trigger()
     assert mainwindow.tab_layout.currentIndex() == 1
 
+
 def test_buttons_to_switch_tabs(mainwindow, qtbot):
     """ Tests switching tabs with hardcoded buttons """
     qtbot.mouseClick(mainwindow.empty_tab_button, Qt.MouseButton.LeftButton)
@@ -64,10 +65,9 @@ def test_window_remembers_position(mainwindow, qtbot):
     pass  # TODO
 
 
-def test_tab_switch_after_selecting_file(mainwindow, qtbot):
+def test_menu_bar(mainwindow, qtbot):
     # Menu bar is accessible and functional
     pass  # TODO
-
 
 
 def test_file_select(mainwindow, qtbot):
