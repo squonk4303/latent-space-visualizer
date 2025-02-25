@@ -17,6 +17,7 @@ from PyQt6.QtWidgets import (
 
 import consts
 from stacked_layout_manager import StackedLayoutManager
+from plot_widget import PlotWidget
 
 
 class MainWindow(QMainWindow):
@@ -63,8 +64,8 @@ class MainWindow(QMainWindow):
         empty_tab.addWidget(self.openfile_button)
         empty_tab.addWidget(self.TEMP_button)
 
-        self.TEMP_label = QLabel("Hi welcome to the graph tab :3")
-        graph_tab.addWidget(self.TEMP_label)
+        self.plot = PlotWidget()
+        graph_tab.addWidget(self.plot)
 
         self.tab_layout.add_layout(empty_tab)
         self.tab_layout.add_layout(graph_tab)
