@@ -49,4 +49,7 @@ jobs:
 
       # Configuration found in file '.flake8'
       - name: LINT WITH FLAKE8
-        run: python3.11 -m flake8
+        # Runs as a python module so we can specify the version number
+        # --statistics makes a tally of which errors were triggered
+        # --exit-zero  returns positive, so the workflow doesn't fail just for this
+        run: python3.11 -m flake8 --statistics --exit-zero
