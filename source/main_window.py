@@ -49,8 +49,7 @@ class MainWindow(QMainWindow):
 
         # --- Signals
         self.TEMP_button.clicked.connect(self.tab_layout.scroll_forth)
-        self.openfile_button.clicked.connect(self.open_file_dialog)
-
+        self.openfile_button.clicked.connect(self.do_action)
         self.empty_tab_button.clicked.connect(self.activate_tab_0)
         self.graph_tab_button.clicked.connect(self.activate_tab_1)
 
