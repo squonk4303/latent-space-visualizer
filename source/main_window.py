@@ -83,7 +83,7 @@ class MainWindow(QMainWindow):
         action_to_open_file = QAction(consts.OPEN_FILE_LABEL, self)
         action_to_open_file.setStatusTip(consts.STATUS_TIP_TEMP)
         action_to_open_file.setShortcut(QKeySequence("Ctrl+O"))
-        action_to_open_file.triggered.connect(self.do_action)
+        action_to_open_file.triggered.connect(self.load_file)
         # Note --->function Raference         ^^^^^^^^^^^^^^^^^^^^^
 
         next_tab = QAction("TEMP: &Next tab")
@@ -107,7 +107,7 @@ class MainWindow(QMainWindow):
         self.prev_tab = prev_tab
         self.file_menu = file_menu
 
-    def do_action(self):
+    def load_file(self):
         temp = loading.File()
         temp.open_dialogue(self)
         print(temp.path)
