@@ -7,13 +7,13 @@ from PyQt6.QtWidgets import (
 class File():
     path = "none"
 
-    def open_dialogue(self):
+    def open_dialogue(self, parent):
         initial_filter = consts.FILE_FILTERS[0]
         filters = ";;".join(consts.FILE_FILTERS)
 
         # TODO: Consider QFileDialog: {FileMode, Acceptmode, "Options"}
         filepath, selected_filter = QFileDialog.getOpenFileName(
-            self,
+            parent,
             filter=filters,
             initialFilter=initial_filter,
         )

@@ -109,6 +109,7 @@ class MainWindow(QMainWindow):
 
     def do_action(self):
         temp = loading.File()
+        temp.open_dialogue(self)
         print(temp.path)
 
     def activate_tab_0(self):
