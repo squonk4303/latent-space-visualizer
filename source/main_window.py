@@ -15,6 +15,7 @@ from PyQt6.QtWidgets import (
 )
 
 import consts
+import loading
 from stacked_layout_manager import StackedLayoutManager
 from plot_widget import PlotWidget
 
@@ -83,7 +84,7 @@ class MainWindow(QMainWindow):
         action_to_open_file = QAction(consts.OPEN_FILE_LABEL, self)
         action_to_open_file.setStatusTip(consts.STATUS_TIP_TEMP)
         action_to_open_file.setShortcut(QKeySequence("Ctrl+O"))
-        action_to_open_file.triggered.connect(self.open_file_dialogue)
+        action_to_open_file.triggered.connect(self.do_action)
         # Note --->function Raference         ^^^^^^^^^^^^^^^^^^^^^
 
         next_tab = QAction("TEMP: &Next tab")
@@ -107,17 +108,9 @@ class MainWindow(QMainWindow):
         self.prev_tab = prev_tab
         self.file_menu = file_menu
 
-    def open_file_dialogue(self):
-        initial_filter = consts.FILE_FILTERS[0]
-        filters = ";;".join(consts.FILE_FILTERS)
-
-        # TODO: Consider QFileDialog: {FileMode, Acceptmode, "Options"}
-        filepath, selected_filter = QFileDialog.getOpenFileName(
-            self,
-            filter=filters,
-            initialFilter=initial_filter,
-        )
-        print("Result:", filepath, selected_filter)
+    def do_action(self):
+        temp = loading.File()
+        print(temp.path)
 
     def activate_tab_0(self):
         self.tab_layout.setCurrentIndex(0)
