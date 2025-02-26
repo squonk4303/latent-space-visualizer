@@ -49,7 +49,7 @@ class MainWindow(QMainWindow):
 
         # --- Signals
         self.TEMP_button.clicked.connect(self.tab_layout.scroll_forth)
-        self.openfile_button.clicked.connect(self.do_action)
+        self.openfile_button.clicked.connect(self.load_file)
         self.empty_tab_button.clicked.connect(self.activate_tab_0)
         self.graph_tab_button.clicked.connect(self.activate_tab_1)
 
@@ -111,6 +111,8 @@ class MainWindow(QMainWindow):
         temp = loading.File()
         temp.open_dialogue(self)
         print(temp.path)
+        self.plot.plot_from_file(temp.path)
+        self.activate_tab_1()
 
     def activate_tab_0(self):
         self.tab_layout.setCurrentIndex(0)
