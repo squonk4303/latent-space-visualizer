@@ -45,7 +45,6 @@ class AutoencodeModel(fcn.FCNResNet101):
 
     def load_from_checkpoint(self):
         checkpoint = torch.load(self.path, map_location=self.device, weights_only=False)
-        fcn_model = self(self.cats)
 
         state_dict = checkpoint["state_dict"]
         new_state_dict = dict()
@@ -55,13 +54,12 @@ class AutoencodeModel(fcn.FCNResNet101):
         
         checkpoint["state_dict"] = new_state_dict
 
-        fcn_model.load_state_dict(checkpoint["state_dict"], strict=True)
-        self.model = fcn_model
+        self.load_state_dict(checkpoint["state_dict"], strict=True)
 
-    def load_method_1(self):
-        self.load_from_checkpoint()
-        self.model = self.model.to(self.device)
-        self.model.eval()
-        print(type(self.model))
-        print(self.model)
-        return self.model
+def load_method_1(path, arr=["skin"]):
+    model = AutoencodeModel(arr,path)
+    model = model.to(model.device)
+    model.eval()
+    print(type(model))
+    print(model)
+    return model
