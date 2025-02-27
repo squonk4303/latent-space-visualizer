@@ -18,7 +18,3 @@ class File():
             initialFilter=initial_filter,
         )
         self.path = filepath
-    
-
-
-
