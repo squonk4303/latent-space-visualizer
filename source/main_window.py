@@ -109,7 +109,7 @@ class MainWindow(QMainWindow):
 
     def load_file(self):
         temp = loading.File()
-        temp.open_dialogue(self)
+        temp.open_all(self)
         print(temp.path)
         self.plot.plot_from_file(temp.path)
         self.activate_tab_1()

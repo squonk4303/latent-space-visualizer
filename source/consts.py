@@ -8,7 +8,8 @@ WINDOW_TITLE    = "Latent Space Visualizer"
 # File Paths et.c.
 FILE_FILTERS = [
     "All Files (*.*)",
-    "PyTorch Files (*.pt)",
+    "PyTorch (*.pt, *.pth)",
+    "Image (*.png, *.jpeg, *.jpg, *.webp, *.gif, *.svg)"
 ]
 
 SINE_CSV    = "source/sine.csv"
