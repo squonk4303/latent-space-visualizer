@@ -1,4 +1,6 @@
 import consts
+import external.fcn as fcn
+import torch
 
 from PyQt6.QtWidgets import (
     QFileDialog
@@ -34,5 +36,32 @@ class File():
     def open_img(self, parent=None):
         self.img_path = self.open_dialogue(parent, [consts.FILE_FILTERS[2]])
 
-    
+class AutoencodeModel(fcn.FCNResNet101):
+    def __init__(self, cat, path):
+        super().__init__(cat)
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.cats = cat
+        self.path = path
+
+    def load_from_checkpoint(self):
+        checkpoint = torch.load(self.path, map_location=self.device, weights_only=False)
+        fcn_model = self(self.cats)
+
+        state_dict = checkpoint["state_dict"]
+        new_state_dict = dict()
+        for key, value in state_dict.items():
+            new_key = key.removeprefix("module.")
+            new_state_dict[new_key] = value
         
+        checkpoint["state_dict"] = new_state_dict
+
+        fcn_model.load_state_dict(checkpoint["state_dict"], strict=True)
+        self.model = fcn_model
+
+    def load_method_1(self):
+        self.load_from_checkpoint()
+        self.model = self.model.to(self.device)
+        self.model.eval()
+        print(type(self.model))
+        print(self.model)
+        return self.model

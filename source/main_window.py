@@ -107,11 +107,22 @@ class MainWindow(QMainWindow):
         self.prev_tab = prev_tab
         self.file_menu = file_menu
 
-    def load_file(self):
+    def _load_file(self):
         temp = loading.File()
         temp.open_all(self)
         print(temp.path)
         self.plot.plot_from_file(temp.path)
+        self.activate_tab_1()
+
+    def load_file(self):
+        temp = loading.File()
+        temp.open_model(self)
+        temppath = "C:\\Users\\Nea\Downloads\\testing\\RGB_no_augmentation.pth"
+        print(temppath)
+        
+        test_model = loading.AutoencodeModel(["skin"],temppath)
+        test_model.load_method_1()
+
         self.activate_tab_1()
 
     def activate_tab_0(self):
