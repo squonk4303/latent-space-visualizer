@@ -107,15 +107,16 @@ class MainWindow(QMainWindow):
         self.prev_tab = prev_tab
         self.file_menu = file_menu
 
-    def _load_file(self):
-        temp = loading.File()
+    def _load_file(self): # TODO: Restore this function
+        temp = loading.FileDialogManager()
         temp.open_all(self)
         print(temp.path)
         self.plot.plot_from_file(temp.path)
         self.activate_tab_1()
 
     def load_file(self):
-        temp = loading.File()
+        temp = loading.FileDialogManager()
+        # TODO: Need a test for this
         temp.open_model(self)
         print("PATHNAME:", temp.model_path)
         loading.load_method_1(temp.model_path)
