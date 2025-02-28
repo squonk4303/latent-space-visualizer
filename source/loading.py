@@ -15,30 +15,43 @@ class FileDialogManager():
     model_path = ""
     some_path  = ""
 
-    def open_dialogue(self, parent=None, file_arr=consts.FILE_FILTERS):
-        # TODO: Prepare for cases where this is cancelled and for when a bad file is selected
-        if not (utils.arr_is_subset(file_arr,consts.FILE_FILTERS)):
+    def open_dialogue(
+            self,
+            parent=None,
+            file_arr=list(consts.FILE_FILTERS.values())
+            ):
+        """Launch a file dialog and return the filepath and selected filter."""
+        if not (utils.arr_is_subset(file_arr,
+                                    list(consts.FILE_FILTERS.values() ))):
             raise RuntimeError("Unacceptable list of file filters")
-        else:
-            initial_filter = file_arr[0]
-            filters = ";;".join(file_arr)
 
-            filepath, selected_filter = QFileDialog.getOpenFileName(
-                parent,
-                filter=filters,
-                initialFilter=initial_filter,
-            )
-            return filepath, selected_filter
+        initial_filter = file_arr[0]
+        filters = ";;".join(file_arr)
+
+        filepath, selected_filter = QFileDialog.getOpenFileName(
+            parent,
+            filter=filters,
+            initialFilter=initial_filter,
+        )
+        if filepath == "":
+            pass  # TODO: Make it so the user knows the program stopped because they didn't select a file
+        return filepath, selected_filter
 
     def open_all(self, parent=None):
+        """Launches a file dialog and sets the returned filepath to local attribute."""
         self.some_path, _ = self.open_dialogue(parent)
 
     def open_img(self, parent=None):
-        filters = [consts.FILE_FILTERS[2]]
+        """Launches a file dialog for pictures and sets the returned filepath to local attribute."""
+        filters = [consts.FILE_FILTERS["pictures"]]
+        print(list(consts.FILE_FILTERS.values()))
+        assert filters == ["Image Files (*.png *.jpg *.jpeg *.webp *.bmp *.gif *.tif *.tiff *.svg)"]
         self.img_path, _ = self.open_dialogue(parent, filters)
 
     def open_model(self, parent=None):
-        filters = [consts.FILE_FILTERS[1]]
+        """Launches a file dialog for nn-models and sets the returned filepath to local attribute."""
+        filters = [consts.FILE_FILTERS["pytorch"]]
+        assert filters == ["PyTorch Files (*.pt *.pth)"]
         self.model_path, _ = self.open_dialogue(parent, filters)
 
 
@@ -63,8 +76,9 @@ class AutoencodeModel(fcn.FCNResNet101):
         self.load_state_dict(checkpoint["state_dict"], strict=True)
         return self
 
+
 def load_method_1(path, arr=["skin"]):
-    model_class = AutoencodeModel(arr,path)
+    model_class = AutoencodeModel(arr, path)
     model = model_class.load_from_checkpoint()
     model = model.to(model_class.device)
     model.eval()
