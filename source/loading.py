@@ -34,22 +34,30 @@ class FileDialogManager():
             initialFilter=initial_filter,
         )
         if filepath == "":
-            pass  # TODO: Make it so the user knows the program stopped because they didn't select a file
+            # TODO: Make it so the user knows the program stopped
+            # because they didn't select a file
+            pass
         return filepath, selected_filter
 
     def open_all(self, parent=None):
-        """Launches a file dialog and sets the returned filepath to local attribute."""
+        """
+        Launches file dialog and sets the returned filepath to local attribute.
+        """
         self.some_path, _ = self.open_dialogue(parent)
 
     def open_img(self, parent=None):
-        """Launches a file dialog for pictures and sets the returned filepath to local attribute."""
+        """
+        Launches file dialog for pictures and uses return value for attribute.
+        """
         filters = [consts.FILE_FILTERS["pictures"]]
-        print(list(consts.FILE_FILTERS.values()))
-        assert filters == ["Image Files (*.png *.jpg *.jpeg *.webp *.bmp *.gif *.tif *.tiff *.svg)"]
+        assert filters == [("Image Files (*.png *.jpg *.jpeg *.webp "
+                            "*.bmp *.gif *.tif *.tiff *.svg)")]
         self.img_path, _ = self.open_dialogue(parent, filters)
 
     def open_model(self, parent=None):
-        """Launches a file dialog for nn-models and sets the returned filepath to local attribute."""
+        """
+        Launches file dialog for nn-models and uses return value for attribute.
+        """
         filters = [consts.FILE_FILTERS["pytorch"]]
         assert filters == ["PyTorch Files (*.pt *.pth)"]
         self.model_path, _ = self.open_dialogue(parent, filters)
@@ -58,12 +66,14 @@ class FileDialogManager():
 class AutoencodeModel(fcn.FCNResNet101):
     def __init__(self, cat, path):
         super().__init__(cat)
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device("cuda" if torch.cuda.is_available()
+                                          else "cpu")
         self.cats = cat
         self.path = path
 
     def load_from_checkpoint(self):
-        checkpoint = torch.load(self.path, map_location=self.device, weights_only=False)
+        checkpoint = torch.load(self.path, map_location=self.device,
+                                weights_only=False)
 
         state_dict = checkpoint["state_dict"]
         new_state_dict = dict()

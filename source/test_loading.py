@@ -55,5 +55,3 @@ def test_model_path_set():
     with mocked_qfiledialog:
         handler.open_model()
         assert handler.model_path == "a/gorgeous/path"
-
-# TODO: Is there a way to test what file filters are used by open_img and open_model?

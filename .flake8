@@ -9,4 +9,10 @@ exclude =
     .pytest_cache
     .venv
 
+# Ignored errors. Errors which we don't respect
+ignore =
+    # Allow multiple spaces before operators
+    E221
+
+# 79 is standard; see PEP 8 for more info
 max-line-length = 79
