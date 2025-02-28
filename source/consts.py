@@ -14,5 +14,6 @@ FILE_FILTERS = {
 }
 
 
-SINE_CSV    = "source/sine.csv"
-SINE_COSINE = "source/sin_cos.csv"
+SINE_CSV      = "source/sine.csv"
+SINE_COSINE   = "source/sin_cos.csv"
+TRAINED_MODEL = "trained_models/RGB_no_augmentation.pth"

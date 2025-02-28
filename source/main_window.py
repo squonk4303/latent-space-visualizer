@@ -6,7 +6,6 @@ from PyQt6.QtGui import (
 )
 from PyQt6.QtWidgets import (
     QApplication,
-    QFileDialog,
     QHBoxLayout,
     QMainWindow,
     QPushButton,
@@ -84,7 +83,6 @@ class MainWindow(QMainWindow):
         action_to_open_file.setStatusTip(consts.STATUS_TIP_TEMP)
         action_to_open_file.setShortcut(QKeySequence("Ctrl+O"))
         action_to_open_file.triggered.connect(self.load_file)
-        # Note --->function Raference         ^^^^^^^^^^^^^^^^^^^^^
 
         next_tab = QAction("TEMP: &Next tab")
         next_tab.setStatusTip(consts.STATUS_TIP_TEMP)
@@ -107,7 +105,7 @@ class MainWindow(QMainWindow):
         self.prev_tab = prev_tab
         self.file_menu = file_menu
 
-    def _load_file(self): # TODO: Restore this function
+    def _load_file(self):  # TODO: Restore this function
         temp = loading.FileDialogManager()
         temp.open_all(self)
         print(temp.path)

@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
+from unittest.mock import patch
 import pytest
 
 from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QFileDialog
 
 import consts
 from main_window import MainWindow
 
 
+# --- Fixtures and Sort-of-Fixtures ---
 @pytest.fixture
 def mainwindow(qtbot):
     """
@@ -18,15 +21,28 @@ def mainwindow(qtbot):
     return window
 
 
+mocked_trained_model_qfiledialog = patch.object(
+    QFileDialog,
+    "getOpenFileName",
+    return_value=(consts.TRAINED_MODEL, consts.FILE_FILTERS["whatever"])
+)
+
+
+mocked_cancelled_qfiledialog = patch.object(
+    QFileDialog,
+    "getOpenFileName",
+    return_value=("", consts.FILE_FILTERS["whatever"])
+)
+
+
 def test_window_basically(mainwindow, qtbot):
-    """ Tests the main window and its properties """
-    # Window exists
+    """Test that the window is alive and exists."""
     assert mainwindow.windowTitle() == consts.WINDOW_TITLE
     assert mainwindow.centralWidget()
 
 
 def test_qaction_to_switch_tabs(mainwindow, qtbot):
-    """ Tests switching tabs with the QActions """
+    """Test switching tabs with the QActions."""
     assert mainwindow.tab_layout.currentIndex() == 0
     mainwindow.next_tab.trigger()
     assert mainwindow.tab_layout.currentIndex() == 1
@@ -44,47 +60,21 @@ def test_buttons_to_switch_tabs(mainwindow, qtbot):
     assert mainwindow.tab_layout.currentIndex() == 1
 
 
+@pytest.mark.slow
 def test_tab_switch_after_selecting_file(mainwindow, qtbot):
     """
-    Tests switching to next tab after selecting file
+    Test switching to next tab after selecting file.
+    Currently a bit slow, for it loads and evaluates a pretrained model...
     """
-    pass  # TODO
+    with mocked_trained_model_qfiledialog:
+        assert mainwindow.tab_layout.currentIndex() == 0
+        mainwindow.action_to_open_file.trigger()
+        assert mainwindow.tab_layout.currentIndex() == 1
 
 
-def test_window_starts_normally(mainwindow, qtbot):
-    """
-    Tests that window starts in normal state
-    """
-    pass  # TODO
-
-
-def test_window_remembers_position(mainwindow, qtbot):
-    """
-    Tests that window remembers the pos and size the user left it in
-    """
-    pass  # TODO
-
-
-def test_menu_bar(mainwindow, qtbot):
-    # Menu bar is accessible and functional
-    pass  # TODO
-
-
-def test_file_select(mainwindow, qtbot):
-    """
-    Tests the action for selecting a file
-    TODO: I gotta find how to check the file dialog without interrupting
-    the test. And also what to assert to prove it's working as intended.
-    """
-    qtbot.mouseClick(mainwindow.file_menu, Qt.MouseButton.LeftButton)
-    # mainwindow.action_to_open_file.trigger()
-    # dialog = QApplication.activeWindow()
-    # dialog.done(0)
-
-
-def test_do_the_graph(mainwindow, qtbot):
-    """
-    Tests our graph widget
-    Depends on whether we use pyqtgraph or matplotlib I suppose
-    """
-    pass  # TODO
+def _test_cancelled_file_select(mainwindow, qtbot):  # TEMP: Disabled for this is not implemented yet
+    """Test that a cancelled file dialog exits gracefully."""
+    with mocked_cancelled_qfiledialog:
+        assert mainwindow.tab_layout.currentIndex() == 0
+        mainwindow.action_to_open_file.trigger()
+        assert mainwindow.tab_layout.currentIndex() == 0
