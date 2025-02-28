@@ -55,5 +55,3 @@ jobs:
         # --statistics makes a tally of which errors were triggered
         # --exit-zero  returns positive, so the workflow doesn't fail just for this
         run: python3.11 -m flake8 --statistics --exit-zero
-
-      - run: python3 have_cuda.py
