@@ -57,7 +57,8 @@ class AutoencodeModel(fcn.FCNResNet101):
         self.load_state_dict(checkpoint["state_dict"], strict=True)
 
 def load_method_1(path, arr=["skin"]):
-    model = AutoencodeModel(arr,path)
+    model_class = AutoencodeModel(arr,path)
+    model = model_class.load_from_checkpoint()
     model = model.to(model.device)
     model.eval()
     print(type(model))
