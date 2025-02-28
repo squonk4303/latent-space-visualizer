@@ -1,0 +1,8 @@
+# Converts line endings in all files, unless otherwise stated
+* text eol=lf
+
+# Except these files from eol conversion
+*.jpg binary
+*.png binary
+*.pt  binary
+*.pth binary
