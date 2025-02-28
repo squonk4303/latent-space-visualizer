@@ -41,11 +41,13 @@ jobs:
           python -m pip install --upgrade pip
           pip install pyqt6 pytest pytest-qt flake8
           pip install -r requirements.txt
+          pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
 
       - name: RUN PYTEST THROUGH XVFB
         env:
           QT_QPA_PLATFORM: offscreen
-        run: xvfb-run pytest -v
+        # Uses '-m "not slow"' to skip loading pretrained model
+        run: xvfb-run pytest -v -m "not slow"
 
       # Configuration found in file '.flake8'
       - name: LINT WITH FLAKE8
@@ -53,3 +55,5 @@ jobs:
         # --statistics makes a tally of which errors were triggered
         # --exit-zero  returns positive, so the workflow doesn't fail just for this
         run: python3.11 -m flake8 --statistics --exit-zero
+
+      - run: python3 have_cuda.py
