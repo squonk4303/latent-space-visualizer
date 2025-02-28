@@ -117,8 +117,8 @@ class MainWindow(QMainWindow):
     def load_file(self):
         temp = loading.File()
         temp.open_model(self)
-        print(temp.path)
-        loading.load_method_1(temp.path)
+        print("PATHNAME:", temp.model_path)
+        loading.load_method_1(temp.model_path)
         self.activate_tab_1()
 
     def activate_tab_0(self):
