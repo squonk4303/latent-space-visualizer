@@ -1,0 +1,3 @@
+# https://matplotlib.org/stable/users/explain/figure/backends.html#selecting-a-backend
+# Alt. we could set env variable MPLBACKEND with python.sys
+backend : qtagg   # use pyqt with antigrain (agg) rendering
