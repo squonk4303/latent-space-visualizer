@@ -106,7 +106,6 @@ def layer_summary(loaded_model):
     with tempfile.TemporaryFile("wb+", 0) as file:
        file.write(input_txt.encode("utf-8"))
        mm = mmap.mmap(file.fileno(), 0, access=mmap.ACCESS_READ)
-       print("\n\n")
        while True:
             byteline = mm.readline()
             if byteline:
@@ -116,5 +115,6 @@ def layer_summary(loaded_model):
        mm.close()
     
     #Print content of list 
+    print("\n\n")
     for i, line in enumerate(lines):
         print(f"{i}: {line}")
