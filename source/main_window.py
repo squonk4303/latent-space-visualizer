@@ -117,7 +117,8 @@ class MainWindow(QMainWindow):
         # TODO: Need a test for this
         temp.open_model(self)
         print("PATHNAME:", temp.model_path)
-        loading.load_method_1(temp.model_path)
+        load = loading.load_method_1(temp.model_path)
+        loading.layer_summary(load)
         self.activate_tab_1()
 
     def activate_tab_0(self):

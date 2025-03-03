@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 import torch
+import os
+import mmap
+import tempfile
 
 from PyQt6.QtWidgets import (
     QFileDialog,
@@ -93,5 +96,26 @@ def load_method_1(path, arr=["skin"]):
     model = model.to(model_class.device)
     model.eval()
     print(type(model))
-    print(model)
+    #print(model)
     return model
+
+def layer_summary(loaded_model):
+    input_txt = str(loaded_model)
+
+    #Create a temporary data file to store data in a list
+    lines = []
+    with tempfile.TemporaryFile("wb+", 0) as file:
+       file.write(input_txt.encode("utf-8"))
+       mm = mmap.mmap(file.fileno(), 0, access=mmap.ACCESS_READ)
+       print("\n\n")
+       while True:
+            byteline = mm.readline()
+            if byteline:
+                lines.append(byteline.decode("utf-8"))
+            else: 
+                break
+       mm.close()
+    
+    #Print content of list 
+    for i, line in enumerate(lines):
+        print(f"{i}: {line}")
