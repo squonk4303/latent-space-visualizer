@@ -127,21 +127,30 @@ def print_dim_reduced(trained_file, categories=["skin"]):
     model_obj = model_obj.to(model_obj.device)
     model_obj.eval()
 
-    # Get the features from its state_dict
-    dict_obj = model_obj.state_dict()   # returns an "OrderedDict" object
-    features = list(dict_obj.values())  # This is now a list of tensors of WAY different dimensionalities
+    # Get the features from state_dict
+    layer_dict = model_obj.state_dict()   # returns an "OrderedDict" object
+    all_features = layer_dict.items()
 
-    # Convert the features to an np.array for the TSNE function
-    # To do this, we gotta homogenize dimensionality of the feature list...
-    # TSNE also requires it to be homogenous...
-    features = np.array(features)
+    # vv~~~  Just prints out to terminal right now
+    # for key, value in all_features:
+    #     print(key, value.shape)
+
+    features_list = list(layer_dict.values())
+
+    # Choose a layer to represent
+    # TODO: Hardcoding this for now
+    selected_features = features_list[163:167]
+    selected_features = np.array(selected_features)
 
     # Reduce dimensionality by t-SNE
-    tsne_operation = TSNE(n_components=2)  # 2 components -> 2-dimensional representation
-    dim_reduced_list = tsne_operation.fit_transform(features)
+    perplexity_n = min(30, len(selected_features)-1)
+    np.random.seed(42)  # TODO set seed somewhere better
+    tsne = TSNE(n_components=2, perplexity=perplexity_n)
+    dim_reduced = tsne.fit_transform(selected_features)
 
-    print(type(dim_reduced_list))
-    print(dim_reduced_list)
+    # Computer. Show me the t-SN Embedded layer
+    print(type(dim_reduced))
+    print(dim_reduced)
 
 
 def print_state_dict(trained_file, categories):

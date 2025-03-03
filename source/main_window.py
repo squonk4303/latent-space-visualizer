@@ -118,7 +118,7 @@ class MainWindow(QMainWindow):
         #temp.open_model(self)
         temp.model_path = "/home/user108/Python/Bachelor/trained_models/RGB_no_augmentation.pth"
         #print("PATHNAME:", temp.model_path)
-        loading.print_dim_reduced(temp.model_path)
+        loading.print_dim_reduced(temp.model_path, ["skin"])
         #loading.print_state_dict(temp.model_path, ["skin"])
         self.activate_tab_1()
         KILL()  # <-- This totally quits the program
