@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 import torch
+from sklearn.manifold import TSNE
+import numpy as np
 
 from PyQt6.QtWidgets import (
     QFileDialog,
@@ -87,11 +89,71 @@ class AutoencodeModel(fcn.FCNResNet101):
         return self
 
 
-def load_method_1(path, arr=["skin"]):
+def _load_method_1(path, arr=["skin"]):
     model_class = AutoencodeModel(arr, path)
-    model = model_class.load_from_checkpoint()
+    model = model_class.load_from_checkpoint()  # NEED to load from checkpoint
     model = model.to(model_class.device)
-    model.eval()
-    print(type(model))
-    print(model)
-    return model
+    model.eval()  # TODO: at surface seems to do nothing...?
+                  # It could be a just-in-case thing...
+                  # .eval() makes certain NN-functions act differently I think
+    my_state_dict = model_class.state_dict()
+    #for i in my_state_dict:
+    #    print("-"*64)
+    #    print(i)
+    #print("-"*64)
+    #print(my_state_dict)
+    #print("-"*64)
+
+    print(my_state_dict)
+    features = np.array(list(my_state_dict.values()))
+
+    print(type(features))
+    print(features)
+
+    t_sne = TSNE(n_components=2)
+    print(t_sne)
+    t_sne = t_sne.fit_transform(features)
+    print(type(t_sne))
+    print(t_sne)
+
+    #return model
+
+
+def print_dim_reduced(trained_file, categories=["skin"]):
+    # Load model from checkpoint to memory
+    # And do some set-up, such as move to device
+    model_obj = AutoencodeModel(categories, trained_file)
+    model_obj = model_obj.load_from_checkpoint()
+    model_obj = model_obj.to(model_obj.device)
+    model_obj.eval()
+
+    # Get the features from its state_dict
+    dict_obj = model_obj.state_dict()   # returns an "OrderedDict" object
+    features = list(dict_obj.values())  # This is now a list of tensors of WAY different dimensionalities
+
+    # Convert the features to an np.array for the TSNE function
+    # To do this, we gotta homogenize dimensionality of the feature list...
+    # TSNE also requires it to be homogenous...
+    features = np.array(features)
+
+    # Reduce dimensionality by t-SNE
+    tsne_operation = TSNE(n_components=2)  # 2 components -> 2-dimensional representation
+    dim_reduced_list = tsne_operation.fit_transform(features)
+
+    print(type(dim_reduced_list))
+    print(dim_reduced_list)
+
+
+def print_state_dict(trained_file, categories):
+    # Load model from checkpoint to memory
+    # And do some set-up, such as move to device
+    m_obj = AutoencodeModel(categories, trained_file)
+    m_obj = m_obj.load_from_checkpoint()
+    m_obj = m_obj.to(m_obj.device)
+    m_obj.eval()
+
+    # Get the features from its state_dict
+    dict_obj = m_obj.state_dict()   # returns an "OrderedDict" object
+    features = list(dict_obj.values())  # This is now a list of tensors of WAY different dimensionalities
+
+    print(dict_obj)

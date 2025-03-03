@@ -115,10 +115,13 @@ class MainWindow(QMainWindow):
     def load_file(self):
         temp = loading.FileDialogManager()
         # TODO: Need a test for this
-        temp.open_model(self)
-        print("PATHNAME:", temp.model_path)
-        loading.load_method_1(temp.model_path)
+        #temp.open_model(self)
+        temp.model_path = "/home/user108/Python/Bachelor/trained_models/RGB_no_augmentation.pth"
+        #print("PATHNAME:", temp.model_path)
+        loading.print_dim_reduced(temp.model_path)
+        #loading.print_state_dict(temp.model_path, ["skin"])
         self.activate_tab_1()
+        KILL()  # <-- This totally quits the program
 
     def activate_tab_0(self):
         self.tab_layout.setCurrentIndex(0)
@@ -129,6 +132,8 @@ class MainWindow(QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
+    KILL = lambda : app.exit()  # <-- Kills the program
+
     window = MainWindow()
     window.show()
     app.exec()
