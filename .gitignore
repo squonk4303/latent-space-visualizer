@@ -1,2 +1,11 @@
-*.pyc
+# Build Artifacts
+__pycache__
+
+# Secrets
 external/
+
+# Others
+*ignore*
+tags
+.swp
+.swo
