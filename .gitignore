@@ -1,10 +1,7 @@
 # Build Artifacts
 __pycache__
 
-# Secrets
-external/
-
-# Others
+# Other
 *ignore*
 tags
 .swp
