@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import torch
-import os
 import mmap
 import tempfile
 
@@ -18,18 +17,18 @@ class FileDialogManager():
     model_path = ""
     some_path  = ""
 
-    def open_dialogue(
+    def open_dialog(
             self,
             parent=None,
-            file_arr=list(consts.FILE_FILTERS.values())
+            file_filter_list=list(consts.FILE_FILTERS.values())
             ):
         """Launch a file dialog and return the filepath and selected filter."""
-        if not (utils.arr_is_subset(file_arr,
+        if not (utils.arr_is_subset(file_filter_list,
                                     list(consts.FILE_FILTERS.values() ))):
             raise RuntimeError("Unacceptable list of file filters")
 
-        initial_filter = file_arr[0]
-        filters = ";;".join(file_arr)
+        initial_filter = file_filter_list[0]
+        filters = ";;".join(file_filter_list)
 
         filepath, selected_filter = QFileDialog.getOpenFileName(
             parent,
@@ -46,7 +45,7 @@ class FileDialogManager():
         """
         Launches file dialog and sets the returned filepath to local attribute.
         """
-        self.some_path, _ = self.open_dialogue(parent)
+        self.some_path, _ = self.open_dialog(parent)
 
     def open_img(self, parent=None):
         """
@@ -55,7 +54,7 @@ class FileDialogManager():
         filters = [consts.FILE_FILTERS["pictures"]]
         assert filters == [("Image Files (*.png *.jpg *.jpeg *.webp "
                             "*.bmp *.gif *.tif *.tiff *.svg)")]
-        self.img_path, _ = self.open_dialogue(parent, filters)
+        self.img_path, _ = self.open_dialog(parent, filters)
 
     def open_model(self, parent=None):
         """
@@ -63,7 +62,7 @@ class FileDialogManager():
         """
         filters = [consts.FILE_FILTERS["pytorch"]]
         assert filters == ["PyTorch Files (*.pt *.pth)"]
-        self.model_path, _ = self.open_dialogue(parent, filters)
+        self.model_path, _ = self.open_dialog(parent, filters)
 
 
 class AutoencodeModel(fcn.FCNResNet101):
@@ -90,8 +89,8 @@ class AutoencodeModel(fcn.FCNResNet101):
         return self
 
 
-def load_method_1(path, arr=["skin"]):
-    model_class = AutoencodeModel(arr, path)
+def load_method_1(path, list=["skin"]):
+    model_class = AutoencodeModel(list, path)
     model = model_class.load_from_checkpoint()
     model = model.to(model_class.device)
     model.eval()
