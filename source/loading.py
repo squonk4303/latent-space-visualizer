@@ -107,12 +107,17 @@ def layer_summary(loaded_model, startlayer=0, endlayer=0):
     and including the endlayer!
     """
     #Sets basic logic and variables
-    all = False
-    if not endlayer: endlayer = startlayer
-    if not startlayer: all = True
-    
+    all_layers = False
+    if not endlayer: 
+        endlayer = startlayer
+    if not startlayer: 
+        all_layers = True
+
     input_txt = str(loaded_model)
     target = "layer"
+    #Assigns targetlayers for use in search later
+    next_layer = target + str(endlayer+1)
+    target += str(startlayer)
 
 
     """
@@ -134,30 +139,23 @@ def layer_summary(loaded_model, startlayer=0, endlayer=0):
                 break
        mm.close()
     
-    #Assigns targetlayers for use in search later
-    if endlayer == startlayer:
-        next = target + str(startlayer+1)
-    else: 
-        next = target + str(endlayer+1)
-    target += str(startlayer)
-    
     #Returns selected layers
     found = False
     eol = False
     new = 0
     for i, line in enumerate(lines):
-        if all:
+        if all_layers:
             pass
         elif target in line:
             found = True
-        elif next in line:
+        elif next_layer in line:
             eol = True
             new = i
-        if all or found and not eol:
+        if all_layers or found and not eol:
             print(f"{i}: {line}")
     
     #End of print
-    if all:
+    if all_layers:
         print(f"\nEOF: no more lines")
     else:
         print(f"\nNext line is {new}: {lines[new]}")
