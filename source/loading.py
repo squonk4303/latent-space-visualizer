@@ -108,9 +108,10 @@ def layer_summary(loaded_model, startlayer=0, endlayer=0):
     """
     #Sets basic logic and variables
     all = False
+    if not endlayer: endlayer = startlayer
+    if not startlayer: all = True
+    
     input_txt = str(loaded_model)
-    if endlayer == 0: endlayer = startlayer
-    if startlayer == 0: all = True
     target = "layer"
 
 
