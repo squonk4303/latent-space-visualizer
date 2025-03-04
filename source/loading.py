@@ -98,8 +98,27 @@ def load_method_1(path, list=["skin"]):
     #print(model)
     return model
 
-def layer_summary(loaded_model):
+def layer_summary(loaded_model, startlayer=0, endlayer=0):
+    """
+    Summarises selected layers from a given model objet. 
+    If endlayer is left blank only return one layer. 
+    If start layer is left blank returns all layers.
+    If both layers are specified returns from startlayer up to 
+    and including the endlayer!
+    """
+    #Sets basic logic and variables
+    all = False
     input_txt = str(loaded_model)
+    if endlayer == 0: endlayer = startlayer
+    if startlayer == 0: all = True
+    target = "layer"
+
+
+    """
+    At some point in this function an extraction function is to be added
+    to filter the information and only return the useful information and attributes
+    to be added to the list. For now it takes the entire line of information.
+    """
 
     #Create a temporary data file to store data in a list
     lines = []
@@ -114,7 +133,31 @@ def layer_summary(loaded_model):
                 break
        mm.close()
     
-    #Print content of list 
-    print("\n\n")
+    #Assigns targetlayers for use in search later
+    if endlayer == startlayer:
+        next = target + str(startlayer+1)
+    else: 
+        next = target + str(endlayer+1)
+    target += str(startlayer)
+    
+    #Returns selected layers
+    found = False
+    eol = False
+    new = 0
     for i, line in enumerate(lines):
-        print(f"{i}: {line}")
+        if all:
+            pass
+        elif target in line:
+            found = True
+        elif next in line:
+            eol = True
+            new = i
+        if all or found and not eol:
+            print(f"{i}: {line}")
+    
+    #End of print
+    if all:
+        print(f"\nEOF: no more lines")
+    else:
+        print(f"\nNext line is {new}: {lines[new]}")
+        
