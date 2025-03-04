@@ -98,7 +98,7 @@ def load_method_1(path, list=["skin"]):
     #print(model)
     return model
 
-def layer_summary(loaded_model, startlayer=0, endlayer=0):
+def layer_summary(loaded_model, start_layer=0, end_layer=0):
     """
     Summarises selected layers from a given model objet. 
     If endlayer is left blank only return one layer. 
@@ -108,16 +108,16 @@ def layer_summary(loaded_model, startlayer=0, endlayer=0):
     """
     #Sets basic logic and variables
     all_layers = False
-    if not endlayer: 
-        endlayer = startlayer
-    if not startlayer: 
+    if not end_layer: 
+        end_layer = start_layer
+    if not start_layer: 
         all_layers = True
 
     input_txt = str(loaded_model)
     target = "layer"
     #Assigns targetlayers for use in search later
-    next_layer = target + str(endlayer+1)
-    target += str(startlayer)
+    next_layer = target + str(end_layer+1)
+    target += str(start_layer)
 
 
     """
