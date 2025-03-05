@@ -117,9 +117,10 @@ class MainWindow(QMainWindow):
         # TODO: Need a test for this
         temp.open_model(self)
         print("PATHNAME:", temp.model_path)
-        load = loading.load_method_1(temp.model_path)
+        load = loading._load_method_1(temp.model_path)
         loading.layer_summary(load,1,2)
         self.activate_tab_1()
+        KILL()  # <-- This totally quits the program
 
     def activate_tab_0(self):
         self.tab_layout.setCurrentIndex(0)
@@ -130,6 +131,8 @@ class MainWindow(QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
+    KILL = lambda : app.exit()  # <-- Kills the program
+
     window = MainWindow()
     window.show()
     app.exec()
