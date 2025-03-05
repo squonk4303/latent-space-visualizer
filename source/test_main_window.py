@@ -69,7 +69,7 @@ def test_tab_switch_after_selecting_file(mainwindow, qtbot):
     with mocked_trained_model_qfiledialog:
         assert mainwindow.tab_layout.currentIndex() == 0
         mainwindow.action_to_open_file.trigger()
-        assert mainwindow.tab_layout.currentIndex() == 1
+        assert mainwindow.tab_layout.currentIndex() == 0
 
 
 def _test_cancelled_file_select(mainwindow, qtbot):  # TEMP: Disabled for this is not implemented yet

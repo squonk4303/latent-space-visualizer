@@ -114,17 +114,17 @@ def _load_method_1(path, arr=["skin"]):
     #print(my_state_dict)
     #print("-"*64)
 
-    print(my_state_dict)
-    features = np.array(list(my_state_dict.values()))
+    #print(my_state_dict)
+    #features = np.array(list(my_state_dict.values()))
 
-    print(type(features))
-    print(features)
+    #print(type(features))
+    #print(features)
 
-    t_sne = TSNE(n_components=2)
-    print(t_sne)
-    t_sne = t_sne.fit_transform(features)
-    print(type(t_sne))
-    print(t_sne)
+    #t_sne = TSNE(n_components=2)
+    #print(t_sne)
+    #t_sne = t_sne.fit_transform(features)
+    #print(type(t_sne))
+    #print(t_sne)
 
     #return model
 

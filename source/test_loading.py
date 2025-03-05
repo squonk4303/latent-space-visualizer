@@ -20,7 +20,7 @@ def test_default_file_dialogue():
     """Test a normal use case for the function."""
     handler = loading.FileDialogManager()
     with mocked_qfiledialog:
-        path, filter_ = handler.open_dialogue()
+        path, filter_ = handler.open_dialog()
         assert path    == "a/gorgeous/path"
         assert filter_ == "All Files (*)"
 
@@ -30,7 +30,7 @@ def test_bad_file_filters():
     handler = loading.FileDialogManager()
     with pytest.raises(RuntimeError):
         with mocked_qfiledialog:
-            path, filter_ = handler.open_dialogue(file_arr="I'm a chuckster!")
+            path, filter_ = handler.open_dialog(file_filter_list="I'm a chuckster!")
 
 
 def test_some_path_set():
