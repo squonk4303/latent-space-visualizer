@@ -15,4 +15,4 @@ ignore =
     E221
 
 # 79 is standard; see PEP 8 for more info
-max-line-length = 79
+max-line-length = 100
