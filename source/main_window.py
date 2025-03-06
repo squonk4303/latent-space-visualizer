@@ -76,14 +76,16 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(widget)
 
     def initiate_menu_bar(self):
+        """Set up the top menu-bar, its sub-menues, actions, and signals."""
         menubar = self.menuBar()
 
-        # Open file action
+        # Action which opens the file dialog
         action_to_open_file = QAction(consts.OPEN_FILE_LABEL, self)
         action_to_open_file.setStatusTip(consts.STATUS_TIP_TEMP)
         action_to_open_file.setShortcut(QKeySequence("Ctrl+O"))
         action_to_open_file.triggered.connect(self.load_file)
 
+        # Actions to scroll to next/previous tabs
         next_tab = QAction("TEMP: &Next tab")
         next_tab.setStatusTip(consts.STATUS_TIP_TEMP)
         prev_tab = QAction("TEMP: &Previous tab")
@@ -92,32 +94,25 @@ class MainWindow(QMainWindow):
         next_tab.triggered.connect(self.tab_layout.scroll_forth)
         prev_tab.triggered.connect(self.tab_layout.scroll_back)
 
+        # The Greater File Menu
         file_menu = menubar.addMenu("&File")
         file_menu.addAction(action_to_open_file)
 
+        # The Greater Navigaiton Menu
         self.navigate_menu = menubar.addMenu("&Tab")
         self.navigate_menu.addAction(next_tab)
         self.navigate_menu.addAction(prev_tab)
 
-        # Export these as "public attributes"
+        # Make these variables available to class namespace
         self.action_to_open_file = action_to_open_file
         self.next_tab = next_tab
         self.prev_tab = prev_tab
         self.file_menu = file_menu
 
-    def _load_file(self):  # TODO: Restore this function
-        temp = loading.FileDialogManager()
-        temp.open_all(self)
-        print(temp.path)
-        self.plot.plot_from_file(temp.path)
-        self.activate_tab_1()
-
     def load_file(self):
         temp = loading.FileDialogManager()
-        # TODO: Need a test for this
         temp.open_model(self)
-        print("PATHNAME:", temp.model_path)
-        load = loading._load_method_1(temp.model_path)
+        load = loading.print_dim_reduced(temp.model_path)
         loading.layer_summary(load,1,2)
 
     def activate_tab_0(self):
