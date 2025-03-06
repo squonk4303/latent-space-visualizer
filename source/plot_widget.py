@@ -8,7 +8,6 @@ from PyQt6.QtWidgets import (
 )
 
 # matplotlib necessarily imported after PyQt6
-import matplotlib
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 

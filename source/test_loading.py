@@ -19,10 +19,10 @@ def handler():
 
 
 mocked_qfiledialog = patch.object(
-        QFileDialog,
-        "getOpenFileName",
-        return_value=("a/gorgeous/path", "All Files (*)")
-    )
+    QFileDialog,
+    "getOpenFileName",
+    return_value=("a/gorgeous/path", "All Files (*)")
+)
 
 
 def test_default_file_dialogue(handler):

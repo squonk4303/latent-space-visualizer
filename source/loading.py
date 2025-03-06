@@ -31,7 +31,7 @@ class FileDialogManager():
 
     def find_file(self, file_filters=list(consts.FILE_FILTERS.values())):
         """Launch a file dialog and return the filepath and selected filter."""
-        if not (utils.arr_is_subset(file_filters, list(consts.FILE_FILTERS.values() ))):
+        if not (utils.arr_is_subset(file_filters, list(consts.FILE_FILTERS.values()))):
             raise RuntimeError("Unacceptable list of file filters")
 
         initial_filter = file_filters[0]
@@ -66,8 +66,7 @@ class FileDialogManager():
 class AutoencodeModel(fcn.FCNResNet101):
     def __init__(self, cat, path):
         super().__init__(cat)
-        self.device = torch.device("cuda" if torch.cuda.is_available()
-                                          else "cpu")
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.cats = cat
         self.path = path
 
@@ -107,7 +106,6 @@ def print_dim_reduced(trained_file, categories=["skin"]):
 
     # Get the features from state_dict
     layer_dict = model_obj.state_dict()   # returns an "OrderedDict" object
-    all_features = layer_dict.items()
 
     features_list = list(layer_dict.values())
 
@@ -117,7 +115,7 @@ def print_dim_reduced(trained_file, categories=["skin"]):
     selected_features = np.array(selected_features)
 
     # Reduce dimensionality by t-SNE
-    perplexity_n = min(30, len(selected_features)-1)
+    perplexity_n = min(30, len(selected_features) - 1)
     np.random.seed(42)  # TODO set seed somewhere better
     tsne = TSNE(n_components=2, perplexity=perplexity_n)
     dim_reduced = tsne.fit_transform(selected_features)
@@ -135,7 +133,7 @@ def layer_summary(loaded_model, start_layer=0, end_layer=0):
     If both layers are specified returns from startlayer up to
     and including the endlayer!
     """
-    #Sets basic logic and variables
+    # Sets basic logic and variables
     all_layers = False
     if not end_layer:
         end_layer = start_layer
@@ -144,10 +142,9 @@ def layer_summary(loaded_model, start_layer=0, end_layer=0):
 
     input_txt = str(loaded_model)
     target = "layer"
-    #Assigns targetlayers for use in search later
+    # Assigns targetlayers for use in search later
     next_layer = target + str(end_layer+1)
     target += str(start_layer)
-
 
     """
     At some point in this function an extraction function is to be added
@@ -155,20 +152,20 @@ def layer_summary(loaded_model, start_layer=0, end_layer=0):
     to be added to the list. For now it takes the entire line of information.
     """
 
-    #Create a temporary data file to store data in a list
+    # Create a temporary data file to store data in a list
     lines = []
     with tempfile.TemporaryFile("wb+", 0) as file:
-       file.write(input_txt.encode("utf-8"))
-       mm = mmap.mmap(file.fileno(), 0, access=mmap.ACCESS_READ)
-       while True:
+        file.write(input_txt.encode("utf-8"))
+        mm = mmap.mmap(file.fileno(), 0, access=mmap.ACCESS_READ)
+        while True:
             byteline = mm.readline()
             if byteline:
                 lines.append(byteline.decode("utf-8"))
             else:
                 break
-       mm.close()
+        mm.close()
 
-    #Returns selected layers
+    # Returns selected layers
     found = False
     eol = False
     new = 0
@@ -183,8 +180,8 @@ def layer_summary(loaded_model, start_layer=0, end_layer=0):
         if all_layers or found and not eol:
             print(f"{i}: {line}", end="")
 
-    #End of print
+    # End of print
     if all_layers:
-        print(f"\nEOF: no more lines")
+        print("\nEOF: no more lines")
     else:
         print(f"\nNext line is {new}: {lines[new]}")

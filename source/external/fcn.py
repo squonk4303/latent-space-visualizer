@@ -11,8 +11,7 @@ class FCNResNet101(nn.Module):
     def __init__(self, categories):
         super().__init__()
         self.model = models.segmentation.fcn_resnet101(
-            weights=models.segmentation.fcn.
-                FCN_ResNet101_Weights.COCO_WITH_VOC_LABELS_V1
+            weights=models.segmentation.fcn.FCN_ResNet101_Weights.COCO_WITH_VOC_LABELS_V1
         )
         self._categories = nn.ParameterDict(
             {i: nn.Parameter(torch.Tensor(0)) for i in categories})

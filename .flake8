@@ -13,6 +13,10 @@ exclude =
 ignore =
     # Allow multiple spaces before operators
     E221
+    # Allow multiple spaces after operators
+    E241
+    # Allow whitespace before ')', ex: "values() ))):"
+    E202
 
 # 79 is standard; see PEP 8 for more info
 max-line-length = 100
