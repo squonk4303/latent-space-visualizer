@@ -28,7 +28,7 @@ mocked_qfiledialog = patch.object(
 def test_default_file_dialogue(handler):
     """Test a normal use case for the function."""
     with mocked_qfiledialog:
-        path, filter_ = handler.open_dialog()
+        path, filter_ = handler.find_file()
         assert path    == "a/gorgeous/path"
         assert filter_ == "All Files (*)"
 
@@ -37,25 +37,25 @@ def test_bad_file_filters(handler):
     """Test that a RuntimeError is raised upon bad list invocation."""
     with pytest.raises(RuntimeError):
         with mocked_qfiledialog:
-            path, filter_ = handler.open_dialog(file_filters="I'm a chuckster!")
+            path, filter_ = handler.find_file(file_filters="I'm a chuckster!")
 
 
 def test_some_path_set(handler):
     """Test function sets path from return value."""
     with mocked_qfiledialog:
-        path = handler.open_all()
+        path = handler.find_some_file()
         assert path == "a/gorgeous/path"
 
 
 def test_img_path_set(handler):
     """Test function sets path from return value."""
     with mocked_qfiledialog:
-        path = handler.open_img()
+        path = handler.find_picture_file()
         assert path == "a/gorgeous/path"
 
 
 def test_model_path_set(handler):
     """Test function sets path from return value."""
     with mocked_qfiledialog:
-        path = handler.open_model()
+        path = handler.find_trained_model_file()
         assert path == "a/gorgeous/path"

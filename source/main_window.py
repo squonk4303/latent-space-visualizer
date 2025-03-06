@@ -48,7 +48,7 @@ class MainWindow(QMainWindow):
 
         # --- Signals
         self.TEMP_button.clicked.connect(self.tab_layout.scroll_forth)
-        self.openfile_button.clicked.connect(self.load_file)
+        self.openfile_button.clicked.connect(self.load_model_file)
         self.empty_tab_button.clicked.connect(self.activate_tab_0)
         self.graph_tab_button.clicked.connect(self.activate_tab_1)
 
@@ -83,7 +83,7 @@ class MainWindow(QMainWindow):
         action_to_open_file = QAction(consts.OPEN_FILE_LABEL, self)
         action_to_open_file.setStatusTip(consts.STATUS_TIP_TEMP)
         action_to_open_file.setShortcut(QKeySequence("Ctrl+O"))
-        action_to_open_file.triggered.connect(self.load_file)
+        action_to_open_file.triggered.connect(self.load_model_file)
 
         # Actions to scroll to next/previous tabs
         next_tab = QAction("TEMP: &Next tab")
@@ -109,11 +109,13 @@ class MainWindow(QMainWindow):
         self.prev_tab = prev_tab
         self.file_menu = file_menu
 
-    def load_file(self):
+    def load_model_file(self):
         handler = loading.FileDialogManager(self)
-        model_path = handler.open_model()
-        load = loading.print_dim_reduced(model_path)
-        loading.layer_summary(load, 1, 2)
+        model_path = handler.find_trained_model_file()
+        if model_path:
+            loading.print_dim_reduced(model_path, ["skin"])
+            loaded_model = loading.get_model(model_path, ["skin"])
+            loading.layer_summary(loaded_model, 1, 2)
 
     def activate_tab_0(self):
         self.tab_layout.setCurrentIndex(0)

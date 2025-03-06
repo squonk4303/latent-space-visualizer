@@ -72,7 +72,7 @@ def test_tab_switch_after_selecting_file(mainwindow, qtbot):
         assert mainwindow.tab_layout.currentIndex() == 0
 
 
-def _test_cancelled_file_select(mainwindow, qtbot):  # TEMP: Disabled for this is not implemented yet
+def test_cancelled_file_select(mainwindow, qtbot):
     """Test that a cancelled file dialog exits gracefully."""
     with mocked_cancelled_qfiledialog:
         assert mainwindow.tab_layout.currentIndex() == 0

@@ -19,20 +19,19 @@ class FileDialogManager():
     Class to simplify handling of files and file dialogs.
 
     Methods:
-        __init__    -- initializes with argument being which window is the parent
-        open_dialog -- generic function to open a qfiledialog; for wrapping
-        open_all    -- wrapper for open_dialog which has filters set for all files
-        open_img    -- wrapper for open_dialog which has filters set for pictures
-        open_model  -- wrapper for open_dialog which has filters set for trained nn models
+        __init__ -- initializes with argument being which window is the parent
+        find_file -- generic function to open a qfiledialog; for wrapping
+        find_some_file -- wrapper for find_file which has filters set for all files
+        find_picture_file -- wrapper for find_file which has filters set for pictures
+        find_trained_model_file -- wrapper for find_file which has filters set for trained nn models
     """
 
     def __init__(self, parent_window):
         self.parent = parent_window
 
-    def open_dialog(self, file_filters=list(consts.FILE_FILTERS.values())):
+    def find_file(self, file_filters=list(consts.FILE_FILTERS.values())):
         """Launch a file dialog and return the filepath and selected filter."""
-        if not (utils.arr_is_subset(file_filters,
-                                    list(consts.FILE_FILTERS.values() ))):
+        if not (utils.arr_is_subset(file_filters, list(consts.FILE_FILTERS.values() ))):
             raise RuntimeError("Unacceptable list of file filters")
 
         initial_filter = file_filters[0]
@@ -44,24 +43,23 @@ class FileDialogManager():
             initialFilter=initial_filter,
         )
 
-        if filepath:
-            return filepath, selected_filter
+        return filepath, selected_filter
 
-    def open_all(self):
+    def find_some_file(self):
         """Launches file dialog and sets the returned filepath to local attribute."""
-        path, _ = self.open_dialog()
+        path, _ = self.find_file()
         return path
 
-    def open_img(self):
+    def find_picture_file(self):
         """Launches file dialog for pictures and uses return value for attribute."""
         filters = [consts.FILE_FILTERS["pictures"]]
-        path, _ = self.open_dialog(filters)
+        path, _ = self.find_file(filters)
         return path
 
-    def open_model(self):
+    def find_trained_model_file(self):
         """Launches file dialog for nn-models and uses return value for attribute."""
         filters = [consts.FILE_FILTERS["pytorch"]]
-        path, _ = self.open_dialog(filters)
+        path, _ = self.find_file(filters)
         return path
 
 
@@ -87,6 +85,15 @@ class AutoencodeModel(fcn.FCNResNet101):
 
         self.load_state_dict(checkpoint["state_dict"], strict=True)
         return self
+
+
+def get_model(trained_file, categories):
+    """."""
+    model_obj = AutoencodeModel(categories, trained_file)
+    model_obj = model_obj.load_from_checkpoint()
+    model_obj = model_obj.to(model_obj.device)
+    model_obj.eval()
+    return model_obj
 
 
 def print_dim_reduced(trained_file, categories=["skin"]):
@@ -174,7 +181,7 @@ def layer_summary(loaded_model, start_layer=0, end_layer=0):
             eol = True
             new = i
         if all_layers or found and not eol:
-            print(f"{i}: {line}")
+            print(f"{i}: {line}", end="")
 
     #End of print
     if all_layers:
