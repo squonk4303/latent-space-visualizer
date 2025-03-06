@@ -12,10 +12,7 @@ from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 
 import consts
-import read_this
-
-# TODO: Set matplotlib backend explicitly somewhere
-# https://matplotlib.org/stable/users/explain/figure/backends.html
+import parse
 
 
 class MplCanvas(FigureCanvasQTAgg):
@@ -44,6 +41,6 @@ class PlotWidget(QWidget):
         self.canvas.draw()
 
     def plot_from_file(self, filepath):
-        data = read_this.csv_as_list(filepath)
+        data = parse.csv_as_list(filepath)
         self.canvas.axes.plot(data)
         self.canvas.draw()
