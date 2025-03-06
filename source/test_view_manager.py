@@ -6,7 +6,7 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QFileDialog
 
 import consts
-from main_window import MainWindow
+from view_manager import MainWindow
 
 
 # --- Fixtures and Sort-of-Fixtures ---
