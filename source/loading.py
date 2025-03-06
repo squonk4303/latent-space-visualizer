@@ -87,7 +87,7 @@ class AutoencodeModel(fcn.FCNResNet101):
 
 
 def get_model(trained_file, categories):
-    """."""
+    """Load trained model to memory. Does additional setup like moving to GPU if available."""
     model_obj = AutoencodeModel(categories, trained_file)
     model_obj = model_obj.load_from_checkpoint()
     model_obj = model_obj.to(model_obj.device)
@@ -99,18 +99,14 @@ def print_dim_reduced(trained_file, categories=["skin"]):
     """Print a slice of the model, with reduced dimensionality through t-SNE."""
     # Load model from checkpoint to memory
     # And do some set-up, such as move to device
-    model_obj = AutoencodeModel(categories, trained_file)
-    model_obj = model_obj.load_from_checkpoint()
-    model_obj = model_obj.to(model_obj.device)
-    model_obj.eval()
+    model_obj = get_model(trained_file, categories)
 
     # Get the features from state_dict
-    layer_dict = model_obj.state_dict()   # returns an "OrderedDict" object
-
+    layer_dict = model_obj.state_dict()
     features_list = list(layer_dict.values())
 
-    # Choose a layer to represent
-    # TODO: Hardcoding this for now
+    # Choose a layer to represent, and turn it into a np.array
+    # TEMP: Hard-coded for now
     selected_features = features_list[163:167]
     selected_features = np.array(selected_features)
 
