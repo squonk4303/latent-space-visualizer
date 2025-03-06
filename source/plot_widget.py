@@ -47,5 +47,11 @@ class PlotWidget(QWidget):
     def plot_from_2d(self, array_2d: np.ndarray):
         x = array_2d[:,0]
         y = array_2d[:,1]
-        self.canvas.axes.scatter(x, y)
+
+        if array_2d.shape[1] == 2:
+            self.canvas.axes.scatter(x, y)
+        elif array_2d.shape[1] == 3:
+            z = array_2d[:, 2]
+            self.canvas.axes.scatter(x, y, z)
+
         self.canvas.draw()

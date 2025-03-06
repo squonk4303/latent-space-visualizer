@@ -108,7 +108,7 @@ def get_model(trained_file, categories):
     return model_obj
 
 
-def reduce_data(trained_file, categories=["skin"]):
+def reduce_data(trained_file, categories, target_dimensionality=2):
     """Take a homogenous array of data, and reduce its dimensionality through t-SNE."""
     # TEMP: This is a hard-coded simulation of choosing a discrete layer
     model_obj = get_model(trained_file, categories)
@@ -120,7 +120,7 @@ def reduce_data(trained_file, categories=["skin"]):
     # Reduce dimensionality by t-SNE
     perplexity_n = min(30, len(selected_features) - 1)
     np.random.seed(42)  # @Wilhelmsen: Define seed elsewhere, once data has been visualized to graph
-    tsne = TSNE(n_components=2, perplexity=perplexity_n)
+    tsne = TSNE(n_components=target_dimensionality, perplexity=perplexity_n)
     reduced_data = tsne.fit_transform(selected_features)
 
     return reduced_data
