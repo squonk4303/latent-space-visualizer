@@ -60,6 +60,7 @@ class PrimaryWindow(QMainWindow):
         empty_tab.addWidget(self.openfile_button)
         empty_tab.addWidget(self.TEMP_button)
 
+        # Adds the plot widget as a tab
         self.plot = PlotWidget()
         graph_tab.addWidget(self.plot)
 
@@ -112,9 +113,10 @@ class PrimaryWindow(QMainWindow):
         model_path = handler.find_trained_model_file()
         categories = ["skin"]
         if model_path:
-            loading.print_dim_reduced(model_path, categories)
             #loaded_model = loading.get_model(model_path, categories)
             #loading.layer_summary(loaded_model, 1, 2)
+            reduced_data = loading.reduce_data(model_path, categories)
+            self.plot.plot_from_2d(reduced_data)
 
     def activate_tab_0(self):
         self.tab_layout.setCurrentIndex(0)

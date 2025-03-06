@@ -108,18 +108,12 @@ def get_model(trained_file, categories):
     return model_obj
 
 
-def print_dim_reduced(trained_file, categories=["skin"]):
-    """Print a slice of the model, with reduced dimensionality through t-SNE."""
-    # Load model from checkpoint to memory
-    # And do some set-up, such as move to device
+def reduce_data(trained_file, categories=["skin"]):
+    """Take a homogenous array of data, and reduce its dimensionality through t-SNE."""
+    # TEMP: This is a hard-coded simulation of choosing a discrete layer
     model_obj = get_model(trained_file, categories)
-
-    # Get the features from state_dict
     layer_dict = model_obj.state_dict()
     features_list = list(layer_dict.values())
-
-    # Choose a layer to represent, and turn it into a np.array
-    # TEMP: Hard-coded for now
     selected_features = features_list[163:167]
     selected_features = np.array(selected_features)
 
@@ -129,8 +123,7 @@ def print_dim_reduced(trained_file, categories=["skin"]):
     tsne = TSNE(n_components=2, perplexity=perplexity_n)
     reduced_data = tsne.fit_transform(selected_features)
 
-    # Computer. Show me the t-SN Embedded layer
-    print(reduced_data)
+    return reduced_data
 
 
 def layer_summary(loaded_model, start_layer=0, end_layer=0):
