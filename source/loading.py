@@ -125,13 +125,12 @@ def print_dim_reduced(trained_file, categories=["skin"]):
 
     # Reduce dimensionality by t-SNE
     perplexity_n = min(30, len(selected_features) - 1)
-    np.random.seed(42)  # TODO set seed somewhere better
+    np.random.seed(42)  # @Wilhelmsen: Define seed elsewhere, once data has been visualized to graph
     tsne = TSNE(n_components=2, perplexity=perplexity_n)
-    dim_reduced = tsne.fit_transform(selected_features)
+    reduced_data = tsne.fit_transform(selected_features)
 
     # Computer. Show me the t-SN Embedded layer
-    print(type(dim_reduced))
-    print(dim_reduced)
+    print(reduced_data)
 
 
 def layer_summary(loaded_model, start_layer=0, end_layer=0):

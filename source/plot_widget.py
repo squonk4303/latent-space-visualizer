@@ -31,7 +31,10 @@ class PlotWidget(QWidget):
         layout = QVBoxLayout(self)
         self.canvas = MplCanvas(self)
 
-        self.plot_from_file(consts.SINE_COSINE)
+        # self.plot_from_file(consts.SINE_COSINE)
+        array_2d = np.random.uniform(-1.0, 1.0, size=(30, 2))
+        self.plot_from_2d(array_2d)
+
         layout.addWidget(self.canvas)
 
     def plot_sine(self):
@@ -43,4 +46,10 @@ class PlotWidget(QWidget):
     def plot_from_file(self, filepath):
         data = parse.csv_as_list(filepath)
         self.canvas.axes.plot(data)
+        self.canvas.draw()
+
+    def plot_from_2d(self, array_2d: np.ndarray):
+        x = array_2d[:,0]
+        y = array_2d[:,1]
+        self.canvas.axes.scatter(x, y)
         self.canvas.draw()

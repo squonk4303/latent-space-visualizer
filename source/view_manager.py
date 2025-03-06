@@ -110,10 +110,11 @@ class PrimaryWindow(QMainWindow):
     def load_model_file(self):
         handler = loading.FileDialogManager(self)
         model_path = handler.find_trained_model_file()
+        categories = ["skin"]
         if model_path:
-            loading.print_dim_reduced(model_path, ["skin"])
-            loaded_model = loading.get_model(model_path, ["skin"])
-            loading.layer_summary(loaded_model, 1, 2)
+            loading.print_dim_reduced(model_path, categories)
+            #loaded_model = loading.get_model(model_path, categories)
+            #loading.layer_summary(loaded_model, 1, 2)
 
     def activate_tab_0(self):
         self.tab_layout.setCurrentIndex(0)
