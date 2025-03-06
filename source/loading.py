@@ -15,50 +15,54 @@ import utils
 
 
 class FileDialogManager():
-    img_path   = ""
-    model_path = ""
-    some_path  = ""
+    """
+    Class to simplify handling of files and file dialogs.
 
-    def open_dialog(
-            self,
-            parent=None,
-            file_filter_list=list(consts.FILE_FILTERS.values())
-            ):
+    Methods:
+        __init__    -- initializes with argument being which window is the parent
+        open_dialog -- generic function to open a qfiledialog; for wrapping
+        open_all    -- wrapper for open_dialog which has filters set for all files
+        open_img    -- wrapper for open_dialog which has filters set for pictures
+        open_model  -- wrapper for open_dialog which has filters set for trained nn models
+    """
+
+    def __init__(self, parent_window):
+        self.parent = parent_window
+
+    def open_dialog(self, file_filters=list(consts.FILE_FILTERS.values())):
         """Launch a file dialog and return the filepath and selected filter."""
-        if not (utils.arr_is_subset(file_filter_list,
+        if not (utils.arr_is_subset(file_filters,
                                     list(consts.FILE_FILTERS.values() ))):
             raise RuntimeError("Unacceptable list of file filters")
 
-        initial_filter = file_filter_list[0]
-        filters = ";;".join(file_filter_list)
+        initial_filter = file_filters[0]
+        filters = ";;".join(file_filters)
 
         filepath, selected_filter = QFileDialog.getOpenFileName(
-            parent,
+            self.parent,
             filter=filters,
             initialFilter=initial_filter,
         )
-        if filepath == "":
-            # TODO: Make it so the user knows the program stopped
-            # because they didn't select a file
-            pass
-        return filepath, selected_filter
 
-    def open_all(self, parent=None):
+        if filepath:
+            return filepath, selected_filter
+
+    def open_all(self):
         """Launches file dialog and sets the returned filepath to local attribute."""
-        self.some_path, _ = self.open_dialog(parent)
+        path, _ = self.open_dialog()
+        return path
 
-    def open_img(self, parent=None):
+    def open_img(self):
         """Launches file dialog for pictures and uses return value for attribute."""
         filters = [consts.FILE_FILTERS["pictures"]]
-        assert filters == [("Image Files (*.png *.jpg *.jpeg *.webp "
-                            "*.bmp *.gif *.tif *.tiff *.svg)")]
-        self.img_path, _ = self.open_dialog(parent, filters)
+        path, _ = self.open_dialog(filters)
+        return path
 
-    def open_model(self, parent=None):
+    def open_model(self):
         """Launches file dialog for nn-models and uses return value for attribute."""
         filters = [consts.FILE_FILTERS["pytorch"]]
-        assert filters == ["PyTorch Files (*.pt *.pth)"]
-        self.model_path, _ = self.open_dialog(parent, filters)
+        path, _ = self.open_dialog(filters)
+        return path
 
 
 class AutoencodeModel(fcn.FCNResNet101):

@@ -2,13 +2,22 @@
 from unittest.mock import patch
 import pytest
 
-from PyQt6.QtWidgets import QFileDialog
+from PyQt6.QtWidgets import (
+    QFileDialog,
+    QMainWindow,
+)
 
 import consts
 import loading
 
 
-# --- Sort-of-Fixtures ---
+# --- Fixtures and Sort-of-Fixtures ---
+@pytest.fixture
+def handler():
+    window = QMainWindow
+    return loading.FileDialogManager(window)
+
+
 mocked_qfiledialog = patch.object(
         QFileDialog,
         "getOpenFileName",
@@ -16,42 +25,37 @@ mocked_qfiledialog = patch.object(
     )
 
 
-def test_default_file_dialogue():
+def test_default_file_dialogue(handler):
     """Test a normal use case for the function."""
-    handler = loading.FileDialogManager()
     with mocked_qfiledialog:
         path, filter_ = handler.open_dialog()
         assert path    == "a/gorgeous/path"
         assert filter_ == "All Files (*)"
 
 
-def test_bad_file_filters():
+def test_bad_file_filters(handler):
     """Test that a RuntimeError is raised upon bad list invocation."""
-    handler = loading.FileDialogManager()
     with pytest.raises(RuntimeError):
         with mocked_qfiledialog:
-            path, filter_ = handler.open_dialog(file_filter_list="I'm a chuckster!")
+            path, filter_ = handler.open_dialog(file_filters="I'm a chuckster!")
 
 
-def test_some_path_set():
+def test_some_path_set(handler):
     """Test function sets path from return value."""
-    handler = loading.FileDialogManager()
     with mocked_qfiledialog:
-        handler.open_all()
-        assert handler.some_path == "a/gorgeous/path"
+        path = handler.open_all()
+        assert path == "a/gorgeous/path"
 
 
-def test_img_path_set():
+def test_img_path_set(handler):
     """Test function sets path from return value."""
-    handler = loading.FileDialogManager()
     with mocked_qfiledialog:
-        handler.open_img()
-        assert handler.img_path == "a/gorgeous/path"
+        path = handler.open_img()
+        assert path == "a/gorgeous/path"
 
 
-def test_model_path_set():
+def test_model_path_set(handler):
     """Test function sets path from return value."""
-    handler = loading.FileDialogManager()
     with mocked_qfiledialog:
-        handler.open_model()
-        assert handler.model_path == "a/gorgeous/path"
+        path = handler.open_model()
+        assert path == "a/gorgeous/path"

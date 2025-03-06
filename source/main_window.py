@@ -110,10 +110,10 @@ class MainWindow(QMainWindow):
         self.file_menu = file_menu
 
     def load_file(self):
-        temp = loading.FileDialogManager()
-        temp.open_model(self)
-        load = loading.print_dim_reduced(temp.model_path)
-        loading.layer_summary(load,1,2)
+        handler = loading.FileDialogManager(self)
+        model_path = handler.open_model()
+        load = loading.print_dim_reduced(model_path)
+        loading.layer_summary(load, 1, 2)
 
     def activate_tab_0(self):
         self.tab_layout.setCurrentIndex(0)
