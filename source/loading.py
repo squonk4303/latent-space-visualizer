@@ -11,7 +11,6 @@ from PyQt6.QtWidgets import (
 
 import consts
 import external.fcn as fcn
-import utils
 
 
 class FileDialogManager():
@@ -19,7 +18,6 @@ class FileDialogManager():
     Class to simplify handling of files and file dialogs.
 
     Methods:
-        __init__ -- initializes with argument being which window is the parent
         find_file -- generic function to open a qfiledialog; for wrapping
         find_some_file -- wrapper for find_file which has filters set for all files
         find_picture_file -- wrapper for find_file which has filters set for pictures
@@ -27,18 +25,27 @@ class FileDialogManager():
     """
 
     def __init__(self, parent_window):
+        """Initilalizes with a parent window to say to whom any of its spawned window is a child."""
         self.parent = parent_window
 
-    def find_file(self, file_filters=list(consts.FILE_FILTERS.values())):
-        """Launch a file dialog and return the filepath and selected filter."""
-        if not (utils.arr_is_subset(file_filters, list(consts.FILE_FILTERS.values()))):
+    def find_file(self, file_filters=consts.FILE_FILTERS.values() ):
+        """
+        Launch a file dialog and return the filepath and selected filter.
+
+        Note that the first element in file_filters is used as the initial file filter.
+        """
+        # Test whether file_filters is a-subset-of/equal-to the legal file filters
+        if not set(file_filters) <= set(consts.FILE_FILTERS.values()):
             raise RuntimeError("Unacceptable list of file filters")
 
+        # Generate Qt-readable filter specifications
+        file_filters = list(file_filters)
         initial_filter = file_filters[0]
         filters = ";;".join(file_filters)
 
+        # This function opens a nifty Qt-made file dialog
         filepath, selected_filter = QFileDialog.getOpenFileName(
-            self.parent,
+            parent=self.parent,
             filter=filters,
             initialFilter=initial_filter,
         )
@@ -46,19 +53,25 @@ class FileDialogManager():
         return filepath, selected_filter
 
     def find_some_file(self):
-        """Launches file dialog and sets the returned filepath to local attribute."""
+        """Launch a file dialog where user is prompted to pick out any file their heart desires."""
         path, _ = self.find_file()
         return path
 
     def find_picture_file(self):
-        """Launches file dialog for pictures and uses return value for attribute."""
-        filters = [consts.FILE_FILTERS["pictures"]]
+        """Launch file dialog where user is intended to pick out a graphical image file."""
+        filters = [
+            consts.FILE_FILTERS["pictures"],
+            consts.FILE_FILTERS["whatever"],
+        ]
         path, _ = self.find_file(filters)
         return path
 
     def find_trained_model_file(self):
-        """Launches file dialog for nn-models and uses return value for attribute."""
-        filters = [consts.FILE_FILTERS["pytorch"]]
+        """Launch file dialog where user is intended to pick out the file for a trained nn-model."""
+        filters = [
+            consts.FILE_FILTERS["pytorch"],
+            consts.FILE_FILTERS["whatever"],
+        ]
         path, _ = self.find_file(filters)
         return path
 
