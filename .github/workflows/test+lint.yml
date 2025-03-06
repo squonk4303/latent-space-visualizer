@@ -46,8 +46,8 @@ jobs:
       - name: RUN PYTEST THROUGH XVFB
         env:
           QT_QPA_PLATFORM: offscreen
-        # Uses '-m "not slow"' to skip loading pretrained model
-        run: xvfb-run pytest -v -m "not slow"
+        # Skips tests which include loading a pretrained model
+        run: xvfb-run pytest -v -m "not pretrained_model"
 
       # Configuration found in file '.flake8'
       - name: LINT WITH FLAKE8
