@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
-import sys
 from PyQt6.QtGui import (
     QAction,
     QKeySequence,
 )
 from PyQt6.QtWidgets import (
-    QApplication,
     QHBoxLayout,
     QMainWindow,
     QPushButton,
@@ -19,13 +17,13 @@ from stacked_layout_manager import StackedLayoutManager
 from plot_widget import PlotWidget
 
 
-class MainWindow(QMainWindow):
+class PrimaryWindow(QMainWindow):
     """
-    Main window of the program
+    Primary window of the program
     This is where all the action happens
     """
     def __init__(self, *args, **kwargs):
-        """ Constructor for the main window """
+        """ Constructor for the primary window """
         super().__init__(*args, **kwargs)
 
         # --- Layout ---
@@ -122,10 +120,3 @@ class MainWindow(QMainWindow):
 
     def activate_tab_1(self):
         self.tab_layout.setCurrentIndex(1)
-
-
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    window = MainWindow()
-    window.show()
-    app.exec()

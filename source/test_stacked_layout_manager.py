@@ -16,6 +16,7 @@ from stacked_layout_manager import StackedLayoutManager
 # Lest it sends a REALLY nasty-looking bug at you. Not recommended.
 _ = QApplication([])
 
+
 @pytest.fixture
 def empty_layout():
     """Initialize a layout manager with no widgets."""

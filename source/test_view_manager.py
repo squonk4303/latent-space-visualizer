@@ -6,17 +6,17 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QFileDialog
 
 import consts
-from view_manager import MainWindow
+from view_manager import PrimaryWindow
 
 
 # --- Fixtures and Sort-of-Fixtures ---
 @pytest.fixture
-def mainwindow(qtbot):
+def primary_window(qtbot):
     """
-    Initializes the main window of the application for use in following tests
-    Returns class MainWindow(QMainWindow)
+    Initializes the primary window of the application for use in following tests
+    Returns class PrimaryWindow(QMainWindow)
     """
-    window = MainWindow()
+    window = PrimaryWindow()
     qtbot.addWidget(window)
     return window
 
@@ -35,46 +35,46 @@ mocked_cancelled_qfiledialog = patch.object(
 )
 
 
-def test_window_basically(mainwindow, qtbot):
+def test_window_basically(primary_window, qtbot):
     """Test that the window is alive and exists."""
-    assert mainwindow.windowTitle() == consts.WINDOW_TITLE
-    assert mainwindow.centralWidget()
+    assert primary_window.windowTitle() == consts.WINDOW_TITLE
+    assert primary_window.centralWidget()
 
 
-def test_qaction_to_switch_tabs(mainwindow, qtbot):
+def test_qaction_to_switch_tabs(primary_window, qtbot):
     """Test switching tabs with the QActions."""
-    assert mainwindow.tab_layout.currentIndex() == 0
-    mainwindow.next_tab.trigger()
-    assert mainwindow.tab_layout.currentIndex() == 1
-    mainwindow.next_tab.trigger()
-    assert mainwindow.tab_layout.currentIndex() == 0
-    mainwindow.prev_tab.trigger()
-    assert mainwindow.tab_layout.currentIndex() == 1
+    assert primary_window.tab_layout.currentIndex() == 0
+    primary_window.next_tab.trigger()
+    assert primary_window.tab_layout.currentIndex() == 1
+    primary_window.next_tab.trigger()
+    assert primary_window.tab_layout.currentIndex() == 0
+    primary_window.prev_tab.trigger()
+    assert primary_window.tab_layout.currentIndex() == 1
 
 
-def test_buttons_to_switch_tabs(mainwindow, qtbot):
+def test_buttons_to_switch_tabs(primary_window, qtbot):
     """ Tests switching tabs with hardcoded buttons """
-    qtbot.mouseClick(mainwindow.empty_tab_button, Qt.MouseButton.LeftButton)
-    assert mainwindow.tab_layout.currentIndex() == 0
-    qtbot.mouseClick(mainwindow.graph_tab_button, Qt.MouseButton.LeftButton)
-    assert mainwindow.tab_layout.currentIndex() == 1
+    qtbot.mouseClick(primary_window.empty_tab_button, Qt.MouseButton.LeftButton)
+    assert primary_window.tab_layout.currentIndex() == 0
+    qtbot.mouseClick(primary_window.graph_tab_button, Qt.MouseButton.LeftButton)
+    assert primary_window.tab_layout.currentIndex() == 1
 
 
 @pytest.mark.slow
-def test_tab_switch_after_selecting_file(mainwindow, qtbot):
+def test_tab_switch_after_selecting_file(primary_window, qtbot):
     """
     Test switching to next tab after selecting file.
     Currently a bit slow, for it loads and evaluates a pretrained model...
     """
     with mocked_trained_model_qfiledialog:
-        assert mainwindow.tab_layout.currentIndex() == 0
-        mainwindow.action_to_open_file.trigger()
-        assert mainwindow.tab_layout.currentIndex() == 0
+        assert primary_window.tab_layout.currentIndex() == 0
+        primary_window.action_to_open_file.trigger()
+        assert primary_window.tab_layout.currentIndex() == 0
 
 
-def test_cancelled_file_select(mainwindow, qtbot):
+def test_cancelled_file_select(primary_window, qtbot):
     """Test that a cancelled file dialog exits gracefully."""
     with mocked_cancelled_qfiledialog:
-        assert mainwindow.tab_layout.currentIndex() == 0
-        mainwindow.action_to_open_file.trigger()
-        assert mainwindow.tab_layout.currentIndex() == 0
+        assert primary_window.tab_layout.currentIndex() == 0
+        primary_window.action_to_open_file.trigger()
+        assert primary_window.tab_layout.currentIndex() == 0

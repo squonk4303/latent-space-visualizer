@@ -7,7 +7,6 @@ from PyQt6.QtWidgets import (
     QMainWindow,
 )
 
-import consts
 import loading
 
 
