@@ -107,6 +107,16 @@ def get_model(trained_file, categories):
     model_obj.eval()
     return model_obj
 
+def make_data(trained_file, categories, start_layer, end_layer):
+    hom_arr = np.array() 
+    model_obj = get_model(trained_file, categories)
+    layer_dict = model_obj.state_dict()
+    
+    selected_features = #HOOk
+
+    
+
+    return hom_arr
 
 def reduce_data(trained_file, categories, target_dimensionality=2):
     """Take a homogenous array of data, and reduce its dimensionality through t-SNE."""
