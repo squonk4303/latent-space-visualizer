@@ -112,6 +112,7 @@ class PrimaryWindow(QMainWindow):
         handler = loading.FileDialogManager(self)
         model_path = handler.find_trained_model_file()
         categories = ["skin"]
+        # If user cancels dialog, does nothing
         if model_path:
             #loaded_model = loading.get_model(model_path, categories)
             #loading.layer_summary(loaded_model, 1, 2)
