@@ -9,7 +9,10 @@ from PyQt6.QtWidgets import (
 
 # matplotlib necessarily imported after PyQt6
 import matplotlib.pyplot as plt
-from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
+from matplotlib.backends.backend_qtagg import (
+    FigureCanvasQTAgg,
+    NavigationToolbar2QT as NavigationToolbar,
+)
 from matplotlib.figure import Figure
 
 import consts
@@ -35,6 +38,7 @@ class PlotWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
 
+        self.parent = parent
         layout = QVBoxLayout(self)
         self.canvas = MplCanvas(self)
 
@@ -62,3 +66,7 @@ class PlotWidget(QWidget):
             self.canvas.axes.scatter(x, y, z)
 
         self.canvas.draw()
+
+    def make_toolbar(self):
+        toolbar = NavigationToolbar(self.canvas, self.parent)
+        return toolbar
