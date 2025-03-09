@@ -96,26 +96,44 @@ class AutoencodeModel(fcn.FCNResNet101):
         checkpoint["state_dict"] = new_state_dict
 
         self.load_state_dict(checkpoint["state_dict"], strict=True)
-        return self
-
-
-def get_model(trained_file, categories):
-    """Load trained model to memory. Does additional setup like moving to GPU if available."""
-    model_obj = AutoencodeModel(categories, trained_file)
-    model_obj = model_obj.load_from_checkpoint()
-    model_obj = model_obj.to(model_obj.device)
-    model_obj.eval()
-    return model_obj
 
 
 def reduce_data(trained_file, categories, target_dimensionality=2):
     """Take a homogenous array of data, and reduce its dimensionality through t-SNE."""
     # TEMP: This is a hard-coded simulation of choosing a discrete layer
-    model_obj = get_model(trained_file, categories)
-    layer_dict = model_obj.state_dict()
-    features_list = list(layer_dict.values())
-    selected_features = features_list[163:167]
+    model_obj = AutoencodeModel(categories, trained_file)
+    model_obj.load_from_checkpoint()
+    model_obj.to(model_obj.device)
+    model_obj.eval()
+
+    features = []
+
+    # @Wilhelmsen: What *is* the output?
+    def my_hook(model, args, output):
+        features.append(output.detach())
+
+    #def hooker(d, keyname):
+    #    def hook(model, args, output):
+    #        d[keyname] = output.detach()
+    #    return hook
+
+    # Gets the "learnable parameters" from the model's state_dict
+    parameters = list(model_obj.state_dict().values())
+    # Selects a small slice of the parameters to t-SNE
+    selected_features = parameters[163:167]
     selected_features = np.array(selected_features)
+
+    # Else try layer4.0
+    # Notice that the layer is here: ~~~~~~vvvvvv
+    hook_handle = model_obj.model.backbone.layer4.register_forward_hook(my_hook)
+
+    # Forward the model
+    #with torch.no_grad():
+    #    _ = model_obj()
+
+    #print("Number of entries in features:", len(features))
+
+    hook_handle.remove()
 
     # Reduce dimensionality by t-SNE
     perplexity_n = min(30, len(selected_features) - 1)
