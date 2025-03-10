@@ -10,6 +10,7 @@ from PyQt6.QtWidgets import (
 )
 
 import consts
+from consts import DR_technique as Technique
 import external.fcn as fcn
 
 
@@ -127,7 +128,7 @@ def t_sne(features, dimensionality):
 
     return data
 
-def reduce_data(trained_file, categories, target_dimensionality=2, method="_tSNE"):
+def reduce_data(trained_file, categories, target_dimensionality=2, reduction=Technique.T_SNE):
     """Take a homogenous array of data, and reduce its dimensionality through t-SNE."""
     # TEMP: This is a hard-coded simulation of choosing a discrete layer
     model_obj = get_model(trained_file, categories)
@@ -143,15 +144,22 @@ def reduce_data(trained_file, categories, target_dimensionality=2, method="_tSNE
     reduced_data = tsne.fit_transform(selected_features) """
 
     #Added a switch for later implementation of more reduction methods
-    match method:
-        case "_tSNE": #Maybe have this be based off of enums  instead?
+    match reduction:
+        case Technique.T_SNE: #Maybe have this be based off of enums  instead?
             reduced_data = t_sne(selected_features,target_dimensionality)
-        case _: #Default case
-            reduced_data = False
-            print("Error: No reduction method selected!")
+        case Technique.PCA:
+            reduced_data = None # TBI (TO BE IMPLEMENTED)
+        case Technique.UMAP:    
+            reduced_data = None # TBI
+        case Technique.TRIMAP:
+            reduced_data = None # TBI
+        case Technique.PACMAP:
+            reduced_data = None # TBI
+        case _:                 # Default case
+            reduced_data = None
+            print("Error: No reduction technique selected!")
 
-    if reduced_data:
-        return reduced_data
+    return reduced_data
 
 
 def layer_summary(loaded_model, start_layer=0, end_layer=0):

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from enum import Enum, auto
 
 # GUI Text
 OPEN_FILE_LABEL = "&Open File"
@@ -19,3 +20,11 @@ SINE_COSINE   = "source/sin_cos.csv"
 
 # Used for testing only; assumes there's a local dir/symlink with appropriate model
 TRAINED_MODEL = "trained_models/RGB_no_augmentation.pth"
+
+# Enums for dimensionality reduction techniques
+class DR_technique(Enum):
+    T_SNE = auto() 
+    PCA = auto()
+    UMAP = auto()
+    TRIMAP = auto()
+    PACMAP = auto()
