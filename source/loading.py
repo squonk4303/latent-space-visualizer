@@ -79,17 +79,21 @@ class FileDialogManager():
         return path
 
 
-class AutoencodeModel(fcn.FCNResNet101):
-    def __init__(self, cat, path):
-        super().__init__(cat)
+class AutoencodeModel():
+    def __init__(self):
+        super().__init__()
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.cats = cat
-        self.path = path
+        self.models = {}
 
-    def load_from_checkpoint(self):
-        checkpoint = torch.load(self.path, map_location=self.device,
-                                weights_only=False)
+    def load_model(self, name, trained_file, categories):
+        """Load trained model from file to local dictionary."""
+        # Create model and load data to memory
+        # @Wilhelmsen: Alter to include more models, when we include more models
+        # if it's possible to do it in the same function...
+        model_obj = fcn.FCNResNet101(categories)
+        checkpoint = torch.load(trained_file, map_location=self.device, weights_only=False)
 
+        # Make necessary alterations to state_dict before loading into model
         state_dict = checkpoint["state_dict"]
         new_state_dict = dict()
         for key, value in state_dict.items():
@@ -97,18 +101,13 @@ class AutoencodeModel(fcn.FCNResNet101):
             new_state_dict[new_key] = value
 
         checkpoint["state_dict"] = new_state_dict
+        model_obj.load_state_dict(checkpoint["state_dict"], strict=True)
 
-        self.load_state_dict(checkpoint["state_dict"], strict=True)
-        return self
+        model_obj.to(self.device)
+        model_obj.eval()
 
-
-def get_model(trained_file, categories):
-    """Load trained model to memory. Does additional setup like moving to GPU if available."""
-    model_obj = AutoencodeModel(categories, trained_file)
-    model_obj = model_obj.load_from_checkpoint()
-    model_obj = model_obj.to(model_obj.device)
-    model_obj.eval()
-    return model_obj
+        self.models[name] = model_obj
+        return name
 
 
 def the_whole_enchilada():
@@ -140,7 +139,9 @@ def the_whole_enchilada():
     image_tensors = [preprocessing(img).unsqueeze(0).to(device) for img in graphical_images]
 
     # Load model and send to device and eval and cetara, hold the cetera
-    trained_model = get_model(model_path, categories)
+    big_obj = AutoencodeModel()
+    big_obj.load_model("fcn", model_path, categories)
+    trained_model = big_obj.models["fcn"]
 
     # Register hook and yadda yadda
 
@@ -175,11 +176,6 @@ def the_whole_enchilada():
     # @Wilhelmsen: Just find out what the point is. Do it in encapsulation process.
     features = np.array(features).reshape(len(features), -1)
 
-    # Check if enough features exist
-    # if features.shape[1] < 2:
-    #     print(f"Not enough features per sample for t-SNE. Skipping model {model_name}.")
-    #     return
-
     # Ensure a reasonable/legal perplexity value
     perplexity_value = min(30, len(features) - 1)
 
@@ -208,6 +204,7 @@ def hooker(t):
 
 def reduce_data(trained_file, categories, target_dimensionality=2):
     """Take a homogenous array of data, and reduce its dimensionality through t-SNE."""
+    """Deprecated"""
     # TEMP: This is a hard-coded simulation of choosing a discrete layer
     model_obj = get_model(trained_file, categories)
     layer_dict = model_obj.state_dict()
