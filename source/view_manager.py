@@ -33,7 +33,7 @@ class PrimaryWindow(QMainWindow):
 
         tab_buttons_layout = QHBoxLayout()
         empty_tab = QVBoxLayout()
-        graph_tab = QHBoxLayout()
+        graph_tab = QVBoxLayout()
 
         self.openfile_button = QPushButton(consts.OPEN_FILE_LABEL)
         self.TEMP_button = QPushButton("-->")
@@ -62,7 +62,10 @@ class PrimaryWindow(QMainWindow):
 
         # Adds the plot widget as a tab
         self.plot = PlotWidget()
+        toolbar = self.plot.make_toolbar()
+
         graph_tab.addWidget(self.plot)
+        graph_tab.addWidget(toolbar)
 
         self.tab_layout.add_layout(empty_tab)
         self.tab_layout.add_layout(graph_tab)
@@ -112,6 +115,7 @@ class PrimaryWindow(QMainWindow):
         handler = loading.FileDialogManager(self)
         model_path = handler.find_trained_model_file()
         categories = ["skin"]
+        # If user cancels dialog, does nothing
         if model_path:
             # loaded_model = loading.get_model(model_path, categories)
             # loading.layer_summary(loaded_model, 1, 2)

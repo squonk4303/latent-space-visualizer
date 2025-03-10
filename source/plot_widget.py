@@ -8,7 +8,11 @@ from PyQt6.QtWidgets import (
 )
 
 # matplotlib necessarily imported after PyQt6
-from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_qtagg import (
+    FigureCanvasQTAgg,
+    NavigationToolbar2QT as NavigationToolbar,
+)
 from matplotlib.figure import Figure
 
 import consts
@@ -19,7 +23,13 @@ class MplCanvas(FigureCanvasQTAgg):
     """Make a canvas for the plot to render onto."""
     def __init__(self, parent=None, width=5, height=4, dpi=100):
         fig = Figure(figsize=(width, height), dpi=dpi)
-        self.axes = fig.add_subplot(1, 1, 1)
+
+        if consts.flags["xkcd"]:
+            with plt.xkcd():
+                self.axes = fig.add_subplot(1, 1, 1)
+        else:
+            self.axes = fig.add_subplot(1, 1, 1)
+
         super().__init__(fig)
 
 
@@ -28,6 +38,7 @@ class PlotWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
 
+        self.parent = parent
         layout = QVBoxLayout(self)
         self.canvas = MplCanvas(self)
 
@@ -45,8 +56,8 @@ class PlotWidget(QWidget):
         self.canvas.draw()
 
     def plot_from_2d(self, array_2d: np.ndarray):
-        x = array_2d[:,0]
-        y = array_2d[:,1]
+        x = array_2d[:, 0]
+        y = array_2d[:, 1]
 
         if array_2d.shape[1] == 2:
             self.canvas.axes.scatter(x, y)
@@ -55,3 +66,7 @@ class PlotWidget(QWidget):
             self.canvas.axes.scatter(x, y, z)
 
         self.canvas.draw()
+
+    def make_toolbar(self):
+        toolbar = NavigationToolbar(self.canvas, self.parent)
+        return toolbar
