@@ -146,20 +146,18 @@ def reduce_data(trained_file, categories, target_dimensionality=2, reduction=Tec
     #Added a switch for later implementation of more reduction methods
     match reduction:
         case Technique.T_SNE: #Maybe have this be based off of enums  instead?
-            reduced_data = t_sne(selected_features,target_dimensionality)
+            return t_sne(selected_features,target_dimensionality)
         case Technique.PCA:
-            reduced_data = None # TBI (TO BE IMPLEMENTED)
+            return None # TBI (TO BE IMPLEMENTED)
         case Technique.UMAP:    
-            reduced_data = None # TBI
+            return None # TBI
         case Technique.TRIMAP:
-            reduced_data = None # TBI
+            return None # TBI
         case Technique.PACMAP:
-            reduced_data = None # TBI
+            return None # TBI
         case _:                 # Default case
-            reduced_data = None
+            return None
             print("Error: No reduction technique selected!")
-
-    return reduced_data
 
 
 def layer_summary(loaded_model, start_layer=0, end_layer=0):
