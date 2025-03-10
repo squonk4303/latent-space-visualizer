@@ -113,9 +113,11 @@ class PrimaryWindow(QMainWindow):
         model_path = handler.find_trained_model_file()
         categories = ["skin"]
         if model_path:
-            #loaded_model = loading.get_model(model_path, categories)
-            #loading.layer_summary(loaded_model, 1, 2)
-            reduced_data = loading.reduce_data(model_path, categories)
+            # loaded_model = loading.get_model(model_path, categories)
+            # loading.layer_summary(loaded_model, 1, 2)
+            # reduced_data = loading.reduce_data(model_path, categories)
+            reduced_data = loading.the_whole_enchilada()
+            print(reduced_data)
             self.plot.plot_from_2d(reduced_data)
 
     def activate_tab_0(self):

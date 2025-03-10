@@ -19,3 +19,4 @@ SINE_COSINE   = "source/sin_cos.csv"
 
 # Used for testing only; assumes there's a local dir/symlink with appropriate model
 TRAINED_MODEL = "trained_models/RGB_no_augmentation.pth"
+GRAPHICAL_IMAGE = "pics/dog.png"
