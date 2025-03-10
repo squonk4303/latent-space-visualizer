@@ -157,7 +157,7 @@ def reduce_data(trained_file, categories, target_dimensionality=2, reduction=Tec
             return None # TBI
         case _:                 # Default case
             return None
-            raise MissingError("No reduction technique selected!")
+            raise RuntimeError("No reduction technique selected!")
 
 
 def layer_summary(loaded_model, start_layer=0, end_layer=0):
