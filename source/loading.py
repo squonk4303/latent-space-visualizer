@@ -118,6 +118,7 @@ def make_data(trained_file, categories, start_layer, end_layer):
 
     return hom_arr
 
+#   Maybe move this to it's own file with other methods at some point?
 def t_sne(features, dimensionality):
     perplexity_n = min(30, len(features) - 1)
     np.random.seed(42)  # @Wilhelmsen: Define seed elsewhere, once data has been visualized to graph
