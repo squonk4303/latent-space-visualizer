@@ -83,6 +83,8 @@ class AutoencodeModel():
     def __init__(self):
         super().__init__()
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.features = []
+        self.image_tensors = []
         self.models = {}
 
     def load_model(self, name, trained_file, categories):
@@ -109,22 +111,15 @@ class AutoencodeModel():
         self.models[name] = model_obj
         return name
 
-    def dataset_to_tensors(self):
+    def dataset_to_tensors(self, dataset):
         """
         TODO: Uses the file dialog to locate a dir (or zip file maybe) in
         which to scan for valid images and load them into memory. Also make
         an effort to state how many images are loaded, because *that* has a
         lot of implications that are relevant to the user.
         """
-        pass
-
-    def the_whole_enchilada(self, model_name):
-        """
-        Does a lot of things; to be encapsulated
-        Verily based on example code we got from Mekides.
-        """
-        # Get model and image to operate on
-        graphical_images = [
+        # TEMP: Hard-coded right now
+        dataset = [
             Image.open(consts.GRAPHICAL_IMAGE).convert("RGB"),
             Image.open("pics/animals10/gallina/1000.jpeg").convert("RGB"),
             Image.open("pics/animals10/gallina/1001.jpeg").convert("RGB"),
@@ -133,38 +128,43 @@ class AutoencodeModel():
             Image.open("pics/animals10/gallina/1013.jpeg").convert("RGB"),
         ]
 
-        trained_model = self.models[model_name]
-
         # Make a function to transform graphical images to 640x640 tensors
+        # @Wilhelmsen consider moving preprocessing definition
         preprocessing = torchvision.transforms.Compose([
             torchvision.transforms.Resize(640),
-            torchvision.transforms.ToTensor()
+            torchvision.transforms.ToTensor(),
         ])
 
-        # Transform images, and send them to device
-        image_tensors = [preprocessing(img).unsqueeze(0).to(self.device) for img in graphical_images]
+        # Save it as an attribute, because we want to append-to and reuse these
+        self.image_tensors = [preprocessing(img).unsqueeze(0).to(self.device) for img in dataset]
 
-        # Load model and send to device and eval and cetara, hold the cetera
-        #self = AutoencodeModel()
-        #self.load_model("no_augmentation", model_path, categories)
-        trained_model = self.models["no_augmentation"]
+    def the_whole_enchilada(self, model_name):
+        """
+        Does a lot of things; to be encapsulated
+        Verily based on example code we got from Mekides.
+        """
+        model_obj = self.models[model_name]
+
+        # Find data set using this function:
+        # dataset = FileDialogManager.find_dir/zip()
+        data_paths = None
+        self.dataset_to_tensors(data_paths)
 
         # Register hook and yadda yadda
 
-        # @Wilhelmsen: Find a better DAM name for this. Do it in the encapsulation process.
-        features_list = []
-        hook_handle = trained_model.model.backbone.layer4.register_forward_hook(hooker(features_list))
+        # Plant the hook       in   layer4  ~~~~vvv
+        # Otherwise use function find_layer to let user choose layer
+        # Then use gitattr() to dynamically select the layer based on user choice...!
+        hooked_feature = []  # <-- A list so that we can use it as pointer and with isinstance later
+        hook_handle = model_obj.model.backbone.layer4.register_forward_hook(hooker(hooked_feature))
 
         # Process t-sne part
-        # visualize_features_tSNE(model, image_tensors, image_labels, model_name)
-        features = []
-
         with torch.no_grad():
-            for img in image_tensors:
-                features_list.clear()
-                _ = trained_model(img)  # Forward the model to let the hook do its thing
+            for img in self.image_tensors:
+                hooked_feature.clear()
+                _ = model_obj(img)  # Forward the model to let the hook do its thing
 
-                feature_map = features_list[0]
+                feature_map = hooked_feature[0]
 
                 # Ensure feature map is a PyTorch tensor
                 # @Wilhelmsen: find out what on earth the point of this is.
@@ -173,20 +173,21 @@ class AutoencodeModel():
                     feature_map = torch.tensor(feature_map, dtype=torch.float32, device=self.device)
 
                 # Reduce dimensionality using Global Average Pooling (GAP)
+                # https://pytorch.org/docs/stable/generated/torch.nn.functional.adaptive_avg_pool2d.html#torch.nn.functional.adaptive_avg_pool2d
                 # @Wilhelmsen: Opiton for different dim.reduction techniques.
                 # Do it when in the encapsulation process
                 feature_vector = F.adaptive_avg_pool2d(feature_map, (1, 1)).squeeze().cpu().numpy()
-                features.append(feature_vector)
+                self.features.append(feature_vector)
 
         # Ensure features have correct 2D shape; (num_samples, num_features)
         # @Wilhelmsen: Just find out what the point is. Do it in encapsulation process.
-        features = np.array(features).reshape(len(features), -1)
+        self.features = np.array(self.features).reshape(len(self.features), -1)
 
         # Ensure a reasonable/legal perplexity value
         perplexity_value = min(30, len(features) - 1)
 
         # Then finally apply t-SNE
-        tsne = TSNE(n_components=2, perplexity=perplexity_value, random_state=42)
+        tsne = TSNE(n_components=2, perplexity=perplexity_value, random_state=const.SEED)
         reduced_features = tsne.fit_transform(features)
 
         # Remove hook
