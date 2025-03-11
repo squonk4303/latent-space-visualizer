@@ -226,7 +226,15 @@ def hooker(t):
     return function
 
 
-def reduce_data(trained_file, categories, target_dimensionality=2):
+def t_sne(features, dimensionality):
+    perplexity_n = min(30, len(features) - 1)
+    np.random.seed(42)  # @Wilhelmsen: Define seed elsewhere, once data has been visualized to graph
+    tsne = TSNE(n_components=dimensionality, perplexity=perplexity_n)
+    data = tsne.fit_transform(features)
+
+    return data
+
+def reduce_data(trained_file, categories, target_dimensionality=2, method="_tSNE"):
     """Take a homogenous array of data, and reduce its dimensionality through t-SNE."""
     """Deprecated"""
     # TEMP: This is a hard-coded simulation of choosing a discrete layer
@@ -265,12 +273,21 @@ def reduce_data(trained_file, categories, target_dimensionality=2):
     hook_handle.remove()
 
     # Reduce dimensionality by t-SNE
-    perplexity_n = min(30, len(selected_features) - 1)
+    """ perplexity_n = min(30, len(selected_features) - 1)
     np.random.seed(42)  # @Wilhelmsen: Define seed elsewhere, once data has been visualized to graph
     tsne = TSNE(n_components=target_dimensionality, perplexity=perplexity_n)
-    reduced_data = tsne.fit_transform(selected_features)
+    reduced_data = tsne.fit_transform(selected_features) """
 
-    return reduced_data
+    #Added a switch for later implementation of more reduction methods
+    match method:
+        case "_tSNE": #Maybe have this be based off of enums  instead?
+            reduced_data = t_sne(selected_features,target_dimensionality)
+        case _: #Default case
+            reduced_data = False
+            print("Error: No reduction method selected!")
+
+    if reduced_data:
+        return reduced_data
 
 
 def layer_summary(loaded_model, start_layer=0, end_layer=0):
