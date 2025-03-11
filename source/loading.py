@@ -62,6 +62,7 @@ class FileDialogManager():
 
     def find_directory(self):
         """Launch a file dialog where user is prompted to pick out a directory."""
+        # @Wilhelmsen: Make sure this actually lets the user CHOOSE a directory
         path, _ = self.find_file(
             options=QFileDialog.Option.ShowDirsOnly | QFileDialog.Option.ReadOnly
         )

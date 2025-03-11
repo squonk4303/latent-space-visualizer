@@ -5,6 +5,8 @@ from PyQt6.QtGui import (
 )
 from PyQt6.QtWidgets import (
     QHBoxLayout,
+    QLabel,
+    QFormLayout,
     QMainWindow,
     QPushButton,
     QVBoxLayout,
@@ -27,48 +29,73 @@ class PrimaryWindow(QMainWindow):
         super().__init__(*args, **kwargs)
 
         # --- Layout ---
-        # --- Definitions
+        # Definitions
         greater_layout = QVBoxLayout()
         self.tab_layout = StackedLayoutManager()
 
         tab_buttons_layout = QHBoxLayout()
-        empty_tab = QVBoxLayout()
+        start_tab = QVBoxLayout()
         graph_tab = QVBoxLayout()
 
         self.openfile_button = QPushButton(consts.OPEN_FILE_LABEL)
         self.TEMP_button = QPushButton("-->")
 
-        self.empty_tab_button = QPushButton("0")
+        self.start_tab_button = QPushButton("0")
         self.graph_tab_button = QPushButton("1")
 
-        # --- Initiations
+        # Set up the menu bar and submenus
         self.initiate_menu_bar()
 
-        # --- Signals
+        # Set up signals
         self.TEMP_button.clicked.connect(self.tab_layout.scroll_forth)
         self.openfile_button.clicked.connect(self.load_model_file)
-        self.empty_tab_button.clicked.connect(self.signal_tab(0))
+        self.start_tab_button.clicked.connect(self.signal_tab(0))
         self.graph_tab_button.clicked.connect(self.signal_tab(1))
 
 
-        # --- Layout Organization
+        # Set up the overall layout
         greater_layout.addLayout(tab_buttons_layout)
         greater_layout.addLayout(self.tab_layout)
 
-        tab_buttons_layout.addWidget(self.empty_tab_button)
+        # Add buttons to navigate to each tab
+        tab_buttons_layout.addWidget(self.start_tab_button)
         tab_buttons_layout.addWidget(self.graph_tab_button)
 
-        empty_tab.addWidget(self.openfile_button)
-        empty_tab.addWidget(self.TEMP_button)
+        # --- Initialize start screen ---
 
-        # Adds the plot widget as a tab
+        # ROW FOR MODEL SELECTION
+        self.model_feedback_label = QLabel("Choose a model already...")
+        row_model_selection = QHBoxLayout()
+        row_model_selection.addWidget(self.openfile_button)
+        row_model_selection.addWidget(self.model_feedback_label)
+        start_tab.addLayout(row_model_selection)
+
+        # ROW FOR CATEGORY SELECTION
+        row_category_selection = QHBoxLayout()
+
+        # ROW FOR LAYER SELECTION
+
+        # ROW FOR DATASET SELECTION
+        dataset_selection_button = QPushButton("Open dat shit...")
+        dataset_selection_button.clicked.connect(self.find_dataset)
+
+        self.dataset_feedback_label = QLabel("Select a dataset, yo...")
+        row_dataset_selection = QHBoxLayout()
+        row_dataset_selection.addWidget(dataset_selection_button)
+        row_dataset_selection.addWidget(self.dataset_feedback_label)
+        start_tab.addLayout(row_dataset_selection)
+
+        # BUTTON WHICH JUST GOES TO THE GRAPH TAB
+        start_tab.addWidget(self.TEMP_button)
+
+        # Add the plot widget as a tab
         self.plot = PlotWidget()
         toolbar = self.plot.make_toolbar()
 
         graph_tab.addWidget(self.plot)
         graph_tab.addWidget(toolbar)
 
-        self.tab_layout.add_layout(empty_tab)
+        self.tab_layout.add_layout(start_tab)
         self.tab_layout.add_layout(graph_tab)
 
         # --- Window Configuration ---
@@ -115,21 +142,38 @@ class PrimaryWindow(QMainWindow):
     def load_model_file(self):
         handler = loading.FileDialogManager(self)
         model_path = handler.find_trained_model_file()
-        categories = ["skin"]
         # If user cancels dialog, does nothing
         if model_path:
-            # loaded_model = loading.get_model(model_path, categories)
-            # loading.layer_summary(loaded_model, 1, 2)
-            # reduced_data = loading.reduce_data(model_path, categories)
+            # @Wilhelmsen: Test for this
+            # @Wilhelmsen: And make it more displayable before release
+            # @Wilhelmsen: And store it in at attribute or something so it's usable
+            self.model_feedback_label.setText("You chose: " + model_path)
 
-            big_obj = loading.AutoencodeModel()
-            # @Wilhelmsen: The way the model dict works is ridiculous. Change it in the refactoring process.
-            big_obj.load_model("no_augmentation", model_path, categories)
-            big_obj.the_whole_enchilada("no_augmentation")
+    def find_dataset(self):
+        """
+        Called by dataset_selection_button.
+        @Wilhelmsen, do this at some point
+        """
+        # @Wilhelmsen: The FDM should really be a singleton you know...
+        handler = loading.FileDialogManager(self)
+        dataset_dir = handler.find_directory()
+        if dataset_dir:
+            self.dataset_feedback_label.setText("You found: " + dataset_dir)
 
-            reduced_data = loading.the_whole_enchilada()
-            print(reduced_data)
-            self.plot.plot_from_2d(reduced_data)
+
+    def start_cooking(self):
+        # loaded_model = loading.get_model(model_path, categories)
+        # loading.layer_summary(loaded_model, 1, 2)
+        # reduced_data = loading.reduce_data(model_path, categories)
+
+        big_obj = loading.AutoencodeModel()
+        # @Wilhelmsen: The way the model dict works is ridiculous. Change it in the refactoring process.
+        big_obj.load_model("no_augmentation", model_path, categories)
+        big_obj.the_whole_enchilada("no_augmentation")
+
+        reduced_data = loading.the_whole_enchilada()
+        print(reduced_data)
+        self.plot.plot_from_2d(reduced_data)
 
     def signal_tab(self, n):
         def func():

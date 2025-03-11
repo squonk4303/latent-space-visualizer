@@ -54,7 +54,7 @@ def test_qaction_to_switch_tabs(primary_window, qtbot):
 
 def test_buttons_to_switch_tabs(primary_window, qtbot):
     """ Tests switching tabs with hardcoded buttons """
-    qtbot.mouseClick(primary_window.empty_tab_button, Qt.MouseButton.LeftButton)
+    qtbot.mouseClick(primary_window.start_tab_button, Qt.MouseButton.LeftButton)
     assert primary_window.tab_layout.currentIndex() == 0
     qtbot.mouseClick(primary_window.graph_tab_button, Qt.MouseButton.LeftButton)
     assert primary_window.tab_layout.currentIndex() == 1
