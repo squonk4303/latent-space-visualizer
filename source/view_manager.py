@@ -120,6 +120,12 @@ class PrimaryWindow(QMainWindow):
             # loaded_model = loading.get_model(model_path, categories)
             # loading.layer_summary(loaded_model, 1, 2)
             # reduced_data = loading.reduce_data(model_path, categories)
+
+            big_obj = loading.AutoencodeModel()
+            # @Wilhelmsen: The way the model dict works is ridiculous. Change it in the refactoring process.
+            big_obj.load_model("no_augmentation", model_path, categories)
+            big_obj.the_whole_enchilada("no_augmentation")
+
             reduced_data = loading.the_whole_enchilada()
             print(reduced_data)
             self.plot.plot_from_2d(reduced_data)
