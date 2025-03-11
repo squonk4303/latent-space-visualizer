@@ -47,8 +47,9 @@ class PrimaryWindow(QMainWindow):
         # --- Signals
         self.TEMP_button.clicked.connect(self.tab_layout.scroll_forth)
         self.openfile_button.clicked.connect(self.load_model_file)
-        self.empty_tab_button.clicked.connect(self.activate_tab_0)
-        self.graph_tab_button.clicked.connect(self.activate_tab_1)
+        self.empty_tab_button.clicked.connect(self.signal_tab(0))
+        self.graph_tab_button.clicked.connect(self.signal_tab(1))
+
 
         # --- Layout Organization
         greater_layout.addLayout(tab_buttons_layout)
@@ -130,8 +131,7 @@ class PrimaryWindow(QMainWindow):
             print(reduced_data)
             self.plot.plot_from_2d(reduced_data)
 
-    def activate_tab_0(self):
-        self.tab_layout.setCurrentIndex(0)
-
-    def activate_tab_1(self):
-        self.tab_layout.setCurrentIndex(1)
+    def signal_tab(self, n):
+        def func():
+            self.tab_layout.setCurrentIndex(n)
+        return func
