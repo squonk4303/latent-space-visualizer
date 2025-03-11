@@ -31,13 +31,17 @@ class FileDialogManager():
         """Initilalizes with a parent window to say to whom any of its spawned window is a child."""
         self.parent = parent_window
 
-    def find_file(self, file_filters=consts.FILE_FILTERS.values() ):
+    def find_file(
+                self,
+                file_filters=consts.FILE_FILTERS.values(),
+                options=QFileDialog.Option.ReadOnly
+            ):
         """
         Launch a file dialog and return the filepath and selected filter.
 
         Note that the first element in file_filters is used as the initial file filter.
         """
-        # Test whether file_filters is a-subset-of/equal-to the legal file filters
+        # Test whether file_filters is a subset of-- or equal to, the legal file filters
         if not set(file_filters) <= set(consts.FILE_FILTERS.values()):
             raise RuntimeError("Unacceptable list of file filters")
 
@@ -51,9 +55,17 @@ class FileDialogManager():
             parent=self.parent,
             filter=filters,
             initialFilter=initial_filter,
+            options=options,
         )
 
         return filepath, selected_filter
+
+    def find_directory(self):
+        """Launch a file dialog where user is prompted to pick out a directory."""
+        path, _ = self.find_file(
+            options=QFileDialog.Option.ShowDirsOnly | QFileDialog.Option.ReadOnly
+        )
+        return path
 
     def find_some_file(self):
         """Launch a file dialog where user is prompted to pick out any file their heart desires."""
@@ -118,6 +130,11 @@ class AutoencodeModel():
         an effort to state how many images are loaded, because *that* has a
         lot of implications that are relevant to the user.
         """
+        # @Wilhelmsen: Going to have to make it so this function instead
+        # takes either the path to the directory, a list of strings for the
+        # filepaths, or an entire dam list of all the PIL.Images. I think I
+        # would prefer it take the stringpath to the directory, then
+        # extract the PIL.Images itself. More memory efficient, methonks.
         # TEMP: Hard-coded right now
         dataset = [
             Image.open(consts.GRAPHICAL_IMAGE).convert("RGB"),
@@ -145,11 +162,6 @@ class AutoencodeModel():
         """
         model_obj = self.models[model_name]
 
-        # Find data set using this function:
-        # dataset = FileDialogManager.find_dir/zip()
-        data_paths = None
-        self.dataset_to_tensors(data_paths)
-
         # Register hook and yadda yadda
 
         # Plant the hook       in   layer4  ~~~~vvv
@@ -158,11 +170,16 @@ class AutoencodeModel():
         hooked_feature = []  # <-- A list so that we can use it as pointer and with isinstance later
         hook_handle = model_obj.model.backbone.layer4.register_forward_hook(hooker(hooked_feature))
 
-        # Process t-sne part
+        # Find data set using this function:
+        # dataset = FileDialogManager.find_dir/zip()
+        data_paths = None
+        self.dataset_to_tensors(data_paths)
+
+        # Preliminary dim. reduction per tensor
         with torch.no_grad():
             for img in self.image_tensors:
                 hooked_feature.clear()
-                _ = model_obj(img)  # Forward the model to let the hook do its thing
+                _ = model_obj(img)  # Forward the model to let the hook do its thang
 
                 feature_map = hooked_feature[0]
 
