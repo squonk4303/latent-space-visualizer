@@ -13,8 +13,7 @@ class FCNResNet101(nn.Module):
         self.model = models.segmentation.fcn_resnet101(
             weights=models.segmentation.fcn.FCN_ResNet101_Weights.COCO_WITH_VOC_LABELS_V1
         )
-        self._categories = nn.ParameterDict(
-            {i: nn.Parameter(torch.Tensor(0)) for i in categories})
+        self._categories = nn.ParameterDict({i: nn.Parameter(torch.Tensor(0)) for i in categories})
         num_categories = len(self._categories)
 
         self.model.classifier[4]     = nn.Conv2d(512, num_categories, 1)
