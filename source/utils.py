@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-import random
-
 import numpy as np
 import torch
 
@@ -11,7 +9,15 @@ def arr_is_subset(arr1, arr2):
 
 
 def superseed(seed):
-    """Set seed for python, numpy and torch."""
-    random.seed(seed)
+    """
+    Set seed for numpy and torch.
+
+    Informed by https://pytorch.org/docs/stable/notes/randomness.html
+    This WILL have to expand if we introduce packages with other random
+    number generators. We could also have this function set a variable in
+    consts, so that the seed is available for grabbing, like having it
+    displayed on-screen so the user and others can know what seed a run is
+    based on. Hey that's a good idea. It's just like the binding of isaac.
+    """
     np.random.seed(seed)
     torch.manual_seed(seed)
