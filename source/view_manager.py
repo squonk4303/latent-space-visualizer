@@ -2,11 +2,11 @@
 from PyQt6.QtGui import (
     QAction,
     QKeySequence,
+    QPixmap,
 )
 from PyQt6.QtWidgets import (
     QHBoxLayout,
     QLabel,
-    QFormLayout,
     QMainWindow,
     QPushButton,
     QVBoxLayout,
@@ -97,15 +97,25 @@ class PrimaryWindow(QMainWindow):
         row_dataset_selection.addWidget(dataset_selection_button)
         row_dataset_selection.addWidget(self.dataset_feedback_label)
 
-        # Row For Dataset Selection
-        # -------------------------
+        # Row For Single Picture Selection
+        # --------------------------------
+        # Note on pixmap from https://doc.qt.io/qt-6/qpixmap.html#details
+        # QPixmap is designed and optimized for showing images on screen
         self.single_image_label = QLabel("Hoping for a chicken.")
+        self.single_image_thumb_label = QLabel()
+        self.single_image_thumb_label.setPixmap(QPixmap("assets/default_pic.png"))
         single_image_button = QPushButton("Open ...Image")
         single_image_button.clicked.connect(self.find_picture)
 
-        row_single_image = QHBoxLayout()
-        row_single_image.addWidget(single_image_button)
-        row_single_image.addWidget(self.single_image_label)
+        # Has a row on top:     [button]  [label]
+        # Then one underneath:  [image thumbnail]
+        single_image_subrow = QHBoxLayout()
+        single_image_subrow.addWidget(single_image_button)
+        single_image_subrow.addWidget(self.single_image_label)
+
+        row_single_image = QVBoxLayout()
+        row_single_image.addLayout(single_image_subrow)
+        row_single_image.addWidget(self.single_image_thumb_label)
 
         # Button Which Confirms Input and Goes to Graph Tab
         # -------------------------------------------------
@@ -197,9 +207,14 @@ class PrimaryWindow(QMainWindow):
         handler = loading.FileDialogManager(self)
         picture_path = handler.find_picture_file()
         if picture_path:
+            # @Wilhelmsen: Yet to check validity and resize image
             self.single_image_label.setText(picture_path)
+            self.single_image_thumb_label.setPixmap(QPixmap(picture_path))
+
             # Start the process of dim.reducing the image
             big_obj = loading.AutoencodeModel()
+            tensor = big_obj.single_image_to_tensor(picture_path)
+            print(tensor)
             # And take it through t-SNE just for good measure too
             # Or not...
             # Maybe it's best to leave that for whwn things are plotted onto the graph...

@@ -92,13 +92,20 @@ class FileDialogManager:
         return path
 
 
-class AutoencodeModel:
+class AutoencodeModel:  # @Wilhelmsen: methinks this can be renamed to "ModelManager"
     def __init__(self):
         super().__init__()
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.features = []
         self.image_tensors = []
-        self.models = {}
+        self.models = {}          # @Wilhelmsen: Perhaps there should be one model per object
+        # @Wilhelmsen make the transformed image size a const, maybe choosable
+        self.preprocessing = torchvision.transforms.Compose(
+            [
+                torchvision.transforms.Resize(640),
+                torchvision.transforms.ToTensor(),
+            ]
+        )
 
     def load_model(self, name, trained_file, categories):
         """Load trained model from file to local dictionary."""
@@ -126,6 +133,13 @@ class AutoencodeModel:
         self.models[name] = model_obj
         return name
 
+    def single_image_to_tensor(self, image_path) -> torch.tensor:
+        """Convert image in path to tensor we can use."""
+        single_image = Image.open(image_path).convert("RGB")
+        # @Wilhelmsen: How long does this take? Do benchmarking.
+        tensor = self.preprocessing(single_image).unsqueeze(0).to(self.device)
+        return tensor
+
     def dataset_to_tensors(self, dataset):
         """
         TODO: Uses the file dialog to locate a dir (or zip file maybe) in
@@ -139,6 +153,7 @@ class AutoencodeModel:
         # would prefer it take the stringpath to the directory, then
         # extract the PIL.Images itself. More memory efficient, methonks.
         # TEMP: Hard-coded right now
+        # @Wilhelmsen: Image.open opens the file and it remains open until the data is processed
         dataset = [
             Image.open(consts.GRAPHICAL_IMAGE).convert("RGB"),
             Image.open("pics/animals10/gallina/1000.jpeg").convert("RGB"),
@@ -148,18 +163,9 @@ class AutoencodeModel:
             Image.open("pics/animals10/gallina/1013.jpeg").convert("RGB"),
         ]
 
-        # Make a function to transform graphical images to 640x640 tensors
-        # @Wilhelmsen consider moving preprocessing definition
-        preprocessing = torchvision.transforms.Compose(
-            [
-                torchvision.transforms.Resize(640),
-                torchvision.transforms.ToTensor(),
-            ]
-        )
-
         # Save it as an attribute, because we want to append-to and reuse these
         self.image_tensors = [
-            preprocessing(img).unsqueeze(0).to(self.device) for img in dataset
+            self.preprocessing(img).unsqueeze(0).to(self.device) for img in dataset
         ]
 
     def the_whole_enchilada(self, model_name):
