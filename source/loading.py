@@ -16,7 +16,7 @@ import consts
 import external.fcn as fcn
 
 
-class FileDialogManager():
+class FileDialogManager:
     """
     Class to simplify handling of files and file dialogs.
 
@@ -32,10 +32,10 @@ class FileDialogManager():
         self.parent = parent_window
 
     def find_file(
-                self,
-                file_filters=consts.FILE_FILTERS.values(),
-                options=QFileDialog.Option.ReadOnly
-            ):
+        self,
+        file_filters=consts.FILE_FILTERS.values(),
+        options=QFileDialog.Option.ReadOnly,
+    ):
         """
         Launch a file dialog and return the filepath and selected filter.
 
@@ -92,7 +92,7 @@ class FileDialogManager():
         return path
 
 
-class AutoencodeModel():
+class AutoencodeModel:
     def __init__(self):
         super().__init__()
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -106,7 +106,9 @@ class AutoencodeModel():
         # @Wilhelmsen: Alter to include more models, when we include more models
         # if it's possible to do it in the same function...
         model_obj = fcn.FCNResNet101(categories)
-        checkpoint = torch.load(trained_file, map_location=self.device, weights_only=False)
+        checkpoint = torch.load(
+            trained_file, map_location=self.device, weights_only=False
+        )
 
         # Make necessary alterations to state_dict before loading into model
         state_dict = checkpoint["state_dict"]
@@ -148,13 +150,17 @@ class AutoencodeModel():
 
         # Make a function to transform graphical images to 640x640 tensors
         # @Wilhelmsen consider moving preprocessing definition
-        preprocessing = torchvision.transforms.Compose([
-            torchvision.transforms.Resize(640),
-            torchvision.transforms.ToTensor(),
-        ])
+        preprocessing = torchvision.transforms.Compose(
+            [
+                torchvision.transforms.Resize(640),
+                torchvision.transforms.ToTensor(),
+            ]
+        )
 
         # Save it as an attribute, because we want to append-to and reuse these
-        self.image_tensors = [preprocessing(img).unsqueeze(0).to(self.device) for img in dataset]
+        self.image_tensors = [
+            preprocessing(img).unsqueeze(0).to(self.device) for img in dataset
+        ]
 
     def the_whole_enchilada(self, model_name):
         """
@@ -168,8 +174,11 @@ class AutoencodeModel():
         # Plant the hook       in   layer4  ~~~~vvv
         # Otherwise use function find_layer to let user choose layer
         # Then use gitattr() to dynamically select the layer based on user choice...!
-        hooked_feature = []  # <-- A list so that we can use it as pointer and with isinstance later
-        hook_handle = model_obj.model.backbone.layer4.register_forward_hook(hooker(hooked_feature))
+        hooked_feature = []
+        # A list so    ~~^^ that we can use it as pointer and with isinstance later
+        hook_handle = model_obj.model.backbone.layer4.register_forward_hook(
+            hooker(hooked_feature)
+        )
 
         # Find data set using this function:
         # dataset = FileDialogManager.find_dir/zip()
@@ -188,13 +197,17 @@ class AutoencodeModel():
                 # @Wilhelmsen: find out what on earth the point of this is.
                 # Do it when in the encapsulation process
                 if not isinstance(feature_map, torch.Tensor):
-                    feature_map = torch.tensor(feature_map, dtype=torch.float32, device=self.device)
+                    feature_map = torch.tensor(
+                        feature_map, dtype=torch.float32, device=self.device
+                    )
 
                 # Reduce dimensionality using Global Average Pooling (GAP)
                 # https://pytorch.org/docs/stable/generated/torch.nn.functional.adaptive_avg_pool2d.html#torch.nn.functional.adaptive_avg_pool2d
                 # @Wilhelmsen: Opiton for different dim.reduction techniques.
                 # Do it when in the encapsulation process
-                feature_vector = F.adaptive_avg_pool2d(feature_map, (1, 1)).squeeze().cpu().numpy()
+                feature_vector = (
+                    F.adaptive_avg_pool2d(feature_map, (1, 1)).squeeze().cpu().numpy()
+                )
                 self.features.append(feature_vector)
 
         # Ensure features have correct 2D shape; (num_samples, num_features)
@@ -205,7 +218,9 @@ class AutoencodeModel():
         perplexity_value = min(30, len(features) - 1)
 
         # Then finally apply t-SNE
-        tsne = TSNE(n_components=2, perplexity=perplexity_value, random_state=const.SEED)
+        tsne = TSNE(
+            n_components=2, perplexity=perplexity_value, random_state=const.SEED
+        )
         reduced_features = tsne.fit_transform(features)
 
         # Remove hook
@@ -221,19 +236,24 @@ def hooker(t):
     Keep in mind that assigning an existing list to a variable
     actually provides a "pointer" to the list
     """
+
     def function(module, args, output):
         t.append(output.detach().cpu().numpy())
         print("From hook, latest append:", t[-1].shape)
+
     return function
 
 
 def t_sne(features, dimensionality):
     perplexity_n = min(30, len(features) - 1)
-    np.random.seed(42)  # @Wilhelmsen: Define seed elsewhere, once data has been visualized to graph
+    np.random.seed(
+        42
+    )  # @Wilhelmsen: Define seed elsewhere, once data has been visualized to graph
     tsne = TSNE(n_components=dimensionality, perplexity=perplexity_n)
     data = tsne.fit_transform(features)
 
     return data
+
 
 def reduce_data(trained_file, categories, target_dimensionality=2, method="_tSNE"):
     """Take a homogenous array of data, and reduce its dimensionality through t-SNE."""
@@ -250,7 +270,7 @@ def reduce_data(trained_file, categories, target_dimensionality=2, method="_tSNE
     def my_hook(model, args, output):
         features.append(output.detach())
 
-    #def hooker(d, keyname):
+    # def hooker(d, keyname):
     #    def hook(model, args, output):
     #        d[keyname] = output.detach()
     #    return hook
@@ -266,10 +286,10 @@ def reduce_data(trained_file, categories, target_dimensionality=2, method="_tSNE
     hook_handle = model_obj.model.backbone.layer4.register_forward_hook(my_hook)
 
     # Forward the model
-    #with torch.no_grad():
+    # with torch.no_grad():
     #    _ = model_obj()
 
-    #print("Number of entries in features:", len(features))
+    # print("Number of entries in features:", len(features))
 
     hook_handle.remove()
 
@@ -279,11 +299,11 @@ def reduce_data(trained_file, categories, target_dimensionality=2, method="_tSNE
     tsne = TSNE(n_components=target_dimensionality, perplexity=perplexity_n)
     reduced_data = tsne.fit_transform(selected_features) """
 
-    #Added a switch for later implementation of more reduction methods
+    # Added a switch for later implementation of more reduction methods
     match method:
-        case "_tSNE": #Maybe have this be based off of enums  instead?
-            reduced_data = t_sne(selected_features,target_dimensionality)
-        case _: #Default case
+        case "_tSNE":  # Maybe have this be based off of enums  instead?
+            reduced_data = t_sne(selected_features, target_dimensionality)
+        case _:  # Default case
             reduced_data = False
             print("Error: No reduction method selected!")
 
@@ -309,7 +329,7 @@ def layer_summary(loaded_model, start_layer=0, end_layer=0):
     input_txt = str(loaded_model)
     target = "layer"
     # Assigns targetlayers for use in search later
-    next_layer = target + str(end_layer+1)
+    next_layer = target + str(end_layer + 1)
     target += str(start_layer)
 
     """

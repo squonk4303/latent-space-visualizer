@@ -11,25 +11,26 @@ class StackedLayoutManager(QStackedLayout):
     It's like a data structure I made
     TODO: method to remove items
     """
+
     def __init__(self, items=None):
-        """ Creates an empty stacked layout """
+        """Creates an empty stacked layout"""
         super().__init__()
         if items is not None:
             for item in items:
                 self.add_widget(item)
 
     def add_widget(self, widget):
-        """ Appends a widget to the layout """
+        """Appends a widget to the layout"""
         self.addWidget(widget)
 
     def add_layout(self, layout):
-        """ Appends a layout to the layout """
+        """Appends a layout to the layout"""
         widget = QWidget()
         widget.setLayout(layout)
         self.addWidget(widget)
 
     def scroll_somewhere(self, n=1):
-        """ Scrolls to a layer relatively , according to n """
+        """Scrolls to a layer relatively , according to n"""
         if self.count() != 0:
             maximum = self.count()
             current_index = self.currentIndex()
@@ -37,9 +38,9 @@ class StackedLayoutManager(QStackedLayout):
             self.setCurrentIndex(new_index)
 
     def scroll_forth(self):
-        """ Scrolls to next layer """
+        """Scrolls to next layer"""
         self.scroll_somewhere(1)
 
     def scroll_back(self):
-        """ Scrolls to prev layer """
+        """Scrolls to prev layer"""
         self.scroll_somewhere(-1)

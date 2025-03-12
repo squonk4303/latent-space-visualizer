@@ -21,6 +21,7 @@ import parse
 
 class MplCanvas(FigureCanvasQTAgg):
     """Make a canvas for the plot to render onto."""
+
     def __init__(self, parent=None, width=5, height=4, dpi=100):
         fig = Figure(figsize=(width, height), dpi=dpi)
 
@@ -35,6 +36,7 @@ class MplCanvas(FigureCanvasQTAgg):
 
 class PlotWidget(QWidget):
     """Define and draw a graphical plot."""
+
     def __init__(self, parent=None):
         super().__init__(parent)
 

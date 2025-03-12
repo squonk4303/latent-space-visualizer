@@ -18,9 +18,7 @@ def handler():
 
 
 mocked_qfiledialog = patch.object(
-    QFileDialog,
-    "getOpenFileName",
-    return_value=("a/gorgeous/path", "All Files (*)")
+    QFileDialog, "getOpenFileName", return_value=("a/gorgeous/path", "All Files (*)")
 )
 
 
@@ -28,7 +26,7 @@ def test_default_file_dialogue(handler):
     """Test a normal use case for the function."""
     with mocked_qfiledialog:
         path, filter_ = handler.find_file()
-        assert path    == "a/gorgeous/path"
+        assert path == "a/gorgeous/path"
         assert filter_ == "All Files (*)"
 
 

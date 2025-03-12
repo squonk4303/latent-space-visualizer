@@ -33,7 +33,7 @@ def filled_layout():
 
 
 def test_layout_manager_initiation(empty_layout):
-    """ Tests initialization of a layout """
+    """Tests initialization of a layout"""
     assert empty_layout.count() == 0
     assert empty_layout.currentWidget() is None
     assert empty_layout.currentIndex() == -1
@@ -77,7 +77,7 @@ def test_tuple_initialization_then_method_adding(filled_layout):
 
 
 def test_adding_widgets():
-    """ Tests adding widgets to the layoutmanager individually by method """
+    """Tests adding widgets to the layoutmanager individually by method"""
     layout = StackedLayoutManager()
     layout.add_widget(QWidget())
     layout.add_widget(QWidget())
@@ -87,7 +87,7 @@ def test_adding_widgets():
 
 
 def test_scrolling(filled_layout):
-    """ Tests for scrolling back and forth and wrap around """
+    """Tests for scrolling back and forth and wrap around"""
     assert filled_layout.count() == 3
     filled_layout.scroll_back()
     filled_layout.scroll_back()

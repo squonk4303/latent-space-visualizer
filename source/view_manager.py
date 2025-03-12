@@ -24,8 +24,9 @@ class PrimaryWindow(QMainWindow):
     Primary window of the program
     This is where all the action happens
     """
+
     def __init__(self, *args, **kwargs):
-        """ Constructor for the primary window """
+        """Constructor for the primary window"""
         super().__init__(*args, **kwargs)
 
         # Definitions
@@ -43,7 +44,6 @@ class PrimaryWindow(QMainWindow):
 
         # Set up the menu bar and submenus
         self.initiate_menu_bar()
-
 
         # Set up the overall layout
         greater_layout.addLayout(tab_buttons_layout)
@@ -76,7 +76,9 @@ class PrimaryWindow(QMainWindow):
 
         # Row For Layer Selection
         # -----------------------
-        self.layer_feedback_label = QLabel("Are you going to just stand there or will you select a layer??")
+        self.layer_feedback_label = QLabel(
+            "Are you going to just stand there or will you select a layer??"
+        )
         layer_button = QPushButton("Select layer")
 
         row_layer_selection = QHBoxLayout()
@@ -179,7 +181,6 @@ class PrimaryWindow(QMainWindow):
         if dataset_dir:
             self.dataset_feedback_label.setText("You found: " + dataset_dir)
 
-
     def start_cooking(self):
         # loaded_model = loading.get_model(model_path, categories)
         # loading.layer_summary(loaded_model, 1, 2)
@@ -197,4 +198,5 @@ class PrimaryWindow(QMainWindow):
     def signal_tab(self, n):
         def func():
             self.tab_layout.setCurrentIndex(n)
+
         return func

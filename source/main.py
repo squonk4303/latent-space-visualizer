@@ -11,9 +11,7 @@ if __name__ == "__main__":
 
     # Specify command-line arguments
     parser.add_argument(
-        "--xkcd",
-        help="display the plot in a different style",
-        action="store_true"
+        "--xkcd", help="display the plot in a different style", action="store_true"
     )
 
     args = parser.parse_args()
