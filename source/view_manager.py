@@ -29,29 +29,31 @@ class PrimaryWindow(QMainWindow):
         """Constructor for the primary window"""
         super().__init__(*args, **kwargs)
 
-        # Definitions
-        greater_layout = QVBoxLayout()
-        self.tab_layout = StackedLayoutManager()
-
-        tab_buttons_layout = QHBoxLayout()
+        # Set up the tabs in the window
         start_tab = QVBoxLayout()
         graph_tab = QVBoxLayout()
 
+        self.tab_layout = StackedLayoutManager()
+        self.tab_layout.add_layout(start_tab)
+        self.tab_layout.add_layout(graph_tab)
+
+        # Add buttons to navigate to each tab
         self.start_tab_button = QPushButton("0")
         self.graph_tab_button = QPushButton("1")
         self.start_tab_button.clicked.connect(self.signal_tab(0))
         self.graph_tab_button.clicked.connect(self.signal_tab(1))
 
-        # Set up the menu bar and submenus
-        self.initiate_menu_bar()
+        tab_buttons_layout = QHBoxLayout()
+        tab_buttons_layout.addWidget(self.start_tab_button)
+        tab_buttons_layout.addWidget(self.graph_tab_button)
 
-        # Set up the overall layout
+        # And put them in order
+        greater_layout = QVBoxLayout()
         greater_layout.addLayout(tab_buttons_layout)
         greater_layout.addLayout(self.tab_layout)
 
-        # Add buttons to navigate to each tab
-        tab_buttons_layout.addWidget(self.start_tab_button)
-        tab_buttons_layout.addWidget(self.graph_tab_button)
+        # Set up the menu bar and submenus
+        self.initiate_menu_bar()
 
         # --- Initialize start screen ---
 
@@ -95,16 +97,28 @@ class PrimaryWindow(QMainWindow):
         row_dataset_selection.addWidget(dataset_selection_button)
         row_dataset_selection.addWidget(self.dataset_feedback_label)
 
-        # Button Which Just Goes To The Graph Tab
-        # ---------------------------------------
+        # Row For Dataset Selection
+        # -------------------------
+        self.single_image_label = QLabel("Hoping for a chicken.")
+        single_image_button = QPushButton("Open ...Image")
+        single_image_button.clicked.connect(self.find_picture)
+
+        row_single_image = QHBoxLayout()
+        row_single_image.addWidget(single_image_button)
+        row_single_image.addWidget(self.single_image_label)
+
+        # Button Which Confirms Input and Goes to Graph Tab
+        # -------------------------------------------------
         self.register_stuff_button = QPushButton("Go for it~!")
+        self.register_stuff_button.setDisabled(True)
         self.register_stuff_button.clicked.connect(self.start_cooking)
 
         # Put them all in order
-        start_tab.addLayout(row_layer_selection)
+        start_tab.addLayout(row_model_selection)
         start_tab.addLayout(row_category_selection)
         start_tab.addLayout(row_dataset_selection)
-        start_tab.addLayout(row_model_selection)
+        start_tab.addLayout(row_layer_selection)
+        start_tab.addLayout(row_single_image)
         start_tab.addWidget(self.register_stuff_button)
 
         # --- Plot Tab ---
@@ -115,9 +129,6 @@ class PrimaryWindow(QMainWindow):
 
         graph_tab.addWidget(self.plot)
         graph_tab.addWidget(toolbar)
-
-        self.tab_layout.add_layout(start_tab)
-        self.tab_layout.add_layout(graph_tab)
 
         # --- Window Configuration ---
         self.resize(650, 450)
@@ -180,6 +191,20 @@ class PrimaryWindow(QMainWindow):
         dataset_dir = handler.find_directory()
         if dataset_dir:
             self.dataset_feedback_label.setText("You found: " + dataset_dir)
+
+    def find_picture(self):
+        """."""
+        handler = loading.FileDialogManager(self)
+        picture_path = handler.find_picture_file()
+        if picture_path:
+            self.single_image_label.setText(picture_path)
+            # Start the process of dim.reducing the image
+            big_obj = loading.AutoencodeModel()
+            # And take it through t-SNE just for good measure too
+            # Or not...
+            # Maybe it's best to leave that for whwn things are plotted onto the graph...
+            # I'm wondering if t-SNED coords shouldn't be stored over there anyways.
+            # Then again it could be helpful to have them put over there immediately...
 
     def start_cooking(self):
         # loaded_model = loading.get_model(model_path, categories)
