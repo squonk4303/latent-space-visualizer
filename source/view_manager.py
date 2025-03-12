@@ -28,7 +28,6 @@ class PrimaryWindow(QMainWindow):
         """ Constructor for the primary window """
         super().__init__(*args, **kwargs)
 
-        # --- Layout ---
         # Definitions
         greater_layout = QVBoxLayout()
         self.tab_layout = StackedLayoutManager()
@@ -37,20 +36,13 @@ class PrimaryWindow(QMainWindow):
         start_tab = QVBoxLayout()
         graph_tab = QVBoxLayout()
 
-        self.openfile_button = QPushButton(consts.OPEN_FILE_LABEL)
-        self.TEMP_button = QPushButton("-->")
-
         self.start_tab_button = QPushButton("0")
         self.graph_tab_button = QPushButton("1")
+        self.start_tab_button.clicked.connect(self.signal_tab(0))
+        self.graph_tab_button.clicked.connect(self.signal_tab(1))
 
         # Set up the menu bar and submenus
         self.initiate_menu_bar()
-
-        # Set up signals
-        self.TEMP_button.clicked.connect(self.tab_layout.scroll_forth)
-        self.openfile_button.clicked.connect(self.load_model_file)
-        self.start_tab_button.clicked.connect(self.signal_tab(0))
-        self.graph_tab_button.clicked.connect(self.signal_tab(1))
 
 
         # Set up the overall layout
@@ -63,30 +55,57 @@ class PrimaryWindow(QMainWindow):
 
         # --- Initialize start screen ---
 
-        # ROW FOR MODEL SELECTION
+        # Row For Model Selection
+        # -----------------------
         self.model_feedback_label = QLabel("Choose a model already...")
+        openfile_button = QPushButton(consts.OPEN_FILE_LABEL)
+        openfile_button.clicked.connect(self.load_model_file)
+
         row_model_selection = QHBoxLayout()
-        row_model_selection.addWidget(self.openfile_button)
+        row_model_selection.addWidget(openfile_button)
         row_model_selection.addWidget(self.model_feedback_label)
-        start_tab.addLayout(row_model_selection)
 
-        # ROW FOR CATEGORY SELECTION
+        # Row For Category Selection
+        # --------------------------
+        self.category_feedback_label = QLabel("Give me skin...")
+        category_button = QPushButton("Select Categories")
+
         row_category_selection = QHBoxLayout()
+        row_category_selection.addWidget(category_button)
+        row_category_selection.addWidget(self.category_feedback_label)
 
-        # ROW FOR LAYER SELECTION
+        # Row For Layer Selection
+        # -----------------------
+        self.layer_feedback_label = QLabel("Are you going to just stand there or will you select a layer??")
+        layer_button = QPushButton("Select layer")
 
-        # ROW FOR DATASET SELECTION
+        row_layer_selection = QHBoxLayout()
+        row_layer_selection.addWidget(layer_button)
+        row_layer_selection.addWidget(self.layer_feedback_label)
+
+        # Row For Dataset Selection
+        # -------------------------
         dataset_selection_button = QPushButton("Open dat shit...")
+        self.dataset_feedback_label = QLabel("Select a dataset, yo...")
         dataset_selection_button.clicked.connect(self.find_dataset)
 
-        self.dataset_feedback_label = QLabel("Select a dataset, yo...")
         row_dataset_selection = QHBoxLayout()
         row_dataset_selection.addWidget(dataset_selection_button)
         row_dataset_selection.addWidget(self.dataset_feedback_label)
-        start_tab.addLayout(row_dataset_selection)
 
-        # BUTTON WHICH JUST GOES TO THE GRAPH TAB
-        start_tab.addWidget(self.TEMP_button)
+        # Button Which Just Goes To The Graph Tab
+        # ---------------------------------------
+        self.register_stuff_button = QPushButton("Go for it~!")
+        self.register_stuff_button.clicked.connect(self.start_cooking)
+
+        # Put them all in order
+        start_tab.addLayout(row_layer_selection)
+        start_tab.addLayout(row_category_selection)
+        start_tab.addLayout(row_dataset_selection)
+        start_tab.addLayout(row_model_selection)
+        start_tab.addWidget(self.register_stuff_button)
+
+        # --- Plot Tab ---
 
         # Add the plot widget as a tab
         self.plot = PlotWidget()
