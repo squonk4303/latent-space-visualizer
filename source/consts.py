@@ -2,7 +2,6 @@
 
 # GUI Text
 OPEN_FILE_LABEL = "&Open File"
-STATUS_TIP_TEMP = "TODO: What's a good status tip guide?"
 WINDOW_TITLE = "Latent Space Visualizer"
 
 # Plaintext with other uses

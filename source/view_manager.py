@@ -8,6 +8,7 @@ from PyQt6.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QMainWindow,
+    QStatusBar,
     QPushButton,
     QVBoxLayout,
     QWidget,
@@ -143,6 +144,7 @@ class PrimaryWindow(QMainWindow):
         # --- Window Configuration ---
         self.resize(650, 450)
         self.setWindowTitle(consts.WINDOW_TITLE)
+        self.setStatusBar(QStatusBar(self))
         widget = QWidget()
         widget.setLayout(greater_layout)
         self.setCentralWidget(widget)
@@ -153,15 +155,14 @@ class PrimaryWindow(QMainWindow):
 
         # Action which opens the file dialog
         action_to_open_file = QAction(consts.OPEN_FILE_LABEL, self)
-        action_to_open_file.setStatusTip(consts.STATUS_TIP_TEMP)
-        action_to_open_file.setShortcut(QKeySequence("Ctrl+O"))
         action_to_open_file.triggered.connect(self.load_model_file)
 
         # Actions to scroll to next/previous tabs
         next_tab = QAction("TEMP: &Next tab")
-        next_tab.setStatusTip(consts.STATUS_TIP_TEMP)
         prev_tab = QAction("TEMP: &Previous tab")
-        prev_tab.setStatusTip(consts.STATUS_TIP_TEMP)
+        # https://doc.qt.io/qt-6/qkeysequence.html#StandardKey-enum
+        next_tab.setShortcut(QKeySequence.StandardKey.MoveToNextPage)
+        prev_tab.setShortcut(QKeySequence.StandardKey.MoveToPreviousPage)
 
         next_tab.triggered.connect(self.tab_layout.scroll_forth)
         prev_tab.triggered.connect(self.tab_layout.scroll_back)
