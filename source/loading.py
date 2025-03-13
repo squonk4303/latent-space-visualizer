@@ -98,7 +98,7 @@ class AutoencodeModel:  # @Wilhelmsen: methinks this can be renamed to "ModelMan
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.features = []
         self.image_tensors = []
-        self.models = {}          # @Wilhelmsen: Perhaps there should be one model per object
+        self.models = {}  # @Wilhelmsen: Perhaps there should be one model per object
         # @Wilhelmsen make the transformed image size a const, maybe choosable
         self.preprocessing = torchvision.transforms.Compose(
             [

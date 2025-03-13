@@ -23,9 +23,12 @@ SINE_COSINE = "source/sin_cos.csv"
 # Used for testing only; assumes there's a local dir/symlink with appropriate model
 TRAINED_MODEL = "trained_models/RGB_no_augmentation.pth"
 GRAPHICAL_IMAGE = "pics/dog.png"
-SEED = 42
+SEED = int()
 
 # Flags. If anyone asks why this is in consts, tell them to <class 'zip'> it
+# Then consider whether to rename this file to "values.py" or something and
+# make a class with consts instead or something , as well as store other
+# values like flags, seeds, stubs, &c.
 flags = {
     "xkcd": False,
 }
