@@ -17,6 +17,7 @@ def superseed(seed):
     consts, so that the seed is available for grabbing, like having it
     displayed on-screen so the user and others can know what seed a run is
     based on. Hey that's a good idea. It's just like the binding of isaac.
+    Note though that forcing determinism may decrease performance.
 
     For assured determinism, consider also applying
     `torch.use_deterministic_algorithms()`.
