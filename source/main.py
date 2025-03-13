@@ -4,7 +4,8 @@ from PyQt6.QtWidgets import QApplication
 from view_manager import PrimaryWindow
 import arguments
 
-if __name__ == "__main__":
+
+def main() -> int:
     # Parse arguments
     arguments.parse_them()
 
@@ -13,3 +14,8 @@ if __name__ == "__main__":
     window = PrimaryWindow()
     window.show()
     application.exec()
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
