@@ -12,8 +12,8 @@ from PyQt6.QtWidgets import (
     QFileDialog,
 )
 
-import consts
-import external.fcn as fcn
+from visualizer import consts
+from visualizer.external import fcn
 
 
 class FileDialogManager:

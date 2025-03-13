@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import pytest
-
-from view_manager import PrimaryWindow
+from visualizer.view_manager import PrimaryWindow
 
 
 @pytest.fixture

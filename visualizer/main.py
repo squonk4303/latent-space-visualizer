@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 import sys
 from PyQt6.QtWidgets import QApplication
-from view_manager import PrimaryWindow
-import arguments
+
+from visualizer import arguments
+from visualizer.view_manager import PrimaryWindow
 
 
 def main() -> int:

@@ -14,10 +14,10 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-import consts
-import loading
-from stacked_layout_manager import StackedLayoutManager
-from plot_widget import PlotWidget
+from visualizer import consts
+from visualizer import loading
+from visualizer.plot_widget import PlotWidget
+from visualizer.stacked_layout_manager import StackedLayoutManager
 
 
 class PrimaryWindow(QMainWindow):
