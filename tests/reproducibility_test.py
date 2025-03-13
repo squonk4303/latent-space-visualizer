@@ -2,7 +2,7 @@
 import pytest
 import numpy as np
 
-import utils
+from visualizer import utils
 
 
 @pytest.fixture()
@@ -31,6 +31,7 @@ def test_array_different_w_o_seed():
     """
     examiner_array = np.random.rand(256, 256)
     assert not np.array_equal(examinee_array, examiner_array)
+
 
 # reproducibility TODOs:
 # - Include determinism check with torch.use_deterministic_algorithms

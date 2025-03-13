@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import argparse
-import consts
-import utils
+from visualizer import consts
+from visualizer import utils
 
 
 def parse_them():

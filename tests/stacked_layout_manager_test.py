@@ -9,8 +9,7 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-from stacked_layout_manager import StackedLayoutManager
-
+from visualizer.stacked_layout_manager import StackedLayoutManager
 
 # Qt requires appeasal by constructing a QApplication before any QWidgets
 # Lest it sends a REALLY nasty-looking bug at you. Not recommended.

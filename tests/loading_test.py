@@ -7,7 +7,7 @@ from PyQt6.QtWidgets import (
     QMainWindow,
 )
 
-import loading
+from visualizer import loading
 
 
 # --- Fixtures and Sort-of-Fixtures ---

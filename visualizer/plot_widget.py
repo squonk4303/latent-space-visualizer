@@ -15,8 +15,8 @@ from matplotlib.backends.backend_qtagg import (
 )
 from matplotlib.figure import Figure
 
-import consts
-import parse
+from visualizer import consts
+from visualizer import parse
 
 
 class MplCanvas(FigureCanvasQTAgg):
