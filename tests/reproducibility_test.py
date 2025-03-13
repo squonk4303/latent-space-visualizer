@@ -2,7 +2,7 @@
 import pytest
 import numpy as np
 
-import utils
+from source import utils
 
 
 @pytest.fixture()
