@@ -14,8 +14,7 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-from visualizer import consts
-from visualizer import loading
+from visualizer import consts, loading, open_dialog
 from visualizer.plot_widget import PlotWidget
 from visualizer.stacked_layout_manager import StackedLayoutManager
 
@@ -191,8 +190,7 @@ class PrimaryWindow(QMainWindow):
         self.file_menu = file_menu
 
     def load_model_file(self):
-        handler = loading.FileDialogManager(self)
-        model_path = handler.find_trained_model_file()
+        model_path = open_dialog.for_trained_model_file(self)
         # If user cancels dialog, does nothing
         if model_path:
             # @Wilhelmsen: Test for this
@@ -206,23 +204,21 @@ class PrimaryWindow(QMainWindow):
         @Wilhelmsen, do this at some point
         """
         # @Wilhelmsen: The FDM should really be a singleton you know...
-        handler = loading.FileDialogManager(self)
-        dataset_dir = handler.find_directory()
+        dataset_dir = open_dialog.for_directory(self)
         if dataset_dir:
             self.dataset_feedback_label.setText("You found: " + dataset_dir)
 
     def find_picture(self):
         """."""
-        handler = loading.FileDialogManager(self)
-        picture_path = handler.find_picture_file()
-        if picture_path:
+        image_path = open_dialog.for_image_file(self)
+        if image_path:
             # @Wilhelmsen: Yet to check validity and resize image
-            self.single_image_label.setText(picture_path)
-            self.single_image_thumb_label.setPixmap(QPixmap(picture_path))
+            self.single_image_label.setText(image_path)
+            self.single_image_thumb_label.setPixmap(QPixmap(image_path))
 
             # Start the process of dim.reducing the image
             big_obj = loading.AutoencodeModel()
-            tensor = big_obj.single_image_to_tensor(picture_path)
+            tensor = big_obj.single_image_to_tensor(image_path)
             print(tensor)
             # And take it through t-SNE just for good measure too
             # Or not...

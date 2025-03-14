@@ -16,82 +16,6 @@ from visualizer import consts
 from visualizer.external import fcn
 
 
-class FileDialogManager:
-    """
-    Class to simplify handling of files and file dialogs.
-
-    Methods:
-        find_file -- generic function to open a qfiledialog; for wrapping
-        find_some_file -- wrapper for find_file which has filters set for all files
-        find_picture_file -- wrapper for find_file which has filters set for pictures
-        find_trained_model_file -- wrapper for find_file which has filters set for trained nn models
-    """
-
-    def __init__(self, parent_window):
-        """Initilalizes with a parent window to say to whom any of its spawned window is a child."""
-        self.parent = parent_window
-
-    def find_file(
-        self,
-        file_filters=consts.FILE_FILTERS.values(),
-        options=QFileDialog.Option.ReadOnly,
-    ):
-        """
-        Launch a file dialog and return the filepath and selected filter.
-
-        Note that the first element in file_filters is used as the initial file filter.
-        """
-        # Test whether file_filters is a subset of-- or equal to, the legal file filters
-        if not set(file_filters) <= set(consts.FILE_FILTERS.values()):
-            raise RuntimeError("Unacceptable list of file filters")
-
-        # Generate Qt-readable filter specifications
-        file_filters = list(file_filters)
-        initial_filter = file_filters[0]
-        filters = ";;".join(file_filters)
-
-        # This function opens a nifty Qt-made file dialog
-        filepath, selected_filter = QFileDialog.getOpenFileName(
-            parent=self.parent,
-            filter=filters,
-            initialFilter=initial_filter,
-            options=options,
-        )
-
-        return filepath, selected_filter
-
-    def find_directory(self):
-        """Launch a file dialog where user is prompted to pick out a directory."""
-        # @Wilhelmsen: Make sure this actually lets the user CHOOSE a directory
-        path, _ = self.find_file(
-            options=QFileDialog.Option.ShowDirsOnly | QFileDialog.Option.ReadOnly
-        )
-        return path
-
-    def find_some_file(self):
-        """Launch a file dialog where user is prompted to pick out any file their heart desires."""
-        path, _ = self.find_file()
-        return path
-
-    def find_picture_file(self):
-        """Launch file dialog where user is intended to pick out a graphical image file."""
-        filters = [
-            consts.FILE_FILTERS["pictures"],
-            consts.FILE_FILTERS["whatever"],
-        ]
-        path, _ = self.find_file(filters)
-        return path
-
-    def find_trained_model_file(self):
-        """Launch file dialog where user is intended to pick out the file for a trained nn-model."""
-        filters = [
-            consts.FILE_FILTERS["pytorch"],
-            consts.FILE_FILTERS["whatever"],
-        ]
-        path, _ = self.find_file(filters)
-        return path
-
-
 class AutoencodeModel:  # @Wilhelmsen: methinks this can be renamed to "ModelManager"
     def __init__(self):
         super().__init__()
@@ -107,7 +31,7 @@ class AutoencodeModel:  # @Wilhelmsen: methinks this can be renamed to "ModelMan
             ]
         )
 
-    def load_model(self, name, trained_file, categories):
+    def load_model(self, name, trained_file, categories) -> None:
         """Load trained model from file to local dictionary."""
         # Create model and load data to memory
         # @Wilhelmsen: Alter to include more models, when we include more models
@@ -131,7 +55,6 @@ class AutoencodeModel:  # @Wilhelmsen: methinks this can be renamed to "ModelMan
         model_obj.eval()
 
         self.models[name] = model_obj
-        return name
 
     def single_image_to_tensor(self, image_path) -> torch.tensor:
         """Convert image in path to tensor we can use."""
@@ -146,6 +69,8 @@ class AutoencodeModel:  # @Wilhelmsen: methinks this can be renamed to "ModelMan
         which to scan for valid images and load them into memory. Also make
         an effort to state how many images are loaded, because *that* has a
         lot of implications that are relevant to the user.
+
+        @Wilhelmsen: Could this and single_image_to_tensor be the same function?
         """
         # @Wilhelmsen: Going to have to make it so this function instead
         # takes either the path to the directory, a list of strings for the
@@ -164,19 +89,25 @@ class AutoencodeModel:  # @Wilhelmsen: methinks this can be renamed to "ModelMan
         ]
 
         # Save it as an attribute, because we want to append-to and reuse these
-        self.image_tensors = [
+        tensors = [
             self.preprocessing(img).unsqueeze(0).to(self.device) for img in dataset
         ]
+
+        return tensors
 
     def the_whole_enchilada(self, model_name):
         """
         Does a lot of things; to be encapsulated
+        What it does right now:
+        - Make a model
+        - Plant a hook
+        -
+
         Verily based on example code we got from Mekides.
         """
         model_obj = self.models[model_name]
 
         # Register hook and yadda yadda
-
         # Plant the hook       in   layer4  ~~~~vvv
         # Otherwise use function find_layer to let user choose layer
         # Then use gitattr() to dynamically select the layer based on user choice...!
@@ -189,7 +120,7 @@ class AutoencodeModel:  # @Wilhelmsen: methinks this can be renamed to "ModelMan
         # Find data set using this function:
         # dataset = FileDialogManager.find_dir/zip()
         data_paths = None
-        self.dataset_to_tensors(data_paths)
+        self.image_tensors = self.dataset_to_tensors(data_paths)
 
         # Preliminary dim. reduction per tensor
         with torch.no_grad():
