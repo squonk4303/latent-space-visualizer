@@ -31,4 +31,5 @@ SEED = int()
 # values like flags, seeds, stubs, &c.
 flags = {
     "xkcd": False,
+    "dev": False,
 }
