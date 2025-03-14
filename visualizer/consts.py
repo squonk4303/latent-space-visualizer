@@ -22,6 +22,7 @@ SINE_COSINE = "source/sin_cos.csv"
 
 # Used for testing only; assumes there's a local dir/symlink with appropriate model
 TRAINED_MODEL = "models.ignore/RGB_no_augmentation.pth"
+IMAGE_DATASET = "pics/testing_dataset"
 GRAPHICAL_IMAGE = "pics/1000.jpeg"
 SEED = int()
 

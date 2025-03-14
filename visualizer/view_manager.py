@@ -64,8 +64,8 @@ class PrimaryWindow(QMainWindow):
 
         # Row For Model Selection
         # -----------------------
-        self.model_feedback_label = QLabel("Choose a model already...")
-        openfile_button = QPushButton(consts.OPEN_FILE_LABEL)
+        self.model_feedback_label = QLabel("<-- File dialog for .pth")
+        openfile_button = QPushButton("Select Trained NN Model")
         openfile_button.clicked.connect(self.load_model_file)
 
         row_model_selection = QHBoxLayout()
@@ -74,7 +74,10 @@ class PrimaryWindow(QMainWindow):
 
         # Row For Category Selection
         # --------------------------
-        self.category_feedback_label = QLabel("Give me skin...")
+        self.category_feedback_label = QLabel(
+            "<-- Either a text input or a menu where you get to choose between a lot of text-options-- "
+            "and get to choose multiple. Consider QListView or QListWidget for this."
+        )
         category_button = QPushButton("Select Categories")
 
         row_category_selection = QHBoxLayout()
@@ -84,7 +87,7 @@ class PrimaryWindow(QMainWindow):
         # Row For Layer Selection
         # -----------------------
         self.layer_feedback_label = QLabel(
-            "Are you going to just stand there or will you select a layer??"
+            "<-- You know-- something to select layers"
         )
         layer_button = QPushButton("Select layer")
 
@@ -94,8 +97,8 @@ class PrimaryWindow(QMainWindow):
 
         # Row For Dataset Selection
         # -------------------------
-        dataset_selection_button = QPushButton("Open dat shit...")
-        self.dataset_feedback_label = QLabel("Select a dataset, yo...")
+        dataset_selection_button = QPushButton("Select Dataset")
+        self.dataset_feedback_label = QLabel("<-- Just a file dialog for directories should be fine")
         dataset_selection_button.clicked.connect(self.find_dataset)
 
         row_dataset_selection = QHBoxLayout()
@@ -106,10 +109,10 @@ class PrimaryWindow(QMainWindow):
         # --------------------------------
         # Note on pixmap from https://doc.qt.io/qt-6/qpixmap.html#details
         # QPixmap is designed and optimized for showing images on screen
-        self.single_image_label = QLabel("Hoping for a chicken.")
+        self.single_image_label = QLabel("<-- Normal file dialog for images")
         self.single_image_thumb_label = QLabel()
         self.single_image_thumb_label.setPixmap(QPixmap("assets/default_pic.png"))
-        single_image_button = QPushButton("Open ...Image")
+        single_image_button = QPushButton("Select Image")
         single_image_button.clicked.connect(self.find_picture)
 
         # Has a row on top:     [button]  [label]
@@ -227,10 +230,14 @@ class PrimaryWindow(QMainWindow):
             # Then again it could be helpful to have them put over there immediately...
 
     def start_cooking(self):
-        # loaded_model = loading.get_model(model_path, categories)
-        # loading.layer_summary(loaded_model, 1, 2)
-        # reduced_data = loading.reduce_data(model_path, categories)
+        # Get all the requirements
+        trained_model_path = consts.TRAINED_MODEL
+        categories = ["skin"]
+        dataset_directory = consts.IMAGE_DATASET
+        selected_layer = "layer4"
+        examinee_image = consts.GRAPHICAL_IMAGE
 
+        # Load the model
         big_obj = loading.AutoencodeModel()
         # @Wilhelmsen: The way the model dict works is ridiculous. Change it in the refactoring process.
         big_obj.load_model("no_augmentation", consts.TRAINED_MODEL, ["skin"])
