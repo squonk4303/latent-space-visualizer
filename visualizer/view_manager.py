@@ -30,6 +30,11 @@ class PrimaryWindow(QMainWindow):
         """Constructor for the primary window"""
         super().__init__(*args, **kwargs)
 
+        # Make a cheating dev-button
+        if consts.flags["dev"]:
+            dev_button = QPushButton("Cheat")
+            dev_button.clicked.connect(self.start_cooking)
+
         # Set up the tabs in the window
         start_tab = QVBoxLayout()
         graph_tab = QVBoxLayout()
@@ -41,8 +46,8 @@ class PrimaryWindow(QMainWindow):
         # Add buttons to navigate to each tab
         self.start_tab_button = QPushButton("0")
         self.graph_tab_button = QPushButton("1")
-        self.start_tab_button.clicked.connect(self.signal_tab(0))
-        self.graph_tab_button.clicked.connect(self.signal_tab(1))
+        self.start_tab_button.clicked.connect(self.goto_tab(0))
+        self.graph_tab_button.clicked.connect(self.goto_tab(1))
 
         tab_buttons_layout = QHBoxLayout()
         tab_buttons_layout.addWidget(self.start_tab_button)
@@ -131,6 +136,9 @@ class PrimaryWindow(QMainWindow):
         start_tab.addLayout(row_layer_selection)
         start_tab.addLayout(row_single_image)
         start_tab.addWidget(self.register_stuff_button)
+
+        if consts.flags["dev"]:
+            start_tab.addWidget(dev_button)
 
         # --- Plot Tab ---
 
@@ -229,14 +237,14 @@ class PrimaryWindow(QMainWindow):
 
         big_obj = loading.AutoencodeModel()
         # @Wilhelmsen: The way the model dict works is ridiculous. Change it in the refactoring process.
-        big_obj.load_model("no_augmentation", model_path, categories)
+        big_obj.load_model("no_augmentation", consts.TRAINED_MODEL, ["skin"])
         big_obj.the_whole_enchilada("no_augmentation")
 
         reduced_data = loading.the_whole_enchilada()
         print(reduced_data)
         self.plot.plot_from_2d(reduced_data)
 
-    def signal_tab(self, n):
+    def goto_tab(self, n):
         def func():
             self.tab_layout.setCurrentIndex(n)
 
