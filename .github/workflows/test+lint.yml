@@ -54,4 +54,4 @@ jobs:
         # warning about undeclared and unused variables and cetera.
         # Runs as a python module so we can specify the version number
         # --exit-zero  returns positive, so the workflow doesn't fail just for this
-        run: python3.11 -m flake8 source --exit-zero --ignore=E501
+        run: python3.11 -m flake8 visualizer tests --exit-zero --ignore=E501
