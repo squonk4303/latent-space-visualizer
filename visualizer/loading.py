@@ -7,7 +7,6 @@ import tempfile
 from sklearn.manifold import TSNE
 import numpy as np
 from PIL import Image
-import snoop
 
 from PyQt6.QtWidgets import (
     QFileDialog,
@@ -87,7 +86,7 @@ class AutoencodeModel:  # @Wilhelmsen: methinks this can be renamed to "ModelMan
             # Image.open("pics/animals10/gallina/1000.jpeg").convert("RGB"),
             # Image.open("pics/animals10/gallina/1001.jpeg").convert("RGB"),
             # Image.open("pics/animals10/gallina/100.jpeg").convert("RGB"),
-            # Image.open("pics/animals10/gallina/1010.jpeg").convert("RGB"),
+            Image.open("pics/animals10/gallina/1010.jpeg").convert("RGB"),
             Image.open("pics/animals10/gallina/1013.jpeg").convert("RGB"),
         ]
 
@@ -98,7 +97,6 @@ class AutoencodeModel:  # @Wilhelmsen: methinks this can be renamed to "ModelMan
 
         return tensors
 
-    @snoop
     def preliminary_dim_reduction(self, model, image_tensors, layer):
         # Register hook and yadda yadda
         # Plant the hook       in   layer4  ~~~~vvv
@@ -136,12 +134,12 @@ class AutoencodeModel:  # @Wilhelmsen: methinks this can be renamed to "ModelMan
                 )
                 features.append(feature_vector)
 
-        # Remove hook
-        hook_handle.remove()
-
         # Ensure features have correct 2D shape; (num_samples, num_features)
         # @Wilhelmsen: Just find out what the point is. Do it in encapsulation process.
-        self.features = np.array(self.features).reshape(len(self.features), -1)
+        features = np.array(features).reshape(len(features), -1)
+
+        # Remove hook
+        hook_handle.remove()
 
         return features
 
@@ -152,7 +150,7 @@ class AutoencodeModel:  # @Wilhelmsen: methinks this can be renamed to "ModelMan
 
         # Then finally define and apply t-SNE
         tsne = TSNE(
-            n_components=2, perplexity=perplexity_value, random_state=const.SEED
+            n_components=2, perplexity=perplexity_value, random_state=consts.SEED
         )
         reduced_features = tsne.fit_transform(features)
 

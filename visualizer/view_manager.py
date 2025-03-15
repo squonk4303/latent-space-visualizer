@@ -223,7 +223,6 @@ class PrimaryWindow(QMainWindow):
             # Start the process of dim.reducing the image
             big_obj = loading.AutoencodeModel()
             tensor = big_obj.single_image_to_tensor(image_path)
-            print(tensor)
             # And take it through t-SNE just for good measure too
             # Or not...
             # Maybe it's best to leave that for whwn things are plotted onto the graph...
@@ -247,7 +246,7 @@ class PrimaryWindow(QMainWindow):
         # dataset = FileDialogManager.find_dir/zip()
         data_paths = None
         image_tensors = big_obj.dataset_to_tensors(data_paths)
-        print("tensors", image_tensors)
+        print("".join([f"tensor: {t.shape}\n" for t in image_tensors]))
 
         import snoop
 
@@ -255,13 +254,14 @@ class PrimaryWindow(QMainWindow):
             model, image_tensors, selected_layer
         )
 
-        print("reduced_features", reduced_features)
+        # print("reduced_features", reduced_features)
+        print("".join([f"reduced_features: {t.shape}\n" for t in reduced_features]))
 
-        yet_reduceder_features = loading.apply_tsne(reduced_features)
+        yet_reduceder_features = big_obj.apply_tsne(reduced_features)
         print("yet_reduceder_features", yet_reduceder_features)
 
-        print(yet_reduceder_features)
-        self.plot.plot_from_2d(yet_reduceder_features)
+        print("".join([f"yet_reduceder_features: {t.shape}\n" for t in yet_reduceder_features]))
+        # self.plot.plot_from_2d(yet_reduceder_features)
 
     def goto_tab(self, n):
         def func():
