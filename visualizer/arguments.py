@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+import time
 from visualizer import consts
 from visualizer import utils
 
@@ -34,3 +35,9 @@ def parse_them():
 
     if args.seed is not None:
         utils.superseed(int(args.seed))
+        # Consider adding torch determinism-only
+    else:
+        # Just get some value to seed
+        # Seeding *may* affect overall torch performance, so let's consider
+        # whether to have this determinism-by-principle principle
+        utils.superseed(int(time.time()) % 10000)

@@ -7,6 +7,7 @@ import tempfile
 from sklearn.manifold import TSNE
 import numpy as np
 from PIL import Image
+import snoop
 
 from PyQt6.QtWidgets import (
     QFileDialog,
@@ -22,7 +23,7 @@ class AutoencodeModel:  # @Wilhelmsen: methinks this can be renamed to "ModelMan
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.features = []
         self.image_tensors = []
-        self.models = {}  # @Wilhelmsen: Perhaps there should be one model per object
+        # self.models = {}  # @Wilhelmsen: Perhaps there should be one model per object
         # @Wilhelmsen make the transformed image size a const, maybe choosable
         self.preprocessing = torchvision.transforms.Compose(
             [
@@ -54,7 +55,9 @@ class AutoencodeModel:  # @Wilhelmsen: methinks this can be renamed to "ModelMan
         model_obj.to(self.device)
         model_obj.eval()
 
-        self.models[name] = model_obj
+        # @Wilhelmsen 250314 -- Trying out keeping the model out of attributes
+        # self.models[name] = model_obj
+        return model_obj
 
     def single_image_to_tensor(self, image_path) -> torch.tensor:
         """Convert image in path to tensor we can use."""
@@ -80,11 +83,11 @@ class AutoencodeModel:  # @Wilhelmsen: methinks this can be renamed to "ModelMan
         # TEMP: Hard-coded right now
         # @Wilhelmsen: Image.open opens the file and it remains open until the data is processed
         dataset = [
-            Image.open(consts.GRAPHICAL_IMAGE).convert("RGB"),
-            Image.open("pics/animals10/gallina/1000.jpeg").convert("RGB"),
-            Image.open("pics/animals10/gallina/1001.jpeg").convert("RGB"),
-            Image.open("pics/animals10/gallina/100.jpeg").convert("RGB"),
-            Image.open("pics/animals10/gallina/1010.jpeg").convert("RGB"),
+            # Image.open(consts.GRAPHICAL_IMAGE).convert("RGB"),
+            # Image.open("pics/animals10/gallina/1000.jpeg").convert("RGB"),
+            # Image.open("pics/animals10/gallina/1001.jpeg").convert("RGB"),
+            # Image.open("pics/animals10/gallina/100.jpeg").convert("RGB"),
+            # Image.open("pics/animals10/gallina/1010.jpeg").convert("RGB"),
             Image.open("pics/animals10/gallina/1013.jpeg").convert("RGB"),
         ]
 
@@ -95,49 +98,35 @@ class AutoencodeModel:  # @Wilhelmsen: methinks this can be renamed to "ModelMan
 
         return tensors
 
-    def the_whole_enchilada(self, model_name):
-        """
-        Does a lot of things; to be encapsulated
-        What it does right now:
-        - Make a model
-        - Plant a hook
-        -
-
-        Verily based on example code we got from Mekides.
-        """
-        model_obj = self.models[model_name]
-
+    @snoop
+    def preliminary_dim_reduction(self, model, image_tensors, layer):
         # Register hook and yadda yadda
         # Plant the hook       in   layer4  ~~~~vvv
         # Otherwise use function find_layer to let user choose layer
         # Then use gitattr() to dynamically select the layer based on user choice...!
         hooked_feature = []
-        # A list so    ~~^^ that we can use it as pointer and with isinstance later
-        hook_handle = model_obj.model.backbone.layer4.register_forward_hook(
+        features = []
+        # A list so    ~~^^ that we can use it as pointer and with isinstance
+        hook_handle = model.model.backbone.layer4.register_forward_hook(
             hooker(hooked_feature)
         )
 
-        # Find data set using this function:
-        # dataset = FileDialogManager.find_dir/zip()
-        data_paths = None
-        self.image_tensors = self.dataset_to_tensors(data_paths)
-
         # Preliminary dim. reduction per tensor
         with torch.no_grad():
-            for img in self.image_tensors:
+            for img in image_tensors:
                 hooked_feature.clear()
-                _ = model_obj(img)  # Forward the model to let the hook do its thang
+                _ = model(img)  # Forward the model to let the hook do its thang
 
                 feature_map = hooked_feature[0]
 
                 # Ensure feature map is a PyTorch tensor
                 # @Wilhelmsen: find out what on earth the point of this is.
                 # Do it when in the encapsulation process
+                # And see whether hooked_feature can be something besides a list
                 if not isinstance(feature_map, torch.Tensor):
                     feature_map = torch.tensor(
                         feature_map, dtype=torch.float32, device=self.device
                     )
-
                 # Reduce dimensionality using Global Average Pooling (GAP)
                 # https://pytorch.org/docs/stable/generated/torch.nn.functional.adaptive_avg_pool2d.html#torch.nn.functional.adaptive_avg_pool2d
                 # @Wilhelmsen: Opiton for different dim.reduction techniques.
@@ -145,23 +134,27 @@ class AutoencodeModel:  # @Wilhelmsen: methinks this can be renamed to "ModelMan
                 feature_vector = (
                     F.adaptive_avg_pool2d(feature_map, (1, 1)).squeeze().cpu().numpy()
                 )
-                self.features.append(feature_vector)
+                features.append(feature_vector)
+
+        # Remove hook
+        hook_handle.remove()
 
         # Ensure features have correct 2D shape; (num_samples, num_features)
         # @Wilhelmsen: Just find out what the point is. Do it in encapsulation process.
         self.features = np.array(self.features).reshape(len(self.features), -1)
 
+        return features
+
+    def apply_tsne(self, features):
+        """."""
         # Ensure a reasonable/legal perplexity value
         perplexity_value = min(30, len(features) - 1)
 
-        # Then finally apply t-SNE
+        # Then finally define and apply t-SNE
         tsne = TSNE(
             n_components=2, perplexity=perplexity_value, random_state=const.SEED
         )
         reduced_features = tsne.fit_transform(features)
-
-        # Remove hook
-        hook_handle.remove()
 
         return reduced_features
 

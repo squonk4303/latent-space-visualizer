@@ -29,7 +29,9 @@ def test_bad_file_filters():
     """Test that a RuntimeError is raised upon bad list invocation."""
     with pytest.raises(RuntimeError):
         with mocked_qfiledialog:
-            path, filter_ = open_dialog.for_file(parent=None, file_filters="I'm a chuckster!")
+            path, filter_ = open_dialog.for_file(
+                parent=None, file_filters="I'm a chuckster!"
+            )
 
 
 def test_some_path_set():

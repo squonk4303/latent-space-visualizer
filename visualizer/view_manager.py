@@ -31,6 +31,7 @@ class PrimaryWindow(QMainWindow):
 
         # Make a cheating dev-button
         if consts.flags["dev"]:
+            self.start_cooking()  # <-- Just goes ahead and starts cooking
             dev_button = QPushButton("Cheat")
             dev_button.clicked.connect(self.start_cooking)
 
@@ -86,9 +87,7 @@ class PrimaryWindow(QMainWindow):
 
         # Row For Layer Selection
         # -----------------------
-        self.layer_feedback_label = QLabel(
-            "<-- You know-- something to select layers"
-        )
+        self.layer_feedback_label = QLabel("<-- You know-- something to select layers")
         layer_button = QPushButton("Select layer")
 
         row_layer_selection = QHBoxLayout()
@@ -98,7 +97,9 @@ class PrimaryWindow(QMainWindow):
         # Row For Dataset Selection
         # -------------------------
         dataset_selection_button = QPushButton("Select Dataset")
-        self.dataset_feedback_label = QLabel("<-- Just a file dialog for directories should be fine")
+        self.dataset_feedback_label = QLabel(
+            "<-- Just a file dialog for directories should be fine"
+        )
         dataset_selection_button.clicked.connect(self.find_dataset)
 
         row_dataset_selection = QHBoxLayout()
@@ -233,19 +234,34 @@ class PrimaryWindow(QMainWindow):
         # Get all the requirements
         trained_model_path = consts.TRAINED_MODEL
         categories = ["skin"]
-        dataset_directory = consts.IMAGE_DATASET
+        dataset_directory = consts.SMALL_DATASET
         selected_layer = "layer4"
         examinee_image = consts.GRAPHICAL_IMAGE
 
         # Load the model
         big_obj = loading.AutoencodeModel()
         # @Wilhelmsen: The way the model dict works is ridiculous. Change it in the refactoring process.
-        big_obj.load_model("no_augmentation", consts.TRAINED_MODEL, ["skin"])
-        big_obj.the_whole_enchilada("no_augmentation")
+        model = big_obj.load_model("no_augmentation", consts.TRAINED_MODEL, categories)
 
-        reduced_data = loading.the_whole_enchilada()
-        print(reduced_data)
-        self.plot.plot_from_2d(reduced_data)
+        # Find data set using this function:
+        # dataset = FileDialogManager.find_dir/zip()
+        data_paths = None
+        image_tensors = big_obj.dataset_to_tensors(data_paths)
+        print("tensors", image_tensors)
+
+        import snoop
+
+        reduced_features = big_obj.preliminary_dim_reduction(
+            model, image_tensors, selected_layer
+        )
+
+        print("reduced_features", reduced_features)
+
+        yet_reduceder_features = loading.apply_tsne(reduced_features)
+        print("yet_reduceder_features", yet_reduceder_features)
+
+        print(yet_reduceder_features)
+        self.plot.plot_from_2d(yet_reduceder_features)
 
     def goto_tab(self, n):
         def func():
