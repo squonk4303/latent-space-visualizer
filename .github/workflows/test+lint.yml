@@ -39,7 +39,7 @@ jobs:
       - name: INSTALL PYTHON DEPENDENCIES
         run: |
           python -m pip install --upgrade pip
-          pip install pyqt6 pytest pytest-qt flake8
+          pip install pyqt6 pytest pytest-qt flake8 black
           pip install -r requirements.txt
           pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
 
@@ -55,3 +55,9 @@ jobs:
         # Runs as a python module so we can specify the version number
         # --exit-zero  returns positive, so the workflow doesn't fail just for this
         run: python3.11 -m flake8 visualizer tests --exit-zero --ignore=E501
+
+      - name: CHECK WITH BLACK
+        # Run Black to see if someone forgot to reformat
+        # And prints what it would've changed
+        # Then ignores its output by ORing with true
+        run: black visualizer tests --diff || true
