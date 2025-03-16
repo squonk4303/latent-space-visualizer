@@ -103,37 +103,54 @@ def test_1():
     # Check contents of file
     with open(file_101.name) as f:
         content = f.read()
-        print(content)
+        # print(content)
         assert content == "Yahaha! You found me!"
 
     # Check ls of dir
     filepaths = [os.path.join(dir_100.name, f) for f in os.listdir(dir_100.name)]
-    print("FILES:", filepaths)
+    # print("FILES:", filepaths)
 
 
 # Check that if the function runs in a populated directory, it gets all the image files
 def test_imagegrabber_gets_any_extension():
     # TODO include other extensions
     dir_100 = tempfile.TemporaryDirectory()
-    file_101 = tempfile.NamedTemporaryFile(dir=dir_100.name, suffix=".jpeg")
-    file_102 = tempfile.NamedTemporaryFile(dir=dir_100.name, suffix=".jpeg")
+    file_101 = tempfile.NamedTemporaryFile(dir=dir_100.name, suffix=".bmp")
+    file_102 = tempfile.NamedTemporaryFile(dir=dir_100.name, suffix=".gif")
     file_103 = tempfile.NamedTemporaryFile(dir=dir_100.name, suffix=".jpeg")
+    file_104 = tempfile.NamedTemporaryFile(dir=dir_100.name, suffix=".jpg")
+    file_105 = tempfile.NamedTemporaryFile(dir=dir_100.name, suffix=".png")
+    file_106 = tempfile.NamedTemporaryFile(dir=dir_100.name, suffix=".svg")
+    file_107 = tempfile.NamedTemporaryFile(dir=dir_100.name, suffix=".tif")
+    file_108 = tempfile.NamedTemporaryFile(dir=dir_100.name, suffix=".tiff")
+    file_109 = tempfile.NamedTemporaryFile(dir=dir_100.name, suffix=".webp")
 
     dir_110 = tempfile.TemporaryDirectory(dir=dir_100.name)
     file_111 = tempfile.NamedTemporaryFile(dir=dir_110.name, suffix=".jpeg")
     file_112 = tempfile.NamedTemporaryFile(dir=dir_110.name, suffix=".jpeg")
     file_113 = tempfile.NamedTemporaryFile(dir=dir_110.name, suffix=".jpeg")
 
-    goal = [file_101.name, file_102.name, file_103.name]
     grabbed = utils.grab_image_paths_in_dir(dir_100.name)
+    goal = [
+        file_101.name,
+        file_102.name,
+        file_103.name,
+        file_104.name,
+        file_105.name,
+        file_106.name,
+        file_107.name,
+        file_108.name,
+        file_109.name,
+    ]
 
-    print(grabbed)
-
+    # glob returns list in arbitrary order, so compare without order
     assert set(grabbed) == set(goal)
 
 
 def imagegrabber_gets_jpgs():
     pass
+
+
 # Check that it can handle dirs outside of the repo
 # ^^ What about dirs from protected areas? Raise exception on illegal dirs?
 # Check that if the function runs in a populated directory, it ignores the non-image files

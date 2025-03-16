@@ -36,18 +36,20 @@ def grab_image_paths_in_dir(dir_path, recursive=False):
     @WIlhelssen: Consider iglob; it makes an iterator, which would save memory with large datasets
     @Wilhelmsen: consider adding recursive option, this also need implementation in the interface
     """
+    # Make strings such as "/over/hills/far/away/*.jpeg", using dir_path
     patterns = [
-        "*.bmp",
-        "*.gif",
-        "*.jpeg",
-        "*.jpg",
-        "*.png",
-        "*.svg",
-        "*.tif",
-        "*.tiff",
-        "*.webp",
+        os.path.join(dir_path, "*.bmp"),
+        os.path.join(dir_path, "*.gif"),
+        os.path.join(dir_path, "*.jpeg"),
+        os.path.join(dir_path, "*.jpg"),
+        os.path.join(dir_path, "*.png"),
+        os.path.join(dir_path, "*.svg"),
+        os.path.join(dir_path, "*.tif"),
+        os.path.join(dir_path, "*.tiff"),
+        os.path.join(dir_path, "*.webp"),
     ]
-    globs = glob.glob("*.jpeg", root_dir=dir_path)
-    paths = [os.path.join(dir_path, file) for file in globs]
 
-    return paths
+    # The list comprehension statement here makes a nested list,
+    # and 'sum' is used here to flatten that list
+    filepaths = sum([glob.glob(pattern, root_dir=dir_path) for pattern in patterns], [])
+    return filepaths
