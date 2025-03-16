@@ -29,12 +29,6 @@ class PrimaryWindow(QMainWindow):
         """Constructor for the primary window"""
         super().__init__(*args, **kwargs)
 
-        # Make a cheating dev-button
-        if consts.flags["dev"]:
-            self.start_cooking()  # <-- Just goes ahead and starts cooking
-            dev_button = QPushButton("Cheat")
-            dev_button.clicked.connect(self.start_cooking)
-
         # Set up the tabs in the window
         start_tab = QVBoxLayout()
         graph_tab = QVBoxLayout()
@@ -140,8 +134,12 @@ class PrimaryWindow(QMainWindow):
         start_tab.addLayout(row_single_image)
         start_tab.addWidget(self.register_stuff_button)
 
+        # Make a cheating dev-button
         if consts.flags["dev"]:
+            dev_button = QPushButton("Cheat")
+            dev_button.clicked.connect(self.start_cooking)
             start_tab.addWidget(dev_button)
+            self.start_cooking()  # <-- Just goes ahead and starts cooking
 
         # --- Plot Tab ---
 
@@ -260,7 +258,11 @@ class PrimaryWindow(QMainWindow):
         yet_reduceder_features = big_obj.apply_tsne(reduced_features)
         print("yet_reduceder_features", yet_reduceder_features)
 
-        print("".join([f"yet_reduceder_features: {t.shape}\n" for t in yet_reduceder_features]))
+        print(
+            "".join(
+                [f"yet_reduceder_features: {t.shape}\n" for t in yet_reduceder_features]
+            )
+        )
         # self.plot.plot_from_2d(yet_reduceder_features)
 
     def goto_tab(self, n):
