@@ -66,7 +66,7 @@ def test_1():
     Variable names for the test file structures are a bit like this:
     (Though the names when running are random; determined by 'tempfile')
 
-    .
+    /tmp
     ├── dir_100
     │   ├── file_101
     │   ├── file_102
@@ -87,9 +87,9 @@ def test_1():
     file_103 = tempfile.NamedTemporaryFile(dir=dir_100.name, suffix=".jpeg")
 
     dir_110 = tempfile.TemporaryDirectory(dir=dir_100.name)
-    file_111 = tempfile.NamedTemporaryFile(dir=dir_110.name)
-    file_112 = tempfile.NamedTemporaryFile(dir=dir_110.name)
-    file_113 = tempfile.NamedTemporaryFile(dir=dir_110.name)
+    file_111 = tempfile.NamedTemporaryFile(dir=dir_110.name, suffix=".jpeg")
+    file_112 = tempfile.NamedTemporaryFile(dir=dir_110.name, suffix=".jpeg")
+    file_113 = tempfile.NamedTemporaryFile(dir=dir_110.name, suffix=".jpeg")
 
     dir_200 = tempfile.TemporaryDirectory()
     file_201 = tempfile.NamedTemporaryFile(dir=dir_200.name)
@@ -112,8 +112,25 @@ def test_1():
 
 
 # Check that if the function runs in a populated directory, it gets all the image files
-def imagegrabber_gets_any_extension():
-    pass
+def test_imagegrabber_gets_any_extension():
+    # TODO include other extensions
+    dir_100 = tempfile.TemporaryDirectory()
+    file_101 = tempfile.NamedTemporaryFile(dir=dir_100.name, suffix=".jpeg")
+    file_102 = tempfile.NamedTemporaryFile(dir=dir_100.name, suffix=".jpeg")
+    file_103 = tempfile.NamedTemporaryFile(dir=dir_100.name, suffix=".jpeg")
+
+    dir_110 = tempfile.TemporaryDirectory(dir=dir_100.name)
+    file_111 = tempfile.NamedTemporaryFile(dir=dir_110.name, suffix=".jpeg")
+    file_112 = tempfile.NamedTemporaryFile(dir=dir_110.name, suffix=".jpeg")
+    file_113 = tempfile.NamedTemporaryFile(dir=dir_110.name, suffix=".jpeg")
+
+    goal = [file_101.name, file_102.name, file_103.name]
+    grabbed = utils.grab_image_paths_in_dir(dir_100.name)
+
+    print(grabbed)
+
+    assert set(grabbed) == set(goal)
+
 
 def imagegrabber_gets_jpgs():
     pass

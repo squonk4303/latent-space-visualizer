@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
+import glob
 import numpy as np
+import os
 import torch
 
 
@@ -25,3 +27,27 @@ def superseed(seed):
     """
     np.random.seed(seed)
     torch.manual_seed(seed)
+
+
+def grab_image_paths_in_dir(dir_path, recursive=False):
+    """
+    Description
+
+    @WIlhelssen: Consider iglob; it makes an iterator, which would save memory with large datasets
+    @Wilhelmsen: consider adding recursive option, this also need implementation in the interface
+    """
+    patterns = [
+        "*.bmp",
+        "*.gif",
+        "*.jpeg",
+        "*.jpg",
+        "*.png",
+        "*.svg",
+        "*.tif",
+        "*.tiff",
+        "*.webp",
+    ]
+    globs = glob.glob("*.jpeg", root_dir=dir_path)
+    paths = [os.path.join(dir_path, file) for file in globs]
+
+    return paths
