@@ -211,7 +211,7 @@ class PrimaryWindow(QMainWindow):
             self.dataset_feedback_label.setText("You found: " + dataset_dir)
 
     def find_picture(self):
-        """."""
+        """Get image from user choice and prepare it for processing."""
         image_path = open_dialog.for_image_file(self)
         if image_path:
             # @Wilhelmsen: Yet to check validity and resize image
@@ -219,8 +219,9 @@ class PrimaryWindow(QMainWindow):
             self.single_image_thumb_label.setPixmap(QPixmap(image_path))
 
             # Start the process of dim.reducing the image
+            # Note that we wrap image_path in a tuple
             big_obj = loading.AutoencodeModel()
-            tensor = big_obj.single_image_to_tensor(image_path)
+            tensor = big_obj.dataset_to_tensors((image_path,))
             # And take it through t-SNE just for good measure too
             # Or not...
             # Maybe it's best to leave that for whwn things are plotted onto the graph...

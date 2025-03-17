@@ -15,8 +15,6 @@ class AutoencodeModel:  # @Wilhelmsen: methinks this can be renamed to "ModelMan
     def __init__(self):
         super().__init__()
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.features = []
-        self.image_tensors = []
         # self.models = {}  # @Wilhelmsen: Perhaps there should be one model per object
         # @Wilhelmsen make the transformed image size a const, maybe choosable
         self.preprocessing = torchvision.transforms.Compose(
@@ -54,14 +52,7 @@ class AutoencodeModel:  # @Wilhelmsen: methinks this can be renamed to "ModelMan
         return model_obj
 
     # TODO: @Test
-    def single_image_to_tensor(self, image_path) -> torch.tensor:
-        """Convert image in path to tensor we can use."""
-        single_image = PIL.Image.open(image_path).convert("RGB")
-        # @Wilhelmsen: How long does this take? Do benchmarking.
-        tensor = self.preprocessing(single_image).unsqueeze(0).to(self.device)
-        return tensor
-
-    def dataset_to_tensors(self, image_paths):
+    def dataset_to_tensors(self, image_paths: list):
         """
         TODO: Uses the file dialog to locate a dir (or zip file maybe) in
         which to scan for valid images and load them into memory. Also make
