@@ -10,6 +10,8 @@ Launch a GUI which helps manipulate the latent space of a trained neural-network
 And that kind of thing.
 """
 
+# @Wilhelmsen: We should consider changing the valid image file extensions
+# based on what is accepted by torch and matplotlib...
 # File-paths &c.
 FILE_FILTERS = {
     "pictures": "Image Files (*.png *.jpg *.jpeg *.webp *.bmp *.gif *.tif *.tiff *.svg)",
@@ -21,9 +23,11 @@ SINE_CSV = "source/sine.csv"
 SINE_COSINE = "source/sin_cos.csv"
 
 # Used for testing only; assumes there's a local dir/symlink with appropriate model
-TRAINED_MODEL = "trained_models/RGB_no_augmentation.pth"
-GRAPHICAL_IMAGE = "pics/dog.png"
-SEED = int()
+TRAINED_MODEL = "models.ignore/RGB_no_augmentation.pth"
+IMAGE_DATASET = "pics/testing_dataset"
+SMALL_DATASET = "pics/small_dataset"
+GRAPHICAL_IMAGE = "pics/1000.jpeg"
+SEED = int()  # Defined properly in 'arguments.py'
 
 # Flags. If anyone asks why this is in consts, tell them to <class 'zip'> it
 # Then consider whether to rename this file to "values.py" or something and
@@ -31,4 +35,5 @@ SEED = int()
 # values like flags, seeds, stubs, &c.
 flags = {
     "xkcd": False,
+    "dev": False,
 }

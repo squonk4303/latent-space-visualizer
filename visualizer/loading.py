@@ -1,95 +1,14 @@
 #!/usr/bin/env python3
-import torch
-import torch.nn.functional as F
-import torchvision
-import mmap
-import tempfile
 from sklearn.manifold import TSNE
+import mmap
 import numpy as np
-from PIL import Image
-
-from PyQt6.QtWidgets import (
-    QFileDialog,
-)
+import PIL
+import tempfile
+import torch
+import torchvision
 
 from visualizer import consts
 from visualizer.external import fcn
-
-
-class FileDialogManager:
-    """
-    Class to simplify handling of files and file dialogs.
-
-    Methods:
-        find_file -- generic function to open a qfiledialog; for wrapping
-        find_some_file -- wrapper for find_file which has filters set for all files
-        find_picture_file -- wrapper for find_file which has filters set for pictures
-        find_trained_model_file -- wrapper for find_file which has filters set for trained nn models
-    """
-
-    def __init__(self, parent_window):
-        """Initilalizes with a parent window to say to whom any of its spawned window is a child."""
-        self.parent = parent_window
-
-    def find_file(
-        self,
-        file_filters=consts.FILE_FILTERS.values(),
-        options=QFileDialog.Option.ReadOnly,
-    ):
-        """
-        Launch a file dialog and return the filepath and selected filter.
-
-        Note that the first element in file_filters is used as the initial file filter.
-        """
-        # Test whether file_filters is a subset of-- or equal to, the legal file filters
-        if not set(file_filters) <= set(consts.FILE_FILTERS.values()):
-            raise RuntimeError("Unacceptable list of file filters")
-
-        # Generate Qt-readable filter specifications
-        file_filters = list(file_filters)
-        initial_filter = file_filters[0]
-        filters = ";;".join(file_filters)
-
-        # This function opens a nifty Qt-made file dialog
-        filepath, selected_filter = QFileDialog.getOpenFileName(
-            parent=self.parent,
-            filter=filters,
-            initialFilter=initial_filter,
-            options=options,
-        )
-
-        return filepath, selected_filter
-
-    def find_directory(self):
-        """Launch a file dialog where user is prompted to pick out a directory."""
-        # @Wilhelmsen: Make sure this actually lets the user CHOOSE a directory
-        path, _ = self.find_file(
-            options=QFileDialog.Option.ShowDirsOnly | QFileDialog.Option.ReadOnly
-        )
-        return path
-
-    def find_some_file(self):
-        """Launch a file dialog where user is prompted to pick out any file their heart desires."""
-        path, _ = self.find_file()
-        return path
-
-    def find_picture_file(self):
-        """Launch file dialog where user is intended to pick out a graphical image file."""
-        filters = [
-            consts.FILE_FILTERS["pictures"],
-            consts.FILE_FILTERS["whatever"],
-        ]
-        path, _ = self.find_file(filters)
-        return path
-
-    def find_trained_model_file(self):
-        """Launch file dialog where user is intended to pick out the file for a trained nn-model."""
-        filters = [
-            consts.FILE_FILTERS["pytorch"],
-            consts.FILE_FILTERS["whatever"],
-        ]
-        path, _ = self.find_file(filters)
-        return path
 
 
 class AutoencodeModel:  # @Wilhelmsen: methinks this can be renamed to "ModelManager"
@@ -98,7 +17,7 @@ class AutoencodeModel:  # @Wilhelmsen: methinks this can be renamed to "ModelMan
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.features = []
         self.image_tensors = []
-        self.models = {}  # @Wilhelmsen: Perhaps there should be one model per object
+        # self.models = {}  # @Wilhelmsen: Perhaps there should be one model per object
         # @Wilhelmsen make the transformed image size a const, maybe choosable
         self.preprocessing = torchvision.transforms.Compose(
             [
@@ -107,7 +26,7 @@ class AutoencodeModel:  # @Wilhelmsen: methinks this can be renamed to "ModelMan
             ]
         )
 
-    def load_model(self, name, trained_file, categories):
+    def load_model(self, name, trained_file, categories) -> None:
         """Load trained model from file to local dictionary."""
         # Create model and load data to memory
         # @Wilhelmsen: Alter to include more models, when we include more models
@@ -130,107 +49,99 @@ class AutoencodeModel:  # @Wilhelmsen: methinks this can be renamed to "ModelMan
         model_obj.to(self.device)
         model_obj.eval()
 
-        self.models[name] = model_obj
-        return name
+        # @Wilhelmsen 250314 -- Trying out keeping the model out of attributes
+        # self.models[name] = model_obj
+        return model_obj
 
+    # TODO: @Test
     def single_image_to_tensor(self, image_path) -> torch.tensor:
         """Convert image in path to tensor we can use."""
-        single_image = Image.open(image_path).convert("RGB")
+        single_image = PIL.Image.open(image_path).convert("RGB")
         # @Wilhelmsen: How long does this take? Do benchmarking.
         tensor = self.preprocessing(single_image).unsqueeze(0).to(self.device)
         return tensor
 
-    def dataset_to_tensors(self, dataset):
+    def dataset_to_tensors(self, image_paths):
         """
         TODO: Uses the file dialog to locate a dir (or zip file maybe) in
         which to scan for valid images and load them into memory. Also make
         an effort to state how many images are loaded, because *that* has a
         lot of implications that are relevant to the user.
-        """
-        # @Wilhelmsen: Going to have to make it so this function instead
-        # takes either the path to the directory, a list of strings for the
-        # filepaths, or an entire dam list of all the PIL.Images. I think I
-        # would prefer it take the stringpath to the directory, then
-        # extract the PIL.Images itself. More memory efficient, methonks.
-        # TEMP: Hard-coded right now
-        # @Wilhelmsen: Image.open opens the file and it remains open until the data is processed
-        dataset = [
-            Image.open(consts.GRAPHICAL_IMAGE).convert("RGB"),
-            Image.open("pics/animals10/gallina/1000.jpeg").convert("RGB"),
-            Image.open("pics/animals10/gallina/1001.jpeg").convert("RGB"),
-            Image.open("pics/animals10/gallina/100.jpeg").convert("RGB"),
-            Image.open("pics/animals10/gallina/1010.jpeg").convert("RGB"),
-            Image.open("pics/animals10/gallina/1013.jpeg").convert("RGB"),
-        ]
 
+        @Wilhelmsen: Could this and single_image_to_tensor be the same function?
+        """
+        # Open images for processing with PIL.Image.open
+        # @Wilhelmsen: PIL.Image.open opens the file and it remains open until the data is processed
+        # Perhaps there's some optimization to be done?
+        dataset = [PIL.Image.open(image).convert("RGB") for image in image_paths]
+
+        # @Wilhelmsen: ?
         # Save it as an attribute, because we want to append-to and reuse these
-        self.image_tensors = [
+        tensors = [
             self.preprocessing(img).unsqueeze(0).to(self.device) for img in dataset
         ]
 
-    def the_whole_enchilada(self, model_name):
-        """
-        Does a lot of things; to be encapsulated
-        Verily based on example code we got from Mekides.
-        """
-        model_obj = self.models[model_name]
+        return tensors
 
+    def preliminary_dim_reduction(self, model, image_tensors, layer):
         # Register hook and yadda yadda
-
-        # Plant the hook       in   layer4  ~~~~vvv
         # Otherwise use function find_layer to let user choose layer
         # Then use gitattr() to dynamically select the layer based on user choice...!
         hooked_feature = []
-        # A list so    ~~^^ that we can use it as pointer and with isinstance later
-        hook_handle = model_obj.model.backbone.layer4.register_forward_hook(
+        features = []
+        # A list so    ~~^^ that we can use it as pointer and with isinstance
+        # Plant the hook   in   layer4  ~~~~vvv
+        hook_handle = model.model.backbone.layer4.register_forward_hook(
             hooker(hooked_feature)
         )
 
-        # Find data set using this function:
-        # dataset = FileDialogManager.find_dir/zip()
-        data_paths = None
-        self.dataset_to_tensors(data_paths)
-
         # Preliminary dim. reduction per tensor
         with torch.no_grad():
-            for img in self.image_tensors:
+            for img in image_tensors:
                 hooked_feature.clear()
-                _ = model_obj(img)  # Forward the model to let the hook do its thang
+                _ = model(img)  # Forward the model to let the hook do its thang
 
                 feature_map = hooked_feature[0]
 
                 # Ensure feature map is a PyTorch tensor
                 # @Wilhelmsen: find out what on earth the point of this is.
                 # Do it when in the encapsulation process
+                # And see whether hooked_feature can be something besides a list
                 if not isinstance(feature_map, torch.Tensor):
                     feature_map = torch.tensor(
                         feature_map, dtype=torch.float32, device=self.device
                     )
-
                 # Reduce dimensionality using Global Average Pooling (GAP)
                 # https://pytorch.org/docs/stable/generated/torch.nn.functional.adaptive_avg_pool2d.html#torch.nn.functional.adaptive_avg_pool2d
                 # @Wilhelmsen: Opiton for different dim.reduction techniques.
                 # Do it when in the encapsulation process
                 feature_vector = (
-                    F.adaptive_avg_pool2d(feature_map, (1, 1)).squeeze().cpu().numpy()
+                    torch.nn.functional.adaptive_avg_pool2d(feature_map, (1, 1))
+                    .squeeze()
+                    .cpu()
+                    .numpy()
                 )
-                self.features.append(feature_vector)
+                features.append(feature_vector)
 
         # Ensure features have correct 2D shape; (num_samples, num_features)
         # @Wilhelmsen: Just find out what the point is. Do it in encapsulation process.
-        self.features = np.array(self.features).reshape(len(self.features), -1)
-
-        # Ensure a reasonable/legal perplexity value
-        perplexity_value = min(30, len(features) - 1)
-
-        # Then finally apply t-SNE
-        tsne = TSNE(
-            n_components=2, perplexity=perplexity_value, random_state=const.SEED
-        )
-        reduced_features = tsne.fit_transform(features)
+        features = np.array(features).reshape(len(features), -1)
 
         # Remove hook
         hook_handle.remove()
+
+        return features
+
+    def apply_tsne(self, features):
+        """."""
+        # Ensure a reasonable/legal perplexity value
+        perplexity_value = min(30, len(features) - 1)
+
+        # Then finally define and apply t-SNE
+        tsne = TSNE(
+            n_components=2, perplexity=perplexity_value, random_state=consts.SEED
+        )
+        reduced_features = tsne.fit_transform(features)
 
         return reduced_features
 

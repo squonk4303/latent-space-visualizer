@@ -14,8 +14,7 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-from visualizer import consts
-from visualizer import loading
+from visualizer import consts, loading, open_dialog, utils
 from visualizer.plot_widget import PlotWidget
 from visualizer.stacked_layout_manager import StackedLayoutManager
 
@@ -41,8 +40,8 @@ class PrimaryWindow(QMainWindow):
         # Add buttons to navigate to each tab
         self.start_tab_button = QPushButton("0")
         self.graph_tab_button = QPushButton("1")
-        self.start_tab_button.clicked.connect(self.signal_tab(0))
-        self.graph_tab_button.clicked.connect(self.signal_tab(1))
+        self.start_tab_button.clicked.connect(self.goto_tab(0))
+        self.graph_tab_button.clicked.connect(self.goto_tab(1))
 
         tab_buttons_layout = QHBoxLayout()
         tab_buttons_layout.addWidget(self.start_tab_button)
@@ -60,8 +59,8 @@ class PrimaryWindow(QMainWindow):
 
         # Row For Model Selection
         # -----------------------
-        self.model_feedback_label = QLabel("Choose a model already...")
-        openfile_button = QPushButton(consts.OPEN_FILE_LABEL)
+        self.model_feedback_label = QLabel("<-- File dialog for .pth")
+        openfile_button = QPushButton("Select Trained NN Model")
         openfile_button.clicked.connect(self.load_model_file)
 
         row_model_selection = QHBoxLayout()
@@ -70,7 +69,10 @@ class PrimaryWindow(QMainWindow):
 
         # Row For Category Selection
         # --------------------------
-        self.category_feedback_label = QLabel("Give me skin...")
+        self.category_feedback_label = QLabel(
+            "<-- Either a text input or a menu where you get to choose between a lot of text-options-- "
+            "and get to choose multiple. Consider QListView or QListWidget for this."
+        )
         category_button = QPushButton("Select Categories")
 
         row_category_selection = QHBoxLayout()
@@ -79,9 +81,7 @@ class PrimaryWindow(QMainWindow):
 
         # Row For Layer Selection
         # -----------------------
-        self.layer_feedback_label = QLabel(
-            "Are you going to just stand there or will you select a layer??"
-        )
+        self.layer_feedback_label = QLabel("<-- You know-- something to select layers")
         layer_button = QPushButton("Select layer")
 
         row_layer_selection = QHBoxLayout()
@@ -90,8 +90,10 @@ class PrimaryWindow(QMainWindow):
 
         # Row For Dataset Selection
         # -------------------------
-        dataset_selection_button = QPushButton("Open dat shit...")
-        self.dataset_feedback_label = QLabel("Select a dataset, yo...")
+        dataset_selection_button = QPushButton("Select Dataset")
+        self.dataset_feedback_label = QLabel(
+            "<-- Just a file dialog for directories should be fine"
+        )
         dataset_selection_button.clicked.connect(self.find_dataset)
 
         row_dataset_selection = QHBoxLayout()
@@ -102,10 +104,10 @@ class PrimaryWindow(QMainWindow):
         # --------------------------------
         # Note on pixmap from https://doc.qt.io/qt-6/qpixmap.html#details
         # QPixmap is designed and optimized for showing images on screen
-        self.single_image_label = QLabel("Hoping for a chicken.")
+        self.single_image_label = QLabel("<-- Normal file dialog for images")
         self.single_image_thumb_label = QLabel()
         self.single_image_thumb_label.setPixmap(QPixmap("assets/default_pic.png"))
-        single_image_button = QPushButton("Open ...Image")
+        single_image_button = QPushButton("Select Image")
         single_image_button.clicked.connect(self.find_picture)
 
         # Has a row on top:     [button]  [label]
@@ -131,6 +133,13 @@ class PrimaryWindow(QMainWindow):
         start_tab.addLayout(row_layer_selection)
         start_tab.addLayout(row_single_image)
         start_tab.addWidget(self.register_stuff_button)
+
+        # Make a cheating dev-button
+        if consts.flags["dev"]:
+            dev_button = QPushButton("Cheat")
+            dev_button.clicked.connect(self.start_cooking)
+            start_tab.addWidget(dev_button)
+            self.start_cooking()  # <-- Just goes ahead and starts cooking
 
         # --- Plot Tab ---
 
@@ -183,8 +192,7 @@ class PrimaryWindow(QMainWindow):
         self.file_menu = file_menu
 
     def load_model_file(self):
-        handler = loading.FileDialogManager(self)
-        model_path = handler.find_trained_model_file()
+        model_path = open_dialog.for_trained_model_file(self)
         # If user cancels dialog, does nothing
         if model_path:
             # @Wilhelmsen: Test for this
@@ -198,24 +206,21 @@ class PrimaryWindow(QMainWindow):
         @Wilhelmsen, do this at some point
         """
         # @Wilhelmsen: The FDM should really be a singleton you know...
-        handler = loading.FileDialogManager(self)
-        dataset_dir = handler.find_directory()
+        dataset_dir = open_dialog.for_directory(self)
         if dataset_dir:
             self.dataset_feedback_label.setText("You found: " + dataset_dir)
 
     def find_picture(self):
         """."""
-        handler = loading.FileDialogManager(self)
-        picture_path = handler.find_picture_file()
-        if picture_path:
+        image_path = open_dialog.for_image_file(self)
+        if image_path:
             # @Wilhelmsen: Yet to check validity and resize image
-            self.single_image_label.setText(picture_path)
-            self.single_image_thumb_label.setPixmap(QPixmap(picture_path))
+            self.single_image_label.setText(image_path)
+            self.single_image_thumb_label.setPixmap(QPixmap(image_path))
 
             # Start the process of dim.reducing the image
             big_obj = loading.AutoencodeModel()
-            tensor = big_obj.single_image_to_tensor(picture_path)
-            print(tensor)
+            tensor = big_obj.single_image_to_tensor(image_path)
             # And take it through t-SNE just for good measure too
             # Or not...
             # Maybe it's best to leave that for whwn things are plotted onto the graph...
@@ -223,20 +228,45 @@ class PrimaryWindow(QMainWindow):
             # Then again it could be helpful to have them put over there immediately...
 
     def start_cooking(self):
-        # loaded_model = loading.get_model(model_path, categories)
-        # loading.layer_summary(loaded_model, 1, 2)
-        # reduced_data = loading.reduce_data(model_path, categories)
+        # Get all the requirements
+        trained_model_path = consts.TRAINED_MODEL
+        categories = ["skin"]
+        dataset_directory = consts.SMALL_DATASET
+        selected_layer = "layer4"
+        examinee_image = consts.GRAPHICAL_IMAGE
 
+        # Load the model
         big_obj = loading.AutoencodeModel()
         # @Wilhelmsen: The way the model dict works is ridiculous. Change it in the refactoring process.
-        big_obj.load_model("no_augmentation", model_path, categories)
-        big_obj.the_whole_enchilada("no_augmentation")
+        model = big_obj.load_model("no_augmentation", consts.TRAINED_MODEL, categories)
 
-        reduced_data = loading.the_whole_enchilada()
-        print(reduced_data)
-        self.plot.plot_from_2d(reduced_data)
+        # First open dialog for finding dir,
+        # Then get a list of image paths with the new util...
 
-    def signal_tab(self, n):
+        # doesn't run here...
+        dir_path = open_dialog.for_directory(self, "Pick a pretty picture, nitwit")
+
+        data_paths = utils.grab_image_paths_in_dir(dir_path)
+
+        # Find data set using this function:
+        # dataset = FileDialogManager.find_dir/zip()
+        image_tensors = big_obj.dataset_to_tensors(data_paths)
+        print("".join([f"tensor: {t.shape}\n" for t in image_tensors]))
+
+        import snoop
+
+        reduced_features = big_obj.preliminary_dim_reduction(
+            model, image_tensors, selected_layer
+        )
+
+        # print("reduced_features", reduced_features)
+        print("".join([f"reduced_features: {t.shape}\n" for t in reduced_features]))
+
+        tsned_features = big_obj.apply_tsne(reduced_features)
+        print("".join([f"tsned_features: {t}\n" for t in tsned_features]))
+        # self.plot.plot_from_2d(yet_reduceder_features)
+
+    def goto_tab(self, n):
         def func():
             self.tab_layout.setCurrentIndex(n)
 
