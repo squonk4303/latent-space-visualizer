@@ -14,7 +14,7 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-from visualizer import consts, loading, open_dialog
+from visualizer import consts, loading, open_dialog, utils
 from visualizer.plot_widget import PlotWidget
 from visualizer.stacked_layout_manager import StackedLayoutManager
 
@@ -240,9 +240,16 @@ class PrimaryWindow(QMainWindow):
         # @Wilhelmsen: The way the model dict works is ridiculous. Change it in the refactoring process.
         model = big_obj.load_model("no_augmentation", consts.TRAINED_MODEL, categories)
 
+        # First open dialog for finding dir,
+        # Then get a list of image paths with the new util...
+
+        # doesn't run here...
+        dir_path = open_dialog.for_directory(self, "Pick a pretty picture, nitwit")
+
+        data_paths = utils.grab_image_paths_in_dir(dir_path)
+
         # Find data set using this function:
         # dataset = FileDialogManager.find_dir/zip()
-        data_paths = None
         image_tensors = big_obj.dataset_to_tensors(data_paths)
         print("".join([f"tensor: {t.shape}\n" for t in image_tensors]))
 
@@ -255,14 +262,8 @@ class PrimaryWindow(QMainWindow):
         # print("reduced_features", reduced_features)
         print("".join([f"reduced_features: {t.shape}\n" for t in reduced_features]))
 
-        yet_reduceder_features = big_obj.apply_tsne(reduced_features)
-        print("yet_reduceder_features", yet_reduceder_features)
-
-        print(
-            "".join(
-                [f"yet_reduceder_features: {t.shape}\n" for t in yet_reduceder_features]
-            )
-        )
+        tsned_features = big_obj.apply_tsne(reduced_features)
+        print("".join([f"tsned_features: {t}\n" for t in tsned_features]))
         # self.plot.plot_from_2d(yet_reduceder_features)
 
     def goto_tab(self, n):

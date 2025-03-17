@@ -1,16 +1,11 @@
 #!/usr/bin/env python3
-import torch
-import torch.nn.functional as F
-import torchvision
-import mmap
-import tempfile
 from sklearn.manifold import TSNE
+import mmap
 import numpy as np
-from PIL import Image
-
-from PyQt6.QtWidgets import (
-    QFileDialog,
-)
+import PIL
+import tempfile
+import torch
+import torchvision
 
 from visualizer import consts
 from visualizer.external import fcn
@@ -58,14 +53,15 @@ class AutoencodeModel:  # @Wilhelmsen: methinks this can be renamed to "ModelMan
         # self.models[name] = model_obj
         return model_obj
 
+    # TODO: @Test
     def single_image_to_tensor(self, image_path) -> torch.tensor:
         """Convert image in path to tensor we can use."""
-        single_image = Image.open(image_path).convert("RGB")
+        single_image = PIL.Image.open(image_path).convert("RGB")
         # @Wilhelmsen: How long does this take? Do benchmarking.
         tensor = self.preprocessing(single_image).unsqueeze(0).to(self.device)
         return tensor
 
-    def dataset_to_tensors(self, dataset):
+    def dataset_to_tensors(self, image_paths):
         """
         TODO: Uses the file dialog to locate a dir (or zip file maybe) in
         which to scan for valid images and load them into memory. Also make
@@ -74,22 +70,12 @@ class AutoencodeModel:  # @Wilhelmsen: methinks this can be renamed to "ModelMan
 
         @Wilhelmsen: Could this and single_image_to_tensor be the same function?
         """
-        # @Wilhelmsen: Going to have to make it so this function instead
-        # takes either the path to the directory, a list of strings for the
-        # filepaths, or an entire dam list of all the PIL.Images. I think I
-        # would prefer it take the stringpath to the directory, then
-        # extract the PIL.Images itself. More memory efficient, methonks.
-        # TEMP: Hard-coded right now
-        # @Wilhelmsen: Image.open opens the file and it remains open until the data is processed
-        dataset = [
-            # Image.open(consts.GRAPHICAL_IMAGE).convert("RGB"),
-            # Image.open("pics/animals10/gallina/1000.jpeg").convert("RGB"),
-            # Image.open("pics/animals10/gallina/1001.jpeg").convert("RGB"),
-            # Image.open("pics/animals10/gallina/100.jpeg").convert("RGB"),
-            Image.open("pics/animals10/gallina/1010.jpeg").convert("RGB"),
-            Image.open("pics/animals10/gallina/1013.jpeg").convert("RGB"),
-        ]
+        # Open images for processing with PIL.Image.open
+        # @Wilhelmsen: PIL.Image.open opens the file and it remains open until the data is processed
+        # Perhaps there's some optimization to be done?
+        dataset = [PIL.Image.open(image).convert("RGB") for image in image_paths]
 
+        # @Wilhelmsen: ?
         # Save it as an attribute, because we want to append-to and reuse these
         tensors = [
             self.preprocessing(img).unsqueeze(0).to(self.device) for img in dataset
@@ -99,12 +85,12 @@ class AutoencodeModel:  # @Wilhelmsen: methinks this can be renamed to "ModelMan
 
     def preliminary_dim_reduction(self, model, image_tensors, layer):
         # Register hook and yadda yadda
-        # Plant the hook       in   layer4  ~~~~vvv
         # Otherwise use function find_layer to let user choose layer
         # Then use gitattr() to dynamically select the layer based on user choice...!
         hooked_feature = []
         features = []
         # A list so    ~~^^ that we can use it as pointer and with isinstance
+        # Plant the hook   in   layer4  ~~~~vvv
         hook_handle = model.model.backbone.layer4.register_forward_hook(
             hooker(hooked_feature)
         )
@@ -130,7 +116,10 @@ class AutoencodeModel:  # @Wilhelmsen: methinks this can be renamed to "ModelMan
                 # @Wilhelmsen: Opiton for different dim.reduction techniques.
                 # Do it when in the encapsulation process
                 feature_vector = (
-                    F.adaptive_avg_pool2d(feature_map, (1, 1)).squeeze().cpu().numpy()
+                    torch.nn.functional.adaptive_avg_pool2d(feature_map, (1, 1))
+                    .squeeze()
+                    .cpu()
+                    .numpy()
                 )
                 features.append(feature_vector)
 
