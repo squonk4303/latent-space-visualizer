@@ -134,13 +134,6 @@ class PrimaryWindow(QMainWindow):
         start_tab.addLayout(row_single_image)
         start_tab.addWidget(self.register_stuff_button)
 
-        # Make a cheating dev-button
-        if consts.flags["dev"]:
-            dev_button = QPushButton("Cheat")
-            dev_button.clicked.connect(self.start_cooking)
-            start_tab.addWidget(dev_button)
-            self.start_cooking()  # <-- Just goes ahead and starts cooking
-
         # --- Plot Tab ---
 
         # Add the plot widget as a tab
@@ -158,8 +151,16 @@ class PrimaryWindow(QMainWindow):
         widget.setLayout(greater_layout)
         self.setCentralWidget(widget)
 
+        # --- Cheats ---
+
+        if consts.flags["dev"]:
+            dev_button = QPushButton("Cheat")
+            dev_button.clicked.connect(self.start_cooking)
+            start_tab.addWidget(dev_button)
+            self.start_cooking()  # <-- Just goes ahead and starts cooking
+
     def initiate_menu_bar(self):
-        """Set up the top menu-bar, its sub-menues, actions, and signals."""
+        """Set up the top menu-bar, its sub-menus, actions, and signals."""
         menubar = self.menuBar()
 
         # Action which opens the file dialog
@@ -230,42 +231,30 @@ class PrimaryWindow(QMainWindow):
 
     def start_cooking(self):
         # Get all the requirements
-        trained_model_path = consts.TRAINED_MODEL
         categories = ["skin"]
-        dataset_directory = consts.SMALL_DATASET
         selected_layer = "layer4"
-        examinee_image = consts.GRAPHICAL_IMAGE
 
-        # Load the model
         big_obj = loading.AutoencodeModel()
         # @Wilhelmsen: The way the model dict works is ridiculous. Change it in the refactoring process.
-        model = big_obj.load_model("no_augmentation", consts.TRAINED_MODEL, categories)
-
-        # First open dialog for finding dir,
-        # Then get a list of image paths with the new util...
-
-        # doesn't run here...
-        dir_path = open_dialog.for_directory(self, "Pick a pretty picture, nitwit")
-
-        data_paths = utils.grab_image_paths_in_dir(dir_path)
-
-        # Find data set using this function:
-        # dataset = FileDialogManager.find_dir/zip()
+        model = big_obj.load_model(consts.TRAINED_MODEL, categories)
+        data_paths = utils.grab_image_paths_in_dir(consts.SMALL_DATASET)
         image_tensors = big_obj.dataset_to_tensors(data_paths)
-        print("".join([f"tensor: {t.shape}\n" for t in image_tensors]))
+        single_image_tensor = big_obj.dataset_to_tensors((consts.GRAPHICAL_IMAGE,))
 
-        import snoop
+        print("".join([f"tensor: {t.shape}\n" for t in image_tensors]))
 
         reduced_features = big_obj.preliminary_dim_reduction(
             model, image_tensors, selected_layer
         )
 
-        # print("reduced_features", reduced_features)
         print("".join([f"reduced_features: {t.shape}\n" for t in reduced_features]))
 
         tsned_features = big_obj.apply_tsne(reduced_features)
+        # tsned_single = big_obj.apply_tsne(single_image_tensor)
+
         print("".join([f"tsned_features: {t}\n" for t in tsned_features]))
-        # self.plot.plot_from_2d(yet_reduceder_features)
+        # self.plot.plot_from_2d(tsned_features)
+        # self.plot.plot_from_2d(tsned_single)
 
     def goto_tab(self, n):
         def func():

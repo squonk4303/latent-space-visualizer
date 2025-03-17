@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+"""Contains values meant to be accessible from anywhere."""
+import os
 
 # GUI Text
 OPEN_FILE_LABEL = "&Open File"
@@ -13,20 +15,23 @@ And that kind of thing.
 # @Wilhelmsen: We should consider changing the valid image file extensions
 # based on what is accepted by torch and matplotlib...
 # File-paths &c.
+BASE_MODULE_DIR = os.path.dirname(__file__)
+REPO_DIR = os.path.join(BASE_MODULE_DIR, "..")
+
 FILE_FILTERS = {
     "pictures": "Image Files (*.png *.jpg *.jpeg *.webp *.bmp *.gif *.tif *.tiff *.svg)",
     "pytorch": "PyTorch Files (*.pt *.pth)",
     "whatever": "All Files (*)",
 }
 
-SINE_CSV = "source/sine.csv"
-SINE_COSINE = "source/sin_cos.csv"
+SINE_CSV = os.path.join(REPO_DIR, "source/sine.csv")
+SINE_COSINE = os.path.join(REPO_DIR, "source/sin_cos.csv")
 
 # Used for testing only; assumes there's a local dir/symlink with appropriate model
-TRAINED_MODEL = "models.ignore/RGB_no_augmentation.pth"
-IMAGE_DATASET = "pics/testing_dataset"
-SMALL_DATASET = "pics/small_dataset"
-GRAPHICAL_IMAGE = "pics/1000.jpeg"
+TRAINED_MODEL = os.path.join(REPO_DIR, "models.ignore/RGB_no_augmentation.pth")
+IMAGE_DATASET = os.path.join(REPO_DIR, "pics/testing_dataset")
+SMALL_DATASET = os.path.join(REPO_DIR, "pics/small_dataset")
+GRAPHICAL_IMAGE = os.path.join(REPO_DIR, "pics/crouton.png")
 SEED = int()  # Defined properly in 'arguments.py'
 
 # Flags. If anyone asks why this is in consts, tell them to <class 'zip'> it

@@ -24,7 +24,7 @@ class AutoencodeModel:  # @Wilhelmsen: methinks this can be renamed to "ModelMan
             ]
         )
 
-    def load_model(self, name, trained_file, categories) -> None:
+    def load_model(self, trained_file, categories) -> None:
         """Load trained model from file to local dictionary."""
         # Create model and load data to memory
         # @Wilhelmsen: Alter to include more models, when we include more models
@@ -35,6 +35,7 @@ class AutoencodeModel:  # @Wilhelmsen: methinks this can be renamed to "ModelMan
         )
 
         # Make necessary alterations to state_dict before loading into model
+        # @Wilhelmsen: This can surely be foreshortened, perhaps with list comprehension...?
         state_dict = checkpoint["state_dict"]
         new_state_dict = dict()
         for key, value in state_dict.items():
@@ -47,8 +48,6 @@ class AutoencodeModel:  # @Wilhelmsen: methinks this can be renamed to "ModelMan
         model_obj.to(self.device)
         model_obj.eval()
 
-        # @Wilhelmsen 250314 -- Trying out keeping the model out of attributes
-        # self.models[name] = model_obj
         return model_obj
 
     # TODO: @Test
