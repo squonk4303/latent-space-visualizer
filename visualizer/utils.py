@@ -29,11 +29,14 @@ def superseed(seed):
     torch.manual_seed(seed)
 
 
-def grab_image_paths_in_dir(dir_path, recursive=False):
+def grab_image_paths_in_dir(dir_path):
     """
-    Description
+    Return all image files found in a directory.
 
-    @WIlhelssen: Consider iglob; it makes an iterator, which would save memory with large datasets
+    Specifically returns a list containing absolute filepaths.
+    Does not search through subdirectories or symlinks.
+
+    @Wilhelmsen: Consider iglob; it makes an iterator, which would save memory with large datasets
     @Wilhelmsen: consider adding recursive option, this also need implementation in the interface
     """
     # Make strings such as "/over/hills/far/away/*.jpeg", using dir_path
