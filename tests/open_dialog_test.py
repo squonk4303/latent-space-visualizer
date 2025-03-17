@@ -1,10 +1,7 @@
 #!/usr/bin/env python3
 from unittest.mock import patch
 import pytest
-
 from PyQt6.QtWidgets import QFileDialog
-
-from visualizer import loading, utils
 from visualizer import open_dialog
 
 
@@ -31,22 +28,20 @@ def test_bad_file_filters():
             )
 
 
-def test_some_path_set():
-    """Test function sets path from return value."""
+def test_some_file_dialog():
+    """These tests are really just here in case something breaks within the functions."""
     with mocked_qfiledialog:
         path = open_dialog.for_some_file(parent=None)
         assert path == "a/gorgeous/path"
 
 
-def test_img_path_set():
-    """Test function sets path from return value."""
+def test_image_file_dialog():
     with mocked_qfiledialog:
         path = open_dialog.for_image_file(parent=None)
         assert path == "a/gorgeous/path"
 
 
-def test_model_path_set():
-    """Test function sets path from return value."""
+def test_model_file_dialog():
     with mocked_qfiledialog:
         path = open_dialog.for_trained_model_file(parent=None)
         assert path == "a/gorgeous/path"
