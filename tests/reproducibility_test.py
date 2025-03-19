@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-import pytest
 import numpy as np
+import pytest
+import torch
 
-from visualizer import utils
+from visualizer import loading, utils
 
 
 @pytest.fixture()
@@ -27,10 +28,31 @@ def test_array_different_w_o_seed():
     """
     Assert whether all elements of two arrays not built on the same seed are equal.
 
-    As you might expect, there's a small chance this function gives a false negative.
+    As you might expect, there's a small chance this function yields a false negative.
     """
     examiner_array = np.random.rand(256, 256)
     assert not np.array_equal(examinee_array, examiner_array)
+
+
+def test_setup_tsne(set_seed):
+    global examinee_array
+    tensor = torch.Tensor(np.random.rand(3, 512))
+    model_obj = loading.AutoencodeModel()
+    examinee_array = model_obj.apply_tsne(tensor)
+
+
+def test_tsne_same_with_seed(set_seed):
+    tensor = torch.Tensor(np.random.rand(3, 512))
+    model_obj = loading.AutoencodeModel()
+    examiner_array = model_obj.apply_tsne(tensor)
+    assert np.array_equal(examiner_array, examinee_array)
+
+
+def test_tsne_different_w_o_seed():
+    tensor = torch.Tensor(np.random.rand(3, 512))
+    model_obj = loading.AutoencodeModel()
+    examiner_array = model_obj.apply_tsne(tensor)
+    assert not np.array_equal(examiner_array, examinee_array)
 
 
 # reproducibility TODOs:
