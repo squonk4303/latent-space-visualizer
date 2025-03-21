@@ -235,7 +235,6 @@ class PrimaryWindow(QMainWindow):
         selected_layer = "layer4"
 
         big_obj = loading.AutoencodeModel()
-        # @Wilhelmsen: The way the model dict works is ridiculous. Change it in the refactoring process.
         model = big_obj.load_model(consts.TRAINED_MODEL, categories)
         data_paths = utils.grab_image_paths_in_dir(consts.SMALL_DATASET)
         image_tensors = big_obj.dataset_to_tensors(data_paths)
@@ -249,15 +248,29 @@ class PrimaryWindow(QMainWindow):
 
         print("".join([f"reduced_features: {t.shape}\n" for t in reduced_features]))
 
+        # Added a switch for later implementation of more reduction methods
+        method = "_tSNE"
+        match method:
+            # @Linnea: Maybe have this switch be based off of enums instead?
+            # Also-maybe encapsulate the switch into a function which takes
+            # the technique as an enum as an argument?
+            case "_tSNE":
+                tsned_features = apply_tsne(selected_features)
+            case _:  # Default case
+                tsned_features = None
+                raise RuntimeError("Invalid dimensinality reduction method")
+
         tsned_features = big_obj.apply_tsne(reduced_features)
         # tsned_single = big_obj.apply_tsne(single_image_tensor)
 
         print("".join([f"tsned_features: {t}\n" for t in tsned_features]))
-        # self.plot.plot_from_2d(tsned_features)
+        self.plot.plot_from_2d(tsned_features)
         # self.plot.plot_from_2d(tsned_single)
 
     def goto_tab(self, n):
-        def func():
+        """Return a function which changes to tab specified by argument."""
+
+        def f():
             self.tab_layout.setCurrentIndex(n)
 
-        return func
+        return f

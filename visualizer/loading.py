@@ -123,11 +123,11 @@ class AutoencodeModel:  # @Wilhelmsen: methinks this can be renamed to "ModelMan
         return features
 
     def apply_tsne(self, features):
-        """."""
+        """Makes a t-SNE object based on input and applies it to supplied features."""
         # Ensure a reasonable/legal perplexity value
         perplexity_value = min(30, len(features) - 1)
 
-        # Then finally define and apply t-SNE
+        # Define and apply t-SNE
         tsne = TSNE(
             n_components=2, perplexity=perplexity_value, random_state=consts.SEED
         )
@@ -136,86 +136,19 @@ class AutoencodeModel:  # @Wilhelmsen: methinks this can be renamed to "ModelMan
         return reduced_features
 
 
-def hooker(t):
+def hooker(t: list):
     """
-    Make a hook function which appends model output to the given list.
+    Return a hook function which appends model output to the given list.
 
     Keep in mind that assigning an existing list to a variable
     actually provides a "pointer" to the list
     """
 
-    def function(module, args, output):
+    def f(module, args, output):
         t.append(output.detach().cpu().numpy())
         print("From hook, latest append:", t[-1].shape)
 
-    return function
-
-
-def t_sne(features, dimensionality):
-    perplexity_n = min(30, len(features) - 1)
-    np.random.seed(
-        42
-    )  # @Wilhelmsen: Define seed elsewhere, once data has been visualized to graph
-    tsne = TSNE(n_components=dimensionality, perplexity=perplexity_n)
-    data = tsne.fit_transform(features)
-
-    return data
-
-
-def reduce_data(trained_file, categories, target_dimensionality=2, method="_tSNE"):
-    """Take a homogenous array of data, and reduce its dimensionality through t-SNE."""
-    """Deprecated"""
-    # TEMP: This is a hard-coded simulation of choosing a discrete layer
-    model_obj = AutoencodeModel(categories, trained_file)
-    model_obj.load_from_checkpoint()
-    model_obj.to(model_obj.device)
-    model_obj.eval()
-
-    features = []
-
-    # @Wilhelmsen: What *is* the output?
-    def my_hook(model, args, output):
-        features.append(output.detach())
-
-    # def hooker(d, keyname):
-    #    def hook(model, args, output):
-    #        d[keyname] = output.detach()
-    #    return hook
-
-    # Gets the "learnable parameters" from the model's state_dict
-    parameters = list(model_obj.state_dict().values())
-    # Selects a small slice of the parameters to t-SNE
-    selected_features = parameters[163:167]
-    selected_features = np.array(selected_features)
-
-    # Else try layer4.0
-    # Notice that the layer is here: ~~~~~~vvvvvv
-    hook_handle = model_obj.model.backbone.layer4.register_forward_hook(my_hook)
-
-    # Forward the model
-    # with torch.no_grad():
-    #    _ = model_obj()
-
-    # print("Number of entries in features:", len(features))
-
-    hook_handle.remove()
-
-    # Reduce dimensionality by t-SNE
-    """ perplexity_n = min(30, len(selected_features) - 1)
-    np.random.seed(42)  # @Wilhelmsen: Define seed elsewhere, once data has been visualized to graph
-    tsne = TSNE(n_components=target_dimensionality, perplexity=perplexity_n)
-    reduced_data = tsne.fit_transform(selected_features) """
-
-    # Added a switch for later implementation of more reduction methods
-    match method:
-        case "_tSNE":  # Maybe have this be based off of enums  instead?
-            reduced_data = t_sne(selected_features, target_dimensionality)
-        case _:  # Default case
-            reduced_data = False
-            print("Error: No reduction method selected!")
-
-    if reduced_data:
-        return reduced_data
+    return f
 
 
 def layer_summary(loaded_model, start_layer=0, end_layer=0):
