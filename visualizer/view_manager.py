@@ -40,8 +40,8 @@ class PrimaryWindow(QMainWindow):
         # Add buttons to navigate to each tab
         self.start_tab_button = QPushButton("0")
         self.graph_tab_button = QPushButton("1")
-        self.start_tab_button.clicked.connect(self.goto_tab(0))
-        self.graph_tab_button.clicked.connect(self.goto_tab(1))
+        self.start_tab_button.clicked.connect(self.callable_goto_tab(0))
+        self.graph_tab_button.clicked.connect(self.callable_goto_tab(1))
 
         tab_buttons_layout = QHBoxLayout()
         tab_buttons_layout.addWidget(self.start_tab_button)
@@ -138,10 +138,10 @@ class PrimaryWindow(QMainWindow):
 
         # Add the plot widget as a tab
         self.plot = PlotWidget()
-        toolbar = self.plot.make_toolbar()
+        self.toolbar = self.plot.make_toolbar()
 
         graph_tab.addWidget(self.plot)
-        graph_tab.addWidget(toolbar)
+        graph_tab.addWidget(self.toolbar)
 
         # --- Window Configuration ---
         self.resize(650, 450)
@@ -256,7 +256,7 @@ class PrimaryWindow(QMainWindow):
         # self.plot.plot_from_2d(tsned_features)
         # self.plot.plot_from_2d(tsned_single)
 
-    def goto_tab(self, n):
+    def callable_goto_tab(self, n):
         def func():
             self.tab_layout.setCurrentIndex(n)
 
