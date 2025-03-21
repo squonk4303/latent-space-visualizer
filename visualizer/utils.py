@@ -4,6 +4,8 @@ import numpy as np
 import os
 import torch
 
+from visualizer import consts
+
 
 def arr_is_subset(arr1, arr2):
     """Compare if arr1 is part of arr2, return bool."""
@@ -13,6 +15,9 @@ def arr_is_subset(arr1, arr2):
 def superseed(seed):
     """
     Set seed for numpy and torch.
+
+    Used in module 'arguments'
+    Sets 'consts.seed' because it's used by our t-SNE functions.
 
     This WILL have to expand if we introduce packages with other random
     number generators. We could also have this function set a variable in
@@ -27,16 +32,20 @@ def superseed(seed):
     """
     np.random.seed(seed)
     torch.manual_seed(seed)
+    consts.seed = seed
 
 
 def grab_image_paths_in_dir(dir_path):
     """
     Return all image files found in a directory.
 
-    Specifically returns a list containing absolute filepaths.
-    Does not search through subdirectories or symlinks.
+    This is how the program works; can be changed:
+    - Specifically returns a list containing absolute filepaths
+    - Does not search through subdirectories or symlinks
+    - Ignores hidden files
 
     @Wilhelmsen: Consider iglob; it makes an iterator, which would save memory with large datasets
+                 Though, it *is* just a list of strings...
     @Wilhelmsen: consider adding recursive option, this also need implementation in the interface
     """
     # Make strings such as "/over/hills/far/away/*.jpeg", using dir_path
