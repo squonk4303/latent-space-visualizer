@@ -221,8 +221,7 @@ class PrimaryWindow(QMainWindow):
 
             # Start the process of dim.reducing the image
             # Note that we wrap image_path in a tuple
-            big_obj = loading.AutoencodeModel()
-            tensor = big_obj.dataset_to_tensors((image_path,))
+            tensor = loading.dataset_to_tensors((image_path,))
             # And take it through t-SNE just for good measure too
             # Or not...
             # Maybe it's best to leave that for whwn things are plotted onto the graph...
@@ -235,15 +234,16 @@ class PrimaryWindow(QMainWindow):
         categories = ["skin"]
         selected_layer = "layer4"
 
-        big_obj = loading.AutoencodeModel()
-        model = big_obj.load_model(consts.TRAINED_MODEL, categories)
+        loading.ensure_device()
+
+        model = loading.load_model(consts.TRAINED_MODEL, categories)
         data_paths = utils.grab_image_paths_in_dir(consts.SMALL_DATASET)
-        image_tensors = big_obj.dataset_to_tensors(data_paths)
-        single_image_tensor = big_obj.dataset_to_tensors((consts.GRAPHICAL_IMAGE,))
+        image_tensors = loading.dataset_to_tensors(data_paths)
+        single_image_tensor = loading.dataset_to_tensors((consts.GRAPHICAL_IMAGE,))
 
         print("".join([f"tensor: {t.shape}\n" for t in image_tensors]))
 
-        reduced_features = big_obj.preliminary_dim_reduction(
+        reduced_features = loading.preliminary_dim_reduction(
             model, image_tensors, selected_layer
         )
 
@@ -256,13 +256,13 @@ class PrimaryWindow(QMainWindow):
             # Also-maybe encapsulate the switch into a function which takes
             # the technique as an enum as an argument?
             case "_tSNE":
-                tsned_features = big_obj.apply_tsne(reduced_features)
+                tsned_features = loading.apply_tsne(reduced_features)
             case _:  # Default case
                 tsned_features = None
                 raise RuntimeError("Invalid dimensinality reduction method")
 
-        tsned_features = big_obj.apply_tsne(reduced_features)
-        # tsned_single = big_obj.apply_tsne(single_image_tensor)
+        tsned_features = loading.apply_tsne(reduced_features)
+        # tsned_single = loading.apply_tsne(single_image_tensor)
 
         print("".join([f"tsned_features: {t}\n" for t in tsned_features]))
         self.plot.plot_from_2d(tsned_features)
