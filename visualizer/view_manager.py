@@ -230,6 +230,7 @@ class PrimaryWindow(QMainWindow):
             # Then again it could be helpful to have them put over there immediately...
 
     def start_cooking(self):
+        # @Wilhelmsen: This should be MOCKED and harangued
         # Get all the requirements
         categories = ["skin"]
         selected_layer = "layer4"
@@ -237,7 +238,7 @@ class PrimaryWindow(QMainWindow):
         big_obj = loading.AutoencodeModel()
         model = big_obj.load_model(consts.TRAINED_MODEL, categories)
         data_paths = utils.grab_image_paths_in_dir(consts.SMALL_DATASET)
-        image_tecallable_nsors = big_obj.dataset_to_tensors(data_paths)
+        image_tensors = big_obj.dataset_to_tensors(data_paths)
         single_image_tensor = big_obj.dataset_to_tensors((consts.GRAPHICAL_IMAGE,))
 
         print("".join([f"tensor: {t.shape}\n" for t in image_tensors]))
@@ -255,7 +256,7 @@ class PrimaryWindow(QMainWindow):
             # Also-maybe encapsulate the switch into a function which takes
             # the technique as an enum as an argument?
             case "_tSNE":
-                tsned_features = apply_tsne(selected_features)
+                tsned_features = big_obj.apply_tsne(reduced_features)
             case _:  # Default case
                 tsned_features = None
                 raise RuntimeError("Invalid dimensinality reduction method")
