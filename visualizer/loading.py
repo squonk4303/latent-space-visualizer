@@ -50,15 +50,11 @@ class AutoencodeModel:  # @Wilhelmsen: methinks this can be renamed to "ModelMan
 
         return model_obj
 
-    # TODO: @Test
     def dataset_to_tensors(self, image_paths: list):
         """
-        TODO: Uses the file dialog to locate a dir (or zip file maybe) in
-        which to scan for valid images and load them into memory. Also make
-        an effort to state how many images are loaded, because *that* has a
-        lot of implications that are relevant to the user.
+        Take a list of image files and return them as converted to tensors.
 
-        @Wilhelmsen: Could this and single_image_to_tensor be the same function?
+        Returned tensors are of shape `height * width * RGB`.
         """
         # Open images for processing with PIL.Image.open
         # @Wilhelmsen: PIL.Image.open opens the file and it remains open until the data is processed
@@ -74,6 +70,7 @@ class AutoencodeModel:  # @Wilhelmsen: methinks this can be renamed to "ModelMan
         return tensors
 
     def preliminary_dim_reduction(self, model, image_tensors, layer):
+        """."""
         # Register hook and yadda yadda
         # Otherwise use function find_layer to let user choose layer
         # Then use gitattr() to dynamically select the layer based on user choice...!
@@ -122,16 +119,18 @@ class AutoencodeModel:  # @Wilhelmsen: methinks this can be renamed to "ModelMan
 
         return features
 
-    def apply_tsne(self, features):
-        """Makes a t-SNE object based on input and applies it to supplied features."""
+    def apply_tsne(self, features, target_dimensions=2):
+        """Applies t-SNE to the features and returns the result."""
         # Ensure a reasonable/legal perplexity value
         perplexity_value = min(30, len(features) - 1)
 
-        # Define and apply t-SNE
-        tsne = TSNE(
-            n_components=2, perplexity=perplexity_value, random_state=consts.SEED
+        tsne_conf = TSNE(
+            n_components=target_dimensions,
+            perplexity=perplexity_value,
+            random_state=consts.SEED,
         )
-        reduced_features = tsne.fit_transform(features)
+
+        reduced_features = tsne_conf.fit_transform(features)
 
         return reduced_features
 

@@ -32,7 +32,11 @@ TRAINED_MODEL = os.path.join(REPO_DIR, "models.ignore/RGB_no_augmentation.pth")
 IMAGE_DATASET = os.path.join(REPO_DIR, "pics/testing_dataset")
 SMALL_DATASET = os.path.join(REPO_DIR, "pics/small_dataset")
 GRAPHICAL_IMAGE = os.path.join(REPO_DIR, "pics/crouton.png")
-SEED = int()  # Defined properly in 'arguments.py'
+
+TRAINED_MODEL_CATEGORIES = ["skin"]
+
+# @Wilhelmsen: lower() this. Use your inside voice
+SEED = int()  # Useful value allocated in 'arguments.py'
 
 # Flags. If anyone asks why this is in consts, tell them to <class 'zip'> it
 # Then consider whether to rename this file to "values.py" or something and

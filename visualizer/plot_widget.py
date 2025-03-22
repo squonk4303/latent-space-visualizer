@@ -15,8 +15,7 @@ from matplotlib.backends.backend_qtagg import (
 )
 from matplotlib.figure import Figure
 
-from visualizer import consts
-from visualizer import parse
+from visualizer import consts, parse
 
 
 class MplCanvas(FigureCanvasQTAgg):
@@ -58,6 +57,11 @@ class PlotWidget(QWidget):
         self.canvas.draw()
 
     def plot_from_2d(self, array_2d: np.ndarray):
+        """
+        Plot a scatterplot from the given array.
+
+        Does not clear previously plotted data.
+        """
         x = array_2d[:, 0]
         y = array_2d[:, 1]
 
@@ -70,5 +74,10 @@ class PlotWidget(QWidget):
         self.canvas.draw()
 
     def make_toolbar(self):
+        """
+        Generates a toolbar object for the matplotlib plot.
+
+        A trivial encapsulation, for testing and later expansion.
+        """
         toolbar = NavigationToolbar(self.canvas, self.parent)
         return toolbar
