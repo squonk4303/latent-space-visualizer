@@ -25,6 +25,7 @@ def superseed(seed):
     displayed on-screen so the user and others can know what seed a run is
     based on. Hey that's a good idea. It's just like the binding of isaac.
     Note though that forcing determinism may decrease performance.
+    Note also that determinism matches well with caching.
 
     For assured determinism, consider also applying
     `torch.use_deterministic_algorithms()`.
@@ -35,7 +36,7 @@ def superseed(seed):
     consts.seed = seed
 
 
-def grab_image_paths_in_dir(dir_path):
+def grab_image_paths_in_dir(dir_path, recursive=False):
     """
     Return all image files found in a directory.
 
@@ -46,22 +47,34 @@ def grab_image_paths_in_dir(dir_path):
 
     @Wilhelmsen: Consider iglob; it makes an iterator, which would save memory with large datasets
                  Though, it *is* just a list of strings...
-    @Wilhelmsen: consider adding recursive option, this also need implementation in the interface
+    @Wilhelmsen: Let dir_path be a list *args maybe...
     """
-    # Make strings such as "/over/hills/far/away/*.jpeg", using dir_path
-    patterns = [
-        os.path.join(dir_path, "*.bmp"),
-        os.path.join(dir_path, "*.gif"),
-        os.path.join(dir_path, "*.jpeg"),
-        os.path.join(dir_path, "*.jpg"),
-        os.path.join(dir_path, "*.png"),
-        os.path.join(dir_path, "*.svg"),
-        os.path.join(dir_path, "*.tif"),
-        os.path.join(dir_path, "*.tiff"),
-        os.path.join(dir_path, "*.webp"),
+    extensions = [
+        ".bmp",
+        ".gif",
+        ".jpeg",
+        ".jpg",
+        ".png",
+        ".svg",
+        ".tif",
+        ".tiff",
+        ".webp",
     ]
+
+    # Make strings such as "/over/hills/far/away/*.jpeg", for dir_path "/over/hills/far/away/"
+    # For some reason requires both the **/* AND recursive=True in glob.glob
+    if recursive:
+        patterns = [os.path.join(dir_path, f"**/*{ex}") for ex in extensions]
+    else:
+        patterns = [os.path.join(dir_path, f"*{ex}") for ex in extensions]
 
     # The list comprehension statement here makes a nested list,
     # and 'sum' is used here to flatten that list
-    filepaths = sum([glob.glob(pattern, root_dir=dir_path) for pattern in patterns], [])
+    filepaths = sum(
+        [
+            glob.glob(pattern, root_dir=dir_path, recursive=recursive)
+            for pattern in patterns
+        ],
+        [],
+    )
     return filepaths

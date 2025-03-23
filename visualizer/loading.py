@@ -8,39 +8,13 @@ import torch
 import torchvision
 
 from visualizer import consts
-from visualizer.external import fcn
+
 
 def ensure_device():
     if consts.DEVICE is None:
         consts.DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     return consts.DEVICE
 
-
-def load_model(trained_file, categories) -> None:
-    """Load trained model from file to local dictionary."""
-    # Create model and load data to memory
-    # @Wilhelmsen: Alter to include more models, when we include more models
-    # if it's possible to do it in the same function...
-    model_obj = fcn.FCNResNet101(categories)
-    checkpoint = torch.load(
-        trained_file, map_location=consts.DEVICE, weights_only=False
-    )
-
-    # Make necessary alterations to state_dict before loading into model
-    # @Wilhelmsen: This can surely be foreshortened, perhaps with list comprehension...?
-    state_dict = checkpoint["state_dict"]
-    new_state_dict = dict()
-    for key, value in state_dict.items():
-        new_key = key.removeprefix("module.")
-        new_state_dict[new_key] = value
-
-    checkpoint["state_dict"] = new_state_dict
-    model_obj.load_state_dict(checkpoint["state_dict"], strict=True)
-
-    model_obj.to(consts.DEVICE)
-    model_obj.eval()
-
-    return model_obj
 
 def dataset_to_tensors(image_paths: list):
     """
@@ -49,8 +23,6 @@ def dataset_to_tensors(image_paths: list):
     Returned tensors are of shape `height * width * RGB`.
     """
     # Open images for processing with PIL.Image.open
-    # @Wilhelmsen: PIL.Image.open opens the file and it remains open until the data is processed
-    # Perhaps there's some optimization to be done?
     dataset = [PIL.Image.open(image).convert("RGB") for image in image_paths]
 
     preprocessing = torchvision.transforms.Compose(
@@ -60,11 +32,10 @@ def dataset_to_tensors(image_paths: list):
         ]
     )
 
-    tensors = [
-        preprocessing(img).unsqueeze(0).to(consts.DEVICE) for img in dataset
-    ]
+    tensors = [preprocessing(img).unsqueeze(0).to(consts.DEVICE) for img in dataset]
 
     return tensors
+
 
 def preliminary_dim_reduction(model, image_tensors, layer):
     """Reduce the dimensionality of tensors to something t-SNE can more easily digest."""
@@ -116,6 +87,7 @@ def preliminary_dim_reduction(model, image_tensors, layer):
 
     return features
 
+
 def apply_tsne(features, target_dimensions=2):
     """Applies t-SNE to the features and returns the result."""
     # Ensure a reasonable/legal perplexity value
@@ -124,7 +96,7 @@ def apply_tsne(features, target_dimensions=2):
     tsne_conf = TSNE(
         n_components=target_dimensions,
         perplexity=perplexity_value,
-        random_state=consts.SEED,
+        random_state=consts.seed,
     )
 
     reduced_features = tsne_conf.fit_transform(features)

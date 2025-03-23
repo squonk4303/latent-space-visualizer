@@ -3,6 +3,7 @@ import numpy as np
 import pytest
 import torch
 from visualizer import consts, loading, utils
+from visualizer.external.fcn import FCNResNet101
 
 
 @pytest.mark.pretrained_model
@@ -10,7 +11,8 @@ def test_load_model():
     """Just runs this to see if it crashes."""
     # @Wilhelmsen: Is there anything more useful to test here?
     loading.ensure_device()
-    model = loading.load_model(consts.TRAINED_MODEL, ["skin"])
+    model = FCNResNet101(["skin"])
+    model.load(consts.TRAINED_MODEL)
     assert model is not None
 
 

@@ -6,11 +6,7 @@ from PyQt6.QtWidgets import (
 
 
 class StackedLayoutManager(QStackedLayout):
-    """
-    Class to handle the layout
-    It's like a data structure I made
-    TODO: method to remove items
-    """
+    """Class to manage a stacked layout to replicate a tabbed interface."""
 
     def __init__(self, items=None):
         """Creates an empty stacked layout"""

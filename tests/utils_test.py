@@ -3,7 +3,7 @@ from visualizer import utils
 import tempfile
 
 
-def test_imagegrabber_gets_any_extension():
+class TestImageGrabber:
     """
     @Linnea: W asks: does naming convention make any sense at all?
     Variable names for the test file structures are a bit like this:
@@ -23,6 +23,7 @@ def test_imagegrabber_gets_any_extension():
         ├── file_202
         └── file_203
     """
+
     dir_100 = tempfile.TemporaryDirectory()
     file_101 = tempfile.NamedTemporaryFile(dir=dir_100.name, suffix=".bmp")
     file_102 = tempfile.NamedTemporaryFile(dir=dir_100.name, suffix=".gif")
@@ -35,37 +36,57 @@ def test_imagegrabber_gets_any_extension():
     file_109 = tempfile.NamedTemporaryFile(dir=dir_100.name, suffix=".webp")
 
     dir_110 = tempfile.TemporaryDirectory(dir=dir_100.name)
-    tempfile.NamedTemporaryFile(dir=dir_110.name, suffix=".jpeg")
-    tempfile.NamedTemporaryFile(dir=dir_110.name, suffix=".jpeg")
-    tempfile.NamedTemporaryFile(dir=dir_110.name, suffix=".jpeg")
+    file_111 = tempfile.NamedTemporaryFile(dir=dir_110.name, suffix=".jpeg")
+    file_112 = tempfile.NamedTemporaryFile(dir=dir_110.name, suffix=".jpeg")
+    file_113 = tempfile.NamedTemporaryFile(dir=dir_110.name, suffix=".jpeg")
 
-    grabbed = utils.grab_image_paths_in_dir(dir_100.name)
-    goal = [
-        file_101.name,
-        file_102.name,
-        file_103.name,
-        file_104.name,
-        file_105.name,
-        file_106.name,
-        file_107.name,
-        file_108.name,
-        file_109.name,
-    ]
+    dir_200 = tempfile.TemporaryDirectory()
+    file_201 = tempfile.NamedTemporaryFile(dir=dir_200.name, suffix=".bmp")
+    file_202 = tempfile.NamedTemporaryFile(dir=dir_200.name, suffix=".gif")
+    file_203 = tempfile.NamedTemporaryFile(dir=dir_200.name, suffix=".jpeg")
 
-    # glob.glob returns list in arbitrary order, so compare without order
-    assert set(grabbed) == set(goal)
+    dir_900 = tempfile.TemporaryDirectory()
+    file_901 = tempfile.NamedTemporaryFile(dir=dir_900.name)
+    file_902 = tempfile.NamedTemporaryFile(dir=dir_900.name, suffix=".txt")
+    file_903 = tempfile.NamedTemporaryFile(dir=dir_900.name, suffix=".pdf")
+    file_904 = tempfile.NamedTemporaryFile(dir=dir_900.name, suffix=".doc")
+    file_905 = tempfile.NamedTemporaryFile(dir=dir_900.name, suffix=".md")
+    file_906 = tempfile.NamedTemporaryFile(dir=dir_900.name, suffix=".spam")
+    file_907 = tempfile.NamedTemporaryFile(dir=dir_900.name, suffix=".eggs")
+    file_908 = tempfile.NamedTemporaryFile(dir=dir_900.name, suffix=".bacon")
+    file_909 = tempfile.NamedTemporaryFile(dir=dir_900.name, suffix=".spam")
 
+    def test_imagegrabber_gets_any_extension(self):
+        grabbed = utils.grab_image_paths_in_dir(self.dir_100.name)
+        # fmt: off
+        goal = [
+            self.file_101.name,    self.file_102.name,    self.file_103.name,
+            self.file_104.name,    self.file_105.name,    self.file_106.name,
+            self.file_107.name,    self.file_108.name,    self.file_109.name,
+        ]
+        # fmt: on
 
-def test_ignore_unimportant_files():
-    dir_100 = tempfile.TemporaryDirectory()
-    tempfile.NamedTemporaryFile(dir=dir_100.name, suffix=".pdf")
-    tempfile.NamedTemporaryFile(dir=dir_100.name, suffix=".doc")
-    tempfile.NamedTemporaryFile(dir=dir_100.name, suffix=".md")
-    tempfile.NamedTemporaryFile(dir=dir_100.name, suffix=".spam")
-    tempfile.NamedTemporaryFile(dir=dir_100.name, suffix=".eggs")
-    tempfile.NamedTemporaryFile(dir=dir_100.name, suffix=".bacon")
-    tempfile.NamedTemporaryFile(dir=dir_100.name, suffix=".spam")
+        # glob.glob returns list in arbitrary order, so compare without order
+        assert set(grabbed) == set(goal)
 
-    grabbed = utils.grab_image_paths_in_dir(dir_100.name)
+    def test_ignore_unimportant_files(self):
+        grabbed = utils.grab_image_paths_in_dir(self.dir_900.name)
+        # This looks inconsistent with python convention, BUT
+        # Using {} makes an empty dict, so the docs suggest this instead.
+        # src: https://docs.python.org/3/tutorial/datastructures.html#sets
+        assert set(grabbed) == set()
 
-    assert grabbed == []
+    def test_recursive(self):
+
+        grabbed = utils.grab_image_paths_in_dir(self.dir_100.name, recursive=True)
+        # fmt: off
+        goal = [
+            self.file_101.name,    self.file_102.name,    self.file_103.name,
+            self.file_104.name,    self.file_105.name,    self.file_106.name,
+            self.file_107.name,    self.file_108.name,    self.file_109.name,
+
+            self.file_111.name,    self.file_112.name,    self.file_113.name,
+        ]
+        # fmt: on
+
+        assert set(grabbed) == set(goal)

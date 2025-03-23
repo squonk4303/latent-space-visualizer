@@ -4,10 +4,7 @@ import os
 
 
 # Relevant Numbers
-
-
-# @Wilhelmsen: lower() this. Use your inside voice
-SEED = int()  # Useful value allocated in 'arguments.py'
+seed = int()  # useful value allocated in 'arguments.py'
 STANDARD_IMG_SIZE = 640
 
 
@@ -23,9 +20,9 @@ And that kind of thing.
 """
 
 
+# File-paths &c.
 # @Wilhelmsen: We should consider changing the valid image file extensions
 # based on what is accepted by torch and matplotlib...
-# File-paths &c.
 BASE_MODULE_DIR = os.path.dirname(__file__)
 REPO_DIR = os.path.join(BASE_MODULE_DIR, "..")
 
