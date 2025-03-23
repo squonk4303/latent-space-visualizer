@@ -4,6 +4,7 @@ from PyQt6.QtGui import (
     QKeySequence,
     QPixmap,
 )
+
 from PyQt6.QtWidgets import (
     QHBoxLayout,
     QLabel,
@@ -15,6 +16,7 @@ from PyQt6.QtWidgets import (
 )
 
 from visualizer import consts, loading, open_dialog, utils
+from visualizer.external.fcn import FCNResNet101
 from visualizer.plot_widget import PlotWidget
 from visualizer.stacked_layout_manager import StackedLayoutManager
 
@@ -168,8 +170,8 @@ class PrimaryWindow(QMainWindow):
         action_to_open_file.triggered.connect(self.load_model_file)
 
         # Actions to scroll to next/previous tabs
-        next_tab = QAction("TEMP: &Next tab")
-        prev_tab = QAction("TEMP: &Previous tab")
+        next_tab = QAction("&Next tab")
+        prev_tab = QAction("&Previous tab")
         # https://doc.qt.io/qt-6/qkeysequence.html#StandardKey-enum
         next_tab.setShortcut(QKeySequence.StandardKey.MoveToNextPage)
         prev_tab.setShortcut(QKeySequence.StandardKey.MoveToPreviousPage)
@@ -194,19 +196,15 @@ class PrimaryWindow(QMainWindow):
 
     def load_model_file(self):
         model_path = open_dialog.for_trained_model_file(self)
-        # If user cancels dialog, does nothing
         if model_path:
-            # @Wilhelmsen: Test for this
-            # @Wilhelmsen: And make it more displayable before release
-            # @Wilhelmsen: And store it in at attribute or something so it's usable
             self.model_feedback_label.setText("You chose: " + model_path)
 
     def find_dataset(self):
         """
+        Open dialog for finding dataset.
+
         Called by dataset_selection_button.
-        @Wilhelmsen, do this at some point
         """
-        # @Wilhelmsen: The FDM should really be a singleton you know...
         dataset_dir = open_dialog.for_directory(self)
         if dataset_dir:
             self.dataset_feedback_label.setText("You found: " + dataset_dir)
@@ -221,8 +219,7 @@ class PrimaryWindow(QMainWindow):
 
             # Start the process of dim.reducing the image
             # Note that we wrap image_path in a tuple
-            big_obj = loading.AutoencodeModel()
-            tensor = big_obj.dataset_to_tensors((image_path,))
+            _ = loading.dataset_to_tensors((image_path,))
             # And take it through t-SNE just for good measure too
             # Or not...
             # Maybe it's best to leave that for whwn things are plotted onto the graph...
@@ -235,15 +232,17 @@ class PrimaryWindow(QMainWindow):
         categories = ["skin"]
         selected_layer = "layer4"
 
-        big_obj = loading.AutoencodeModel()
-        model = big_obj.load_model(consts.TRAINED_MODEL, categories)
+        loading.ensure_device()
+
+        model = FCNResNet101(categories)
+        model.load(consts.TRAINED_MODEL)
         data_paths = utils.grab_image_paths_in_dir(consts.SMALL_DATASET)
-        image_tensors = big_obj.dataset_to_tensors(data_paths)
-        single_image_tensor = big_obj.dataset_to_tensors((consts.GRAPHICAL_IMAGE,))
+        image_tensors = loading.dataset_to_tensors(data_paths)
+        _ = loading.dataset_to_tensors((consts.GRAPHICAL_IMAGE,))
 
         print("".join([f"tensor: {t.shape}\n" for t in image_tensors]))
 
-        reduced_features = big_obj.preliminary_dim_reduction(
+        reduced_features = loading.preliminary_dim_reduction(
             model, image_tensors, selected_layer
         )
 
@@ -256,13 +255,13 @@ class PrimaryWindow(QMainWindow):
             # Also-maybe encapsulate the switch into a function which takes
             # the technique as an enum as an argument?
             case "_tSNE":
-                tsned_features = big_obj.apply_tsne(reduced_features)
+                tsned_features = loading.apply_tsne(reduced_features)
             case _:  # Default case
                 tsned_features = None
                 raise RuntimeError("Invalid dimensinality reduction method")
 
-        tsned_features = big_obj.apply_tsne(reduced_features)
-        # tsned_single = big_obj.apply_tsne(single_image_tensor)
+        tsned_features = loading.apply_tsne(reduced_features)
+        # tsned_single = loading.apply_tsne(single_image_tensor)
 
         print("".join([f"tsned_features: {t}\n" for t in tsned_features]))
         self.plot.plot_from_2d(tsned_features)

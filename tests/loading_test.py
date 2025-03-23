@@ -3,33 +3,30 @@ import numpy as np
 import pytest
 import torch
 from visualizer import consts, loading, utils
-
-
-@pytest.fixture
-def model_obj():
-    model_obj = loading.AutoencodeModel()
-    return model_obj
+from visualizer.external.fcn import FCNResNet101
 
 
 @pytest.mark.pretrained_model
-def test_load_model(model_obj):
+def test_load_model():
     """Just runs this to see if it crashes."""
     # @Wilhelmsen: Is there anything more useful to test here?
-    model = model_obj.load_model(consts.TRAINED_MODEL, ["skin"])
+    loading.ensure_device()
+    model = FCNResNet101(["skin"])
+    model.load(consts.TRAINED_MODEL)
     assert model is not None
 
 
-def test_dataset_to_tensor(model_obj):
+def test_dataset_to_tensor():
     dataset = utils.grab_image_paths_in_dir(consts.SMALL_DATASET)
-    tensors = model_obj.dataset_to_tensors(dataset)
+    tensors = loading.dataset_to_tensors(dataset)
     assert tensors is not None
 
 
-def test_apply_tsne(model_obj):
+def test_apply_tsne():
     """Test features are reduced to desired dimensions and also it doesn't creash."""
     array = np.random.rand(8, 512)
     features = torch.Tensor(array)
-    reduced = model_obj.apply_tsne(features, target_dimensions=2)
+    reduced = loading.apply_tsne(features, target_dimensions=2)
     assert reduced.shape[1] == 2
-    reduced = model_obj.apply_tsne(features, target_dimensions=3)
+    reduced = loading.apply_tsne(features, target_dimensions=3)
     assert reduced.shape[1] == 3
