@@ -6,7 +6,7 @@ from visualizer import consts, loading, utils
 from visualizer.external.fcn import FCNResNet101
 
 
-@pytest.mark.pretrained_model
+@pytest.mark.require_pretrained_model
 def test_load_model():
     """Just runs this to see if it crashes."""
     # @Wilhelmsen: Is there anything more useful to test here?

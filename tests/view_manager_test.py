@@ -58,7 +58,7 @@ def test_buttons_to_switch_tabs(primary_window, qtbot):
     assert primary_window.tab_layout.currentIndex() == 1
 
 
-@pytest.mark.pretrained_model
+@pytest.mark.require_pretrained_model
 @pytest.mark.slow
 def test_tab_switch_after_selecting_file(primary_window, qtbot):
     """
