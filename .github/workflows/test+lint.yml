@@ -47,7 +47,7 @@ jobs:
         env:
           QT_QPA_PLATFORM: offscreen
         # Skips tests which include loading a pretrained model
-        run: xvfb-run pytest -v -m "not pretrained_model"
+        run: xvfb-run pytest -v -m "not require_pretrained_model"
 
       - name: LINT WITH FLAKE8
         # We use Black for auto-formatting, but this is still helpful for
