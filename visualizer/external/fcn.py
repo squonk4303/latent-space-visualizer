@@ -28,23 +28,19 @@ class FCNResNet101(nn.Module):
         return self.model(image)
 
     def load(self, trained_file):
-        """Load trained model from file to local dictionary."""
-        # Create model and load data to memory
-        # @Wilhelmsen: Alter to include more models, when we include more models
-        # if it's possible to do it in the same function...
+        """Load a trained model from path into current object."""
+        # Load model data from checkpoint in file
         checkpoint = torch.load(
             trained_file, map_location=consts.DEVICE, weights_only=False
         )
 
-        # Make necessary alterations to state_dict before loading into model
-        # @Wilhelmsen: This can surely be foreshortened, perhaps with list comprehension...?
-        state_dict = checkpoint["state_dict"]
-        new_state_dict = dict()
-        for key, value in state_dict.items():
-            new_key = key.removeprefix("module.")
-            new_state_dict[new_key] = value
+        # Strip "module." from any key-names in state_dict
+        checkpoint["state_dict"] = {
+            key.removeprefix("module."): value
+            for key, value in checkpoint["state_dict"].items()
+        }
 
-        checkpoint["state_dict"] = new_state_dict
+        # Load state_dict into model; the model being the current object
         self.load_state_dict(checkpoint["state_dict"], strict=True)
 
         self.to(consts.DEVICE)
