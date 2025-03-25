@@ -15,7 +15,7 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-from visualizer import consts, loading, open_dialog, utils
+from visualizer import consts, loading, open_dialog, plottables, utils
 from visualizer.external.fcn import FCNResNet101
 from visualizer.plot_widget import PlotWidget
 from visualizer.stacked_layout_manager import StackedLayoutManager
@@ -248,27 +248,37 @@ class PrimaryWindow(QMainWindow):
             # I'm wondering if t-SNED coords shouldn't be stored over there anyways.
             # Then again it could be helpful to have them put over there immediately...
 
+    # @Wilhelmsen: This should be MOCKED and harangued
     def start_cooking(self):
-        # @Wilhelmsen: This should be MOCKED and harangued
-        # Get all the requirements
-        categories = ["skin"]
-        selected_layer = "layer4"
-
+        # Make sure to send to device
         loading.ensure_device()
 
-        model = FCNResNet101(categories)
-        model.load(consts.TRAINED_MODEL)
-        data_paths = utils.grab_image_paths_in_dir(consts.SMALL_DATASET)
-        image_tensors = loading.dataset_to_tensors(data_paths)
+        # Prepare data-holding object
+        data = plottables.Plottables()
+
+        # Prepare data
+        categories = consts.DEFAULT_MODEL_CATEGORIES
+        data.selected_layer = "layer4"
+        data.model = FCNResNet101(categories)
+        data.model.load(consts.TRAINED_MODEL)
+        dataset_paths = utils.grab_image_paths_in_dir(consts.SMALL_DATASET)
+        image_tensors = loading.dataset_to_tensors(dataset_paths)
         _ = loading.dataset_to_tensors((consts.GRAPHICAL_IMAGE,))
 
         print("".join([f"tensor: {t.shape}\n" for t in image_tensors]))
 
-        reduced_features = loading.preliminary_dim_reduction(
+        data.dataset_intermediary = loading.preliminary_dim_reduction(
             model, image_tensors, selected_layer
         )
 
-        print("".join([f"reduced_features: {t.shape}\n" for t in reduced_features]))
+        print(
+            "".join(
+                [
+                    f"data.dataset_intermediary: {t.shape}\n"
+                    for t in data.dataset_intermediary
+                ]
+            )
+        )
 
         # Added a switch for later implementation of more reduction methods
         method = "_tSNE"
@@ -277,12 +287,12 @@ class PrimaryWindow(QMainWindow):
             # Also-maybe encapsulate the switch into a function which takes
             # the technique as an enum as an argument?
             case "_tSNE":
-                tsned_features = loading.apply_tsne(reduced_features)
+                tsned_features = loading.apply_tsne(data.dataset_intermediary)
             case _:  # Default case
                 tsned_features = None
                 raise RuntimeError("Invalid dimensinality reduction method")
 
-        tsned_features = loading.apply_tsne(reduced_features)
+        tsned_features = loading.apply_tsne(data.dataset_intermediary)
         # tsned_single = loading.apply_tsne(single_image_tensor)
 
         print("".join([f"tsned_features: {t}\n" for t in tsned_features]))
