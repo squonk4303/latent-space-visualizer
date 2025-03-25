@@ -54,7 +54,16 @@ class PrimaryWindow(QMainWindow):
         greater_layout.addLayout(tab_buttons_layout)
         greater_layout.addLayout(self.tab_layout)
 
-        # Set up the menu bar and submenus
+        # Declare Actions
+
+        # Quick-saving
+        # quickappend_action = QAction("Quickappend Plot", self)
+        self.quickload_action = QAction("Quickload Plot", self)
+        # quicksave_action = QAction("Quicksave Plot", self)
+
+        self.quickload_action.triggered.connect(self.quickload_wrapper)
+
+        # Seu up the menu bar and submenus
         self.initiate_menu_bar()
 
         # --- Initialize start screen ---
@@ -142,10 +151,21 @@ class PrimaryWindow(QMainWindow):
         self.plot = PlotWidget()
         self.toolbar = self.plot.make_toolbar()
 
+        # quicksave_plot_button = QPushButton("Quicksave Plot")
+        # quicksave_plot_button.clicked.connect(self.quicksave_plot)
+
+        # quickappend_plot_button = QPushButton("Quickappend Plot")
+        # quickappend_plot_button.clicked.connect(self.quickappend_plot)
+
+        quickload_wrapper_button = QPushButton("Quickload Plot")
+        quickload_wrapper_button.clicked.connect(self.quickload_wrapper)
+
         graph_tab.addWidget(self.plot)
         graph_tab.addWidget(self.toolbar)
+        graph_tab.addWidget(quickload_wrapper_button)
 
         # --- Window Configuration ---
+
         self.resize(650, 450)
         self.setWindowTitle(consts.WINDOW_TITLE)
         self.setStatusBar(QStatusBar(self))
@@ -155,10 +175,11 @@ class PrimaryWindow(QMainWindow):
 
         # --- Cheats ---
 
+        dev_button = QPushButton("Cheat")
+        dev_button.clicked.connect(self.start_cooking)
+        start_tab.addWidget(dev_button)
+
         if consts.flags["dev"]:
-            dev_button = QPushButton("Cheat")
-            dev_button.clicked.connect(self.start_cooking)
-            start_tab.addWidget(dev_button)
             self.start_cooking()  # <-- Just goes ahead and starts cooking
 
     def initiate_menu_bar(self):
@@ -170,8 +191,8 @@ class PrimaryWindow(QMainWindow):
         action_to_open_file.triggered.connect(self.load_model_file)
 
         # Actions to scroll to next/previous tabs
-        next_tab = QAction("&Next tab")
-        prev_tab = QAction("&Previous tab")
+        next_tab = QAction("&Next tab", self)
+        prev_tab = QAction("&Previous tab", self)
         # https://doc.qt.io/qt-6/qkeysequence.html#StandardKey-enum
         next_tab.setShortcut(QKeySequence.StandardKey.MoveToNextPage)
         prev_tab.setShortcut(QKeySequence.StandardKey.MoveToPreviousPage)
@@ -182,6 +203,7 @@ class PrimaryWindow(QMainWindow):
         # The Greater File Menu
         file_menu = menubar.addMenu("&File")
         file_menu.addAction(action_to_open_file)
+        file_menu.addAction(self.quickload_action)
 
         # The Greater Navigaiton Menu
         self.navigate_menu = menubar.addMenu("&Tab")
@@ -274,3 +296,7 @@ class PrimaryWindow(QMainWindow):
             self.tab_layout.setCurrentIndex(n)
 
         return f
+
+    def quickload_wrapper(self):
+        import numpy as np
+        self.plot.plot_from_2d(np.random.rand(16,2))
