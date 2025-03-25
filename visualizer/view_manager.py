@@ -19,7 +19,8 @@ from visualizer import consts, loading, open_dialog, utils
 from visualizer.external.fcn import FCNResNet101
 from visualizer.plot_widget import PlotWidget
 from visualizer.stacked_layout_manager import StackedLayoutManager
-
+from visualizer.consts import DR_technique as Technique
+from visualizer.loading import apply_tsne as t_sne
 
 class PrimaryWindow(QMainWindow):
     """
@@ -226,6 +227,24 @@ class PrimaryWindow(QMainWindow):
             # I'm wondering if t-SNED coords shouldn't be stored over there anyways.
             # Then again it could be helpful to have them put over there immediately...
 
+    def technique_loader(features, target_dimensionality=2, reduction=Technique.T_SNE):
+        
+         #Added a switch for later implementation of more reduction methods
+        match reduction:
+            case Technique.T_SNE: #Maybe have this be based off of enums  instead?
+                return t_sne(features,target_dimensionality)
+            case Technique.PCA:
+                return None # TBI (TO BE IMPLEMENTED)
+            case Technique.UMAP:    
+                return None # TBI
+            case Technique.TRIMAP:
+                return None # TBI
+            case Technique.PACMAP:
+                return None # TBI
+            case _:                 # Default case
+                return None
+                raise RuntimeError("No reduction technique selected!")
+
     def start_cooking(self):
         # @Wilhelmsen: This should be MOCKED and harangued
         # Get all the requirements
@@ -248,23 +267,12 @@ class PrimaryWindow(QMainWindow):
 
         print("".join([f"reduced_features: {t.shape}\n" for t in reduced_features]))
 
-        # Added a switch for later implementation of more reduction methods
-        method = "_tSNE"
-        match method:
-            # @Linnea: Maybe have this switch be based off of enums instead?
-            # Also-maybe encapsulate the switch into a function which takes
-            # the technique as an enum as an argument?
-            case "_tSNE":
-                tsned_features = loading.apply_tsne(reduced_features)
-            case _:  # Default case
-                tsned_features = None
-                raise RuntimeError("Invalid dimensinality reduction method")
-
-        tsned_features = loading.apply_tsne(reduced_features)
+        
+        dataset_plottable = self.technique_loader(reduced_features)
         # tsned_single = loading.apply_tsne(single_image_tensor)
 
-        print("".join([f"tsned_features: {t}\n" for t in tsned_features]))
-        self.plot.plot_from_2d(tsned_features)
+        print("".join([f"dataset_plottable: {t}\n" for t in dataset_plottable]))
+        self.plot.plot_from_2d(dataset_plottable)
         # self.plot.plot_from_2d(tsned_single)
 
     def callable_goto_tab(self, n):

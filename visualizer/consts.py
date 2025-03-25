@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Contains values meant to be accessible from anywhere."""
 import os
-
+from enum import Enum, auto
 
 # Relevant Numbers
 seed = int()  # useful value allocated in 'arguments.py'
@@ -45,6 +45,13 @@ GRAPHICAL_IMAGE = os.path.join(REPO_DIR, "pics/crouton.png")
 DEFAULT_MODEL_CATEGORIES = ["skin"]
 DEVICE = None
 
+# Enums for dimensionality reduction techniques
+class DR_technique(Enum):
+    T_SNE = auto() 
+    PCA = auto()
+    UMAP = auto()
+    TRIMAP = auto()
+    PACMAP = auto()
 
 # Flags. If anyone asks why this is in consts, tell them to <class 'zip'> it
 # Then consider whether to rename this file to "values.py" or something and
