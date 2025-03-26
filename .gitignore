@@ -1,6 +1,9 @@
 # Build Artifacts
 __pycache__
 
+# User Data
+save_data
+
 # Other
 *ignore*
 tags

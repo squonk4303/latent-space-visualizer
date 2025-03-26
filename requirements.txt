@@ -29,3 +29,4 @@ python-dateutil==2.9.0.post0
 scikit-learn==1.6.1
 six==1.17.0
 tomlkit==0.13.2
+tqdm==4.67.1

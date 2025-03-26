@@ -49,7 +49,7 @@ def preliminary_dim_reduction(model, image_tensors, layer):
 
     # Preliminary dim. reduction per tensor
     with torch.no_grad():
-        for img in image_tensors:
+        for img in tqdm(image_tensors):
             hooked_feature.clear()
             _ = model(img)  # Forward the model to let the hook do its thang
 
@@ -74,6 +74,8 @@ def preliminary_dim_reduction(model, image_tensors, layer):
                 .numpy()
             )
             features.append(feature_vector)
+
+            # @Wilhelmsen: Could memory be saved by using 'del img' here?
 
     # Ensure features have correct 2D shape; (num_samples, num_features)
     # @Wilhelmsen: Just find out what the point is. Do it in encapsulation process.
@@ -111,7 +113,7 @@ def hooker(t: list):
 
     def f(module, args, output):
         t.append(output.detach().cpu().numpy())
-        print("From hook, latest append:", t[-1].shape)
+        # print("From hook, latest append:", t[-1].shape)
 
     return f
 
@@ -176,3 +178,18 @@ def layer_summary(loaded_model, start_layer=0, end_layer=0):
         print("\nEOF: no more lines")
     else:
         print(f"\nNext line is {new}: {lines[new]}")
+
+
+def quickload(load_location=consts.QUICKSAVE_PATH):
+    save_location = "save_data/test_save.pickle"
+    with open(save_location, "rb") as f:
+        data_obj = pickle.load(f)
+
+    return data_obj
+
+
+def quicksave(data_obj: Plottables, save_location=consts.QUICKSAVE_PATH):
+    with open(save_location, "wb") as f:
+        pickle.dump(data_obj, f)
+
+    print(f"Saved to {save_location}")

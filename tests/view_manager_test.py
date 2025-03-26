@@ -1,12 +1,17 @@
 #!/usr/bin/env python3
 from unittest.mock import patch
+import numpy as np
 import pytest
+import tempfile
+import torch
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QFileDialog
 
-from visualizer import consts
+from visualizer import consts, loading
 from visualizer.view_manager import PrimaryWindow
+from visualizer.plottables import Plottables
+from visualizer.external.fcn import FCNResNet101
 
 
 # --- Fixtures and Sort-of-Fixtures ---
@@ -19,6 +24,23 @@ def primary_window(qtbot):
     window = PrimaryWindow()
     qtbot.addWidget(window)
     return window
+
+
+@pytest.fixture
+def data_object():
+    consts.DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    data = Plottables()
+    data.model = FCNResNet101(["skin"])
+    data.model.load(consts.TRAINED_MODEL)
+    data.image_plottable = np.array(
+        [
+            [0.18295779, 0.42863305],
+            [0.71485087, 0.04020805],
+            [0.88153443, 0.34253962],
+            [0.79842691, 0.02809093],
+        ]
+    )
+    return data
 
 
 mocked_trained_model_qfiledialog = patch.object(
@@ -72,8 +94,42 @@ def test_tab_switch_after_selecting_file(primary_window, qtbot):
 
 
 def test_cancelled_file_select(primary_window, qtbot):
-    """Test that a cancelled file dialog exits gracefully."""
+    """
+    Test that a cancelled file dialog exits gracefully.
+
+    Assertions are for whether the tab changes, but on failure to exit the
+    dialog, the program would throw an error, so that's being tested here
+    as well.
+    """
     with mocked_cancelled_qfiledialog:
         assert primary_window.tab_layout.currentIndex() == 0
         primary_window.action_to_open_file.trigger()
         assert primary_window.tab_layout.currentIndex() == 0
+
+
+@pytest.mark.slow
+def test_saving_and_loading_in_place(data_object):
+    """
+    Makes an object with some data, then saves the data,
+    uses another object to load it, and compares the former with the latter.
+    """
+    temp_file = tempfile.NamedTemporaryFile(dir="save_data/")
+    loading.quicksave(data_object, temp_file.name)
+
+    other_data = loading.quickload(temp_file.name)
+    assert np.array_equal(data_object.image_plottable, other_data.image_plottable)
+
+
+@pytest.mark.slow
+def _test_save_to_persistent_file(data_object):
+    persistent_file = "save_data/test_save.pickle"
+    loading.quicksave(data_object, persistent_file)
+
+
+@pytest.mark.slow
+def test_loading_cold_model_file(primary_window, data_object):
+    persistent_file = "save_data/test_save.pickle"
+    primary_window.data = loading.quickload(persistent_file)
+    assert np.array_equal(
+        primary_window.data.image_plottable, data_object.image_plottable
+    )
