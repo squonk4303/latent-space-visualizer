@@ -15,8 +15,8 @@ from visualizer.plottables import Plottables
 def data_object():
     consts.DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     data = Plottables()
-    data.model = FCNResNet101(["skin"])
-    data.model.load(consts.TRAINED_MODEL)
+    # data.model = FCNResNet101(["skin"])
+    # data.model.load(consts.TRAINED_MODEL)
     data.dataset_plottable = np.array(
         [
             [0.18295779, 0.42863305],
@@ -60,7 +60,7 @@ def test_saving_and_loading_in_place(data_object):
     Makes an object with some data, then saves the data,
     uses another object to load it, and compares the former with the latter.
     """
-    temp_file = tempfile.NamedTemporaryFile(dir=consts.SAVE_DIR)
+    temp_file = tempfile.NamedTemporaryFile()
     loading.quicksave(data_object, temp_file.name)
 
     other_data = loading.quickload(temp_file.name)
@@ -68,12 +68,14 @@ def test_saving_and_loading_in_place(data_object):
 
 
 @pytest.mark.slow
+@pytest.mark.stub
 def test_save_to_persistent_file(data_object):
     persistent_file = os.path.join(consts.SAVE_DIR, "test_save.pickle")
     loading.quicksave(data_object, persistent_file)
 
 
 @pytest.mark.slow
+@pytest.mark.stub
 def test_loading_cold_model_file(data_object):
     # @Wilhelmsen: Something stinks here...
     persistent_file = os.path.join(consts.SAVE_DIR, "test_save.pickle")

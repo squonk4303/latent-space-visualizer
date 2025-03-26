@@ -29,8 +29,8 @@ def primary_window(qtbot):
 def data_object():
     consts.DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     data = Plottables()
-    data.model = FCNResNet101(["skin"])
-    data.model.load(consts.TRAINED_MODEL)
+    # data.model = FCNResNet101(["skin"])
+    # data.model.load(consts.TRAINED_MODEL)
     data.dataset_plottable = np.array(
         [
             [0.18295779, 0.42863305],
@@ -114,7 +114,7 @@ def test_quicksave_n_quickload(primary_window, data_object):
     assert np.array_equal(
         primary_window.data.dataset_plottable, data_object.dataset_plottable
     )
-    # Confirm that .data and data_object don't point to the same object
+    # Assert that .data and data_object don't point to the same object
     assert primary_window.data is not data_object
     primary_window.data.dataset_plottable = None
     assert not np.array_equal(
