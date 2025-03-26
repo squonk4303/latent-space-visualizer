@@ -10,7 +10,7 @@ from visualizer.external.fcn import FCNResNet101
 def test_load_model():
     """Just runs this to see if it crashes."""
     # @Wilhelmsen: Is there anything more useful to test here?
-    loading.ensure_device()
+    consts.DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = FCNResNet101(["skin"])
     model.load(consts.TRAINED_MODEL)
     assert model is not None

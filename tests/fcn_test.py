@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-import numpy as np
 import pickle
 import torch
 import pytest
-from visualizer import consts, loading
+from visualizer import consts
 from visualizer.external.fcn import FCNResNet101
 
 FILE = "stubs.ignore/fcn.pth"
@@ -11,7 +10,7 @@ FILE = "stubs.ignore/fcn.pth"
 
 def write_object_to_file():
     """Note that this isn't run when pytest is called."""
-    loading.ensure_device()
+    consts.DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = FCNResNet101(["skin"])
     model.load(consts.TRAINED_MODEL)
     with open(FILE, "wb") as f:
@@ -21,7 +20,7 @@ def write_object_to_file():
 @pytest.mark.require_pretrained_model
 @pytest.mark.require_stub
 def test_loaded_model_equal_to_stub():
-    loading.ensure_device()
+    consts.DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     fresh_model = FCNResNet101(["skin"])
     fresh_model.load(consts.TRAINED_MODEL)
 

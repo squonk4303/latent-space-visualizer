@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+import torch
+
 from PyQt6.QtGui import (
     QAction,
     QKeySequence,
@@ -15,7 +17,8 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-from visualizer import consts, loading, open_dialog, plottables, utils
+from visualizer import consts, loading, open_dialog, utils
+from visualizer.plottables import Plottables
 from visualizer.external.fcn import FCNResNet101
 from visualizer.plot_widget import PlotWidget
 from visualizer.stacked_layout_manager import StackedLayoutManager

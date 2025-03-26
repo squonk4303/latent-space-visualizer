@@ -1,19 +1,16 @@
 #!/usr/bin/env python3
 from sklearn.manifold import TSNE
+from tqdm import tqdm
 import mmap
 import numpy as np
+import pickle
 import PIL
 import tempfile
 import torch
 import torchvision
 
 from visualizer import consts
-
-
-def ensure_device():
-    if consts.DEVICE is None:
-        consts.DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    return consts.DEVICE
+from visualizer.plottables import Plottables
 
 
 def dataset_to_tensors(image_paths: list):
