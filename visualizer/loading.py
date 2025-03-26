@@ -193,7 +193,7 @@ def quicksave(data_obj: Plottables, save_location=consts.QUICKSAVE_PATH):
     parent_dir = os.path.abspath(os.path.join(save_location, os.pardir))
     os.makedirs(parent_dir, exist_ok=True)
 
-    with open(save_location, "wb+") as f:
+    with open(save_location, "wb") as f:
         pickle.dump(data_obj, f)
 
     print(f"Saved to {save_location}")
