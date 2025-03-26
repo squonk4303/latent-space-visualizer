@@ -181,8 +181,7 @@ def layer_summary(loaded_model, start_layer=0, end_layer=0):
 
 
 def quickload(load_location=consts.QUICKSAVE_PATH):
-    save_location = "save_data/test_save.pickle"
-    with open(save_location, "rb") as f:
+    with open(load_location, "rb") as f:
         data_obj = pickle.load(f)
 
     return data_obj

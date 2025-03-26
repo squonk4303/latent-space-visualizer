@@ -26,7 +26,8 @@ And that kind of thing.
 BASE_MODULE_DIR = os.path.dirname(__file__)
 REPO_DIR = os.path.abspath(os.path.join(BASE_MODULE_DIR, os.pardir))
 
-QUICKSAVE_PATH = os.path.join(REPO_DIR, "save_data/quicksave.pickle")
+SAVE_DIR = os.path.join(REPO_DIR, "save_data")
+QUICKSAVE_PATH = os.path.join(SAVE_DIR, "quicksave.pickle")
 
 FILE_FILTERS = {
     "pictures": "Image Files (*.png *.jpg *.jpeg *.webp *.bmp *.gif *.tif *.tiff *.svg)",

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from unittest.mock import patch
 import numpy as np
+import os
 import pytest
 import tempfile
 import torch
@@ -113,7 +114,7 @@ def test_saving_and_loading_in_place(data_object):
     Makes an object with some data, then saves the data,
     uses another object to load it, and compares the former with the latter.
     """
-    temp_file = tempfile.NamedTemporaryFile(dir="save_data/")
+    temp_file = tempfile.NamedTemporaryFile(dir=consts.SAVE_DIR)
     loading.quicksave(data_object, temp_file.name)
 
     other_data = loading.quickload(temp_file.name)
@@ -122,13 +123,13 @@ def test_saving_and_loading_in_place(data_object):
 
 @pytest.mark.slow
 def _test_save_to_persistent_file(data_object):
-    persistent_file = "save_data/test_save.pickle"
+    persistent_file = os.path.join(consts.SAVE_DIR, "test_save.pickle")
     loading.quicksave(data_object, persistent_file)
 
 
 @pytest.mark.slow
 def test_loading_cold_model_file(primary_window, data_object):
-    persistent_file = "save_data/test_save.pickle"
+    persistent_file = os.path.join(consts.SAVE_DIR, "test_save.pickle")
     primary_window.data = loading.quickload(persistent_file)
     assert np.array_equal(
         primary_window.data.image_plottable, data_object.image_plottable
