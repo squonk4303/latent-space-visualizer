@@ -17,7 +17,7 @@ def data_object():
     data = Plottables()
     data.model = FCNResNet101(["skin"])
     data.model.load(consts.TRAINED_MODEL)
-    data.image_plottable = np.array(
+    data.dataset_plottable = np.array(
         [
             [0.18295779, 0.42863305],
             [0.71485087, 0.04020805],
@@ -64,17 +64,18 @@ def test_saving_and_loading_in_place(data_object):
     loading.quicksave(data_object, temp_file.name)
 
     other_data = loading.quickload(temp_file.name)
-    assert np.array_equal(data_object.image_plottable, other_data.image_plottable)
+    assert np.array_equal(data_object.dataset_plottable, other_data.dataset_plottable)
 
 
 @pytest.mark.slow
-def _test_save_to_persistent_file(data_object):
+def test_save_to_persistent_file(data_object):
     persistent_file = os.path.join(consts.SAVE_DIR, "test_save.pickle")
     loading.quicksave(data_object, persistent_file)
 
 
 @pytest.mark.slow
 def test_loading_cold_model_file(data_object):
+    # @Wilhelmsen: Something stinks here...
     persistent_file = os.path.join(consts.SAVE_DIR, "test_save.pickle")
     other_data = loading.quickload(persistent_file)
-    assert np.array_equal(other_data.image_plottable, data_object.image_plottable)
+    assert np.array_equal(other_data.dataset_plottable, data_object.dataset_plottable)

@@ -308,14 +308,12 @@ class PrimaryWindow(QMainWindow):
         return f
 
     def quickload_wrapper(self):
-        pass
-        # self.data = quickload()
+        self.data = loading.quickload()
 
-        # print("DATA:", data_obj)
-        # print("DATA:", data_obj.model)
-        # print("DATA:", data_obj.dataset_plottable)
-
-        # self.plot.plot_from_2d(data_obj.dataset_plottable)
+        if self.data.dataset_plottable is not None:
+            self.plot.plot_from_2d(self.data.dataset_plottable)
+        else:
+            print("There's nothing here! TODO")
 
     def quicksave_wrapper(self):
-        pass
+        loading.quicksave(self.data)
