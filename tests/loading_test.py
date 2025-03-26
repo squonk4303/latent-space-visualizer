@@ -68,14 +68,16 @@ def test_saving_and_loading_in_place(data_object):
 
 
 @pytest.mark.slow
-@pytest.mark.stub
-def test_save_to_persistent_file(data_object):
+def test_setup_presistent_file(data_object):
+    """
+    Isn't *really* meant to test anything;
+    just sets up a file which is useful in other tests.
+    """
     persistent_file = os.path.join(consts.SAVE_DIR, "test_save.pickle")
     loading.quicksave(data_object, persistent_file)
 
 
 @pytest.mark.slow
-@pytest.mark.stub
 def test_loading_cold_model_file(data_object):
     # @Wilhelmsen: Something stinks here...
     persistent_file = os.path.join(consts.SAVE_DIR, "test_save.pickle")
