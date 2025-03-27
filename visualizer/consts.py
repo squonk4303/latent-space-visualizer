@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Contains values meant to be accessible from anywhere."""
 import os
+from collections import OrderedDict
 from enum import Enum, auto
 
 # Relevant Numbers
@@ -29,12 +30,14 @@ REPO_DIR = os.path.abspath(os.path.join(BASE_MODULE_DIR, os.pardir))
 SAVE_DIR = os.path.join(REPO_DIR, "save_data")
 QUICKSAVE_PATH = os.path.join(SAVE_DIR, "quicksave.pickle")
 
-FILE_FILTERS = {
-    "pictures": "Image Files (*.png *.jpg *.jpeg *.webp *.bmp *.gif *.tif *.tiff *.svg)",
-    "pytorch": "PyTorch Files (*.pt *.pth)",
-    "pickle": "Pickle Files (*.pickle *.pck *pcl)",
-    "whatever": "All Files (*)",
-}
+# fmt: off
+FILE_FILTERS = OrderedDict([
+    ("whatever", "All Files (*)"),
+    ("pickle", "Pickle Files (*.pickle *.pck *pcl)"),
+    ("pictures", "Image Files (*.png *.jpg *.jpeg *.webp *.bmp *.gif *.tif *.tiff *.svg)"),
+    ("pytorch", "PyTorch Files (*.pt *.pth)"),
+])
+# fmt: off
 
 # Used for testing only; assumes there's a local dir/symlink with appropriate model
 TRAINED_MODEL = os.path.join(REPO_DIR, "models.ignore/RGB_no_augmentation.pth")
@@ -49,13 +52,15 @@ SINE_COSINE = os.path.join(REPO_DIR, "source/sin_cos.csv")
 DEFAULT_MODEL_CATEGORIES = ["skin"]
 DEVICE = None
 
+
 # Enums for dimensionality reduction techniques
 class DR_technique(Enum):
-    T_SNE = auto() 
+    T_SNE = auto()
     PCA = auto()
     UMAP = auto()
     TRIMAP = auto()
     PACMAP = auto()
+
 
 # Flags. If anyone asks why this is in consts, tell them to <class 'zip'> it
 # Then consider whether to rename this file to "values.py" or something and
