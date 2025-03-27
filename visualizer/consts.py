@@ -24,7 +24,10 @@ And that kind of thing.
 # @Wilhelmsen: We should consider changing the valid image file extensions
 # based on what is accepted by torch and matplotlib...
 BASE_MODULE_DIR = os.path.dirname(__file__)
-REPO_DIR = os.path.join(BASE_MODULE_DIR, "..")
+REPO_DIR = os.path.abspath(os.path.join(BASE_MODULE_DIR, os.pardir))
+
+SAVE_DIR = os.path.join(REPO_DIR, "save_data")
+QUICKSAVE_PATH = os.path.join(SAVE_DIR, "quicksave.pickle")
 
 FILE_FILTERS = {
     "pictures": "Image Files (*.png *.jpg *.jpeg *.webp *.bmp *.gif *.tif *.tiff *.svg)",
@@ -32,15 +35,15 @@ FILE_FILTERS = {
     "whatever": "All Files (*)",
 }
 
-SINE_CSV = os.path.join(REPO_DIR, "source/sine.csv")
-SINE_COSINE = os.path.join(REPO_DIR, "source/sin_cos.csv")
-
-
 # Used for testing only; assumes there's a local dir/symlink with appropriate model
 TRAINED_MODEL = os.path.join(REPO_DIR, "models.ignore/RGB_no_augmentation.pth")
 IMAGE_DATASET = os.path.join(REPO_DIR, "pics/testing_dataset")
 SMALL_DATASET = os.path.join(REPO_DIR, "pics/small_dataset")
+MEDIUM_DATASET = os.path.join(REPO_DIR, "pics/medium_dataset")
 GRAPHICAL_IMAGE = os.path.join(REPO_DIR, "pics/crouton.png")
+
+SINE_CSV = os.path.join(REPO_DIR, "source/sine.csv")
+SINE_COSINE = os.path.join(REPO_DIR, "source/sin_cos.csv")
 
 DEFAULT_MODEL_CATEGORIES = ["skin"]
 DEVICE = None

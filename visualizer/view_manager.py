@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+import torch
+
 from PyQt6.QtGui import (
     QAction,
     QKeySequence,
@@ -16,6 +18,7 @@ from PyQt6.QtWidgets import (
 )
 
 from visualizer import consts, loading, open_dialog, utils
+from visualizer.plottables import Plottables
 from visualizer.external.fcn import FCNResNet101
 from visualizer.plot_widget import PlotWidget
 from visualizer.stacked_layout_manager import StackedLayoutManager
@@ -31,6 +34,9 @@ class PrimaryWindow(QMainWindow):
     def __init__(self, *args, **kwargs):
         """Constructor for the primary window"""
         super().__init__(*args, **kwargs)
+
+        # Prepare data-holding object
+        self.data = Plottables()
 
         # Set up the tabs in the window
         start_tab = QVBoxLayout()
@@ -55,7 +61,17 @@ class PrimaryWindow(QMainWindow):
         greater_layout.addLayout(tab_buttons_layout)
         greater_layout.addLayout(self.tab_layout)
 
-        # Set up the menu bar and submenus
+        # Declare Actions
+
+        # Quick-saving
+        # quickappend_action = QAction("Quickappend Plot", self)
+        self.quickload_action = QAction("Quickload Plot", self)
+        self.quicksave_action = QAction("Quicksave Plot", self)
+
+        self.quickload_action.triggered.connect(self.quickload_wrapper)
+        self.quicksave_action.triggered.connect(self.quicksave_wrapper)
+
+        # Seu up the menu bar and submenus
         self.initiate_menu_bar()
 
         # --- Initialize start screen ---
@@ -143,10 +159,19 @@ class PrimaryWindow(QMainWindow):
         self.plot = PlotWidget()
         self.toolbar = self.plot.make_toolbar()
 
+        quicksave_wrapper_button = QPushButton("Quicksave Plot")
+        quicksave_wrapper_button.clicked.connect(self.quicksave_wrapper)
+
+        quickload_wrapper_button = QPushButton("Quickload Plot")
+        quickload_wrapper_button.clicked.connect(self.quickload_wrapper)
+
         graph_tab.addWidget(self.plot)
         graph_tab.addWidget(self.toolbar)
+        graph_tab.addWidget(quickload_wrapper_button)
+        graph_tab.addWidget(quicksave_wrapper_button)
 
         # --- Window Configuration ---
+
         self.resize(650, 450)
         self.setWindowTitle(consts.WINDOW_TITLE)
         self.setStatusBar(QStatusBar(self))
@@ -156,10 +181,11 @@ class PrimaryWindow(QMainWindow):
 
         # --- Cheats ---
 
+        dev_button = QPushButton("Cheat")
+        dev_button.clicked.connect(self.start_cooking)
+        start_tab.addWidget(dev_button)
+
         if consts.flags["dev"]:
-            dev_button = QPushButton("Cheat")
-            dev_button.clicked.connect(self.start_cooking)
-            start_tab.addWidget(dev_button)
             self.start_cooking()  # <-- Just goes ahead and starts cooking
 
     def initiate_menu_bar(self):
@@ -171,8 +197,8 @@ class PrimaryWindow(QMainWindow):
         action_to_open_file.triggered.connect(self.load_model_file)
 
         # Actions to scroll to next/previous tabs
-        next_tab = QAction("&Next tab")
-        prev_tab = QAction("&Previous tab")
+        next_tab = QAction("&Next tab", self)
+        prev_tab = QAction("&Previous tab", self)
         # https://doc.qt.io/qt-6/qkeysequence.html#StandardKey-enum
         next_tab.setShortcut(QKeySequence.StandardKey.MoveToNextPage)
         prev_tab.setShortcut(QKeySequence.StandardKey.MoveToPreviousPage)
@@ -183,6 +209,8 @@ class PrimaryWindow(QMainWindow):
         # The Greater File Menu
         file_menu = menubar.addMenu("&File")
         file_menu.addAction(action_to_open_file)
+        file_menu.addAction(self.quickload_action)
+        file_menu.addAction(self.quicksave_action)
 
         # The Greater Navigaiton Menu
         self.navigate_menu = menubar.addMenu("&Tab")
@@ -245,35 +273,52 @@ class PrimaryWindow(QMainWindow):
                 return None
                 raise RuntimeError("No reduction technique selected!")
 
+    # @Wilhelmsen: This should be MOCKED and harangued
     def start_cooking(self):
-        # @Wilhelmsen: This should be MOCKED and harangued
-        # Get all the requirements
-        categories = ["skin"]
-        selected_layer = "layer4"
+        # Make sure to define device
+        consts.DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-        loading.ensure_device()
-
-        model = FCNResNet101(categories)
-        model.load(consts.TRAINED_MODEL)
-        data_paths = utils.grab_image_paths_in_dir(consts.SMALL_DATASET)
-        image_tensors = loading.dataset_to_tensors(data_paths)
+        # Prepare data
+        categories = consts.DEFAULT_MODEL_CATEGORIES
+        self.data.selected_layer = "layer4"
+        self.data.model = FCNResNet101(categories)
+        self.data.model.load(consts.TRAINED_MODEL)
+        dataset_paths = utils.grab_image_paths_in_dir(consts.SMALL_DATASET)
+        image_tensors = loading.dataset_to_tensors(dataset_paths)
         _ = loading.dataset_to_tensors((consts.GRAPHICAL_IMAGE,))
 
         print("".join([f"tensor: {t.shape}\n" for t in image_tensors]))
 
-        reduced_features = loading.preliminary_dim_reduction(
-            model, image_tensors, selected_layer
+        self.data.dataset_intermediary = loading.preliminary_dim_reduction(
+            self.data.model, image_tensors, self.data.selected_layer
         )
 
-        print("".join([f"reduced_features: {t.shape}\n" for t in reduced_features]))
+        print(
+            "".join(
+                [
+                    f"data.dataset_intermediary: {t.shape}\n"
+                    for t in self.data.dataset_intermediary
+                ]
+            )
+        )
 
-        
-        dataset_plottable = self.technique_loader(reduced_features)
+        self.data.dataset_plottable = loading.apply_tsne(self.data.dataset_intermediary)
+        # self.dataset_plottable = self.technique_loader(reduced_features)
         # tsned_single = loading.apply_tsne(single_image_tensor)
 
-        print("".join([f"dataset_plottable: {t}\n" for t in dataset_plottable]))
-        self.plot.plot_from_2d(dataset_plottable)
+        print(
+            "".join(
+                [
+                    f"self.data.dataset_plottable: {t}\n"
+                    for t in self.data.dataset_plottable
+                ]
+            )
+        )
+
+        self.plot.plot_from_2d(self.data.dataset_plottable)
         # self.plot.plot_from_2d(tsned_single)
+
+        self.quicksave_wrapper()
 
     def callable_goto_tab(self, n):
         """Return a function which changes to tab specified by argument."""
@@ -282,3 +327,14 @@ class PrimaryWindow(QMainWindow):
             self.tab_layout.setCurrentIndex(n)
 
         return f
+
+    def quickload_wrapper(self):
+        self.data = loading.quickload()
+
+        if self.data.dataset_plottable is not None:
+            self.plot.plot_from_2d(self.data.dataset_plottable)
+        else:
+            print("There's nothing here! TODO")
+
+    def quicksave_wrapper(self):
+        loading.quicksave(self.data)

@@ -2,6 +2,9 @@
 __pycache__
 .vscode
 
+# User Data
+save_data
+
 # Other
 *ignore*
 tags

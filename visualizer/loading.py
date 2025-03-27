@@ -1,19 +1,18 @@
 #!/usr/bin/env python3
+from pathlib import Path
 from sklearn.manifold import TSNE
+from tqdm import tqdm
 import mmap
 import numpy as np
+import os
+import pickle
 import PIL
 import tempfile
 import torch
 import torchvision
 
-from visualizer import consts
-
-
-def ensure_device():
-    if consts.DEVICE is None:
-        consts.DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    return consts.DEVICE
+from visualizer import consts, open_dialog
+from visualizer.plottables import Plottables
 
 
 def dataset_to_tensors(image_paths: list):
@@ -52,7 +51,7 @@ def preliminary_dim_reduction(model, image_tensors, layer):
 
     # Preliminary dim. reduction per tensor
     with torch.no_grad():
-        for img in image_tensors:
+        for img in tqdm(image_tensors):
             hooked_feature.clear()
             _ = model(img)  # Forward the model to let the hook do its thang
 
@@ -77,6 +76,8 @@ def preliminary_dim_reduction(model, image_tensors, layer):
                 .numpy()
             )
             features.append(feature_vector)
+
+            # @Wilhelmsen: Could memory be saved by using 'del img' here?
 
     # Ensure features have correct 2D shape; (num_samples, num_features)
     # @Wilhelmsen: Just find out what the point is. Do it in encapsulation process.
@@ -114,7 +115,7 @@ def hooker(t: list):
 
     def f(module, args, output):
         t.append(output.detach().cpu().numpy())
-        print("From hook, latest append:", t[-1].shape)
+        # print("From hook, latest append:", t[-1].shape)
 
     return f
 
@@ -179,3 +180,31 @@ def layer_summary(loaded_model, start_layer=0, end_layer=0):
         print("\nEOF: no more lines")
     else:
         print(f"\nNext line is {new}: {lines[new]}")
+
+
+def quickload(load_location=consts.QUICKSAVE_PATH):
+    with open(load_location, "rb") as f:
+        data_obj = pickle.load(f)
+
+    return data_obj
+
+
+def quicksave(data_obj: Plottables, save_location=consts.QUICKSAVE_PATH):
+    # Create parent directory (including *its* parents) in case it (or *they*) don't exist
+    parent_dir = os.path.abspath(os.path.join(save_location, os.pardir))
+    os.makedirs(parent_dir, exist_ok=True)
+
+    with open(save_location, "wb") as f:
+        pickle.dump(data_obj, f)
+
+    print(f"Saved to {save_location}")
+
+
+def save_to_user_selected_file(data_obj: Plottables):
+    save_location, _ = open_dialog.to_save_file(parent=None)
+
+    if save_location:
+        with open(save_location, "wb") as f:
+            pickle.dump(data_obj, f)
+
+        print(f"Saved to {save_location}")
