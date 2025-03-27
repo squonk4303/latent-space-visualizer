@@ -208,3 +208,6 @@ def save_to_user_selected_file(data_obj: Plottables):
             pickle.dump(data_obj, f)
 
         print(f"Saved to {save_location}")
+        return save_location
+    else:
+        return False

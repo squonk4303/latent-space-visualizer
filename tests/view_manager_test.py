@@ -120,3 +120,6 @@ def test_quicksave_n_quickload(primary_window, data_object):
     assert not np.array_equal(
         primary_window.data.dataset_plottable, data_object.dataset_plottable
     )
+
+
+# @Wilhelmsen: Yet to test that quickloading plots its data

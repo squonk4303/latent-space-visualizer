@@ -61,15 +61,22 @@ class PrimaryWindow(QMainWindow):
         greater_layout.addLayout(tab_buttons_layout)
         greater_layout.addLayout(self.tab_layout)
 
-        # Declare Actions
+        # --- Declare Actions ---
 
         # Quick-saving
-        # quickappend_action = QAction("Quickappend Plot", self)
-        self.quickload_action = QAction("Quickload Plot", self)
-        self.quicksave_action = QAction("Quicksave Plot", self)
+        # quickappend_action = QAction("Quickappend Plot", parent=self)
+        self.quickload_action = QAction("Quickload Plot", parent=self)
+        self.quicksave_action = QAction("Quicksave Plot", parent=self)
 
         self.quickload_action.triggered.connect(self.quickload_wrapper)
         self.quicksave_action.triggered.connect(self.quicksave_wrapper)
+
+        # Saving-as
+        self.save_as_action = QAction("Proper Save", parent=self)
+        self.load_file_action = QAction("Proper Load", parent=self)
+
+        self.save_as_action.triggered.connect(self.save_to_certain_file_wrapper)
+        self.load_file_action.triggered.connect(self.load_file_wrapper)
 
         # Seu up the menu bar and submenus
         self.initiate_menu_bar()
@@ -159,16 +166,22 @@ class PrimaryWindow(QMainWindow):
         self.plot = PlotWidget()
         self.toolbar = self.plot.make_toolbar()
 
-        quicksave_wrapper_button = QPushButton("Quicksave Plot")
-        quicksave_wrapper_button.clicked.connect(self.quicksave_wrapper)
+        quicksave_button = QPushButton("Quicksave Plot")
+        quickload_button = QPushButton("Quickload Plot")
+        quicksave_button.clicked.connect(self.quicksave_wrapper)
+        quickload_button.clicked.connect(self.quickload_wrapper)
 
-        quickload_wrapper_button = QPushButton("Quickload Plot")
-        quickload_wrapper_button.clicked.connect(self.quickload_wrapper)
+        save_as_button = QPushButton("Save As...")
+        load_file_button = QPushButton("Load File...")
+        save_as_button.clicked.connect(self.save_to_certain_file_wrapper)
+        load_file_button.clicked.connect(self.load_file_wrapper)
 
         graph_tab.addWidget(self.plot)
         graph_tab.addWidget(self.toolbar)
-        graph_tab.addWidget(quickload_wrapper_button)
-        graph_tab.addWidget(quicksave_wrapper_button)
+        graph_tab.addWidget(quickload_button)
+        graph_tab.addWidget(quicksave_button)
+        graph_tab.addWidget(save_as_button)
+        graph_tab.addWidget(load_file_button)
 
         # --- Window Configuration ---
 
@@ -209,8 +222,10 @@ class PrimaryWindow(QMainWindow):
         # The Greater File Menu
         file_menu = menubar.addMenu("&File")
         file_menu.addAction(action_to_open_file)
+
         file_menu.addAction(self.quickload_action)
         file_menu.addAction(self.quicksave_action)
+        file_menu.addAction(self.save_as_action)
 
         # The Greater Navigaiton Menu
         self.navigate_menu = menubar.addMenu("&Tab")
@@ -283,7 +298,7 @@ class PrimaryWindow(QMainWindow):
         self.data.selected_layer = "layer4"
         self.data.model = FCNResNet101(categories)
         self.data.model.load(consts.TRAINED_MODEL)
-        dataset_paths = utils.grab_image_paths_in_dir(consts.SMALL_DATASET)
+        dataset_paths = utils.grab_image_paths_in_dir(consts.MEDIUM_DATASET)
         image_tensors = loading.dataset_to_tensors(dataset_paths)
         _ = loading.dataset_to_tensors((consts.GRAPHICAL_IMAGE,))
 
@@ -338,3 +353,9 @@ class PrimaryWindow(QMainWindow):
 
     def quicksave_wrapper(self):
         loading.quicksave(self.data)
+
+    def save_to_certain_file_wrapper(self):
+        loading.save_to_user_selected_file(self.data)
+
+    def load_file_wrapper(self):
+        pass

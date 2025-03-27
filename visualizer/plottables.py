@@ -11,6 +11,7 @@ class Plottables:
     dataset_intermediary: torch.tensor = None
     dataset_plottable: torch.tensor = None
     image_plottable: tuple = None
+    # TODO: What about dict with settings? Like whether user displayed in 2d or 3d and such
 
     def __eq__(self, other):
         """
