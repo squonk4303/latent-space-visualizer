@@ -226,6 +226,7 @@ class PrimaryWindow(QMainWindow):
         file_menu.addAction(self.quickload_action)
         file_menu.addAction(self.quicksave_action)
         file_menu.addAction(self.save_as_action)
+        file_menu.addAction(self.load_file_action)
 
         # The Greater Navigaiton Menu
         self.navigate_menu = menubar.addMenu("&Tab")
@@ -360,3 +361,6 @@ class PrimaryWindow(QMainWindow):
 
     def load_file_wrapper(self):
         self.data = loading.load_by_dialog(parent=self)
+
+        if self.data is not None:
+            self.plot.plot_from_2d(self.data.dataset_plottable)
