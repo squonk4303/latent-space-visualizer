@@ -13,11 +13,6 @@ from visualizer.external.fcn import FCNResNet101
 from visualizer.plottables import Plottables
 
 
-# Qt requires appeasal by constructing a QApplication before any QWidgets
-# Lest it sends a REALLY nasty-looking bug at you. Not recommended.
-_ = QApplication([])
-
-
 # --- Fixtures ---
 @pytest.fixture
 def data_object():
