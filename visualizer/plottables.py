@@ -8,34 +8,34 @@ import torch
 class Plottables:
     model: torch.nn.Module = None
     selected_layer: str = None
-    dataset_intermediary: list[torch.tensor] = None
-    dataset_plottable: list[torch.tensor] = None
+    dataset_intermediary: torch.tensor = None
+    dataset_plottable: torch.tensor = None
     image_plottable: tuple = None
 
     def __eq__(self, other):
         """
-        This is because torch and numpy are so cagey about whether two of
-        their arrays are equal. Like come on.
+        This is just because torch and numpy are so cagey about whether two
+        of their arrays are equal. Like come on.
         """
-        are_true = []
-
         for a, b in zip(dataclasses.astuple(self), dataclasses.astuple(other)):
-
             if type(a) is not type(b):
-                are_true.append(False)
+                return False
 
             else:
                 match type(a):
                     case torch.Tensor:
-                        are_true.append(torch.equal(a, b))
+                        if not torch.equal(a, b):
+                            return False
 
                     case np.ndarray:
-                        are_true.append(np.array_equal(a, b))
+                        if not np.array_qual(a, b):
+                            return False
 
                     case _:
-                        are_true.append(a == b)
+                        if a != b:
+                            return False
 
-        return all(are_true)
+        return True
 
     def __repr__(self):
         d = dataclasses.asdict(self)
