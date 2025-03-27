@@ -1,13 +1,21 @@
 #!/usr/bin/env python3
+from unittest.mock import patch
 import numpy as np
 import os
 import pytest
 import tempfile
 import torch
 
+from PyQt6.QtWidgets import QApplication, QFileDialog
+
 from visualizer import consts, loading, utils
 from visualizer.external.fcn import FCNResNet101
 from visualizer.plottables import Plottables
+
+
+# Qt requires appeasal by constructing a QApplication before any QWidgets
+# Lest it sends a REALLY nasty-looking bug at you. Not recommended.
+_ = QApplication([])
 
 
 # --- Fixtures ---
@@ -83,3 +91,23 @@ def test_loading_cold_model_file(data_object):
     persistent_file = os.path.join(consts.SAVE_DIR, "test_save.pickle")
     other_data = loading.quickload(persistent_file)
     assert np.array_equal(other_data.dataset_plottable, data_object.dataset_plottable)
+
+
+@pytest.mark.slow
+def test_save_and_load_certain_file(data_object):
+    # mock file select (try to have the mock return a tempfile-path
+    temp_file = tempfile.NamedTemporaryFile()
+    mocked_getsavefilename = patch.object(
+        QFileDialog,
+        "getSaveFileName",
+        return_value=(temp_file.name, "All Files (*)"),
+    )
+
+    with mocked_getsavefilename:
+        # Check that the file isn't bogus by loading it and asserting the content
+        loading.save_to_user_selected_file(data_object)
+        other_data = loading.quickload(temp_file.name)
+        assert np.array_equal(
+            other_data.dataset_plottable, data_object.dataset_plottable
+        )
+        # TODO: One which does the same for the window's action

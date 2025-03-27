@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from pathlib import Path
 from sklearn.manifold import TSNE
 from tqdm import tqdm
 import mmap
@@ -10,7 +11,7 @@ import tempfile
 import torch
 import torchvision
 
-from visualizer import consts
+from visualizer import consts, open_dialog
 from visualizer.plottables import Plottables
 
 
@@ -197,3 +198,13 @@ def quicksave(data_obj: Plottables, save_location=consts.QUICKSAVE_PATH):
         pickle.dump(data_obj, f)
 
     print(f"Saved to {save_location}")
+
+
+def save_to_user_selected_file(data_obj: Plottables):
+    save_location, _ = open_dialog.to_save_file(parent=None)
+
+    if save_location:
+        with open(save_location, "wb") as f:
+            pickle.dump(data_obj, f)
+
+        print(f"Saved to {save_location}")
