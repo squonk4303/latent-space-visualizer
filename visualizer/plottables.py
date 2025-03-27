@@ -29,7 +29,7 @@ class Plottables:
                             return False
 
                     case np.ndarray:
-                        if not np.array_qual(a, b):
+                        if not np.array_equal(a, b):
                             return False
 
                     case _:

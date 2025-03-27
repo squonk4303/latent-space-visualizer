@@ -200,8 +200,13 @@ def quicksave(data_obj: Plottables, save_location=consts.QUICKSAVE_PATH):
     print(f"Saved to {save_location}")
 
 
-def save_to_user_selected_file(data_obj: Plottables):
-    save_location, _ = open_dialog.to_save_file(parent=None)
+def save_to_user_selected_file(data_obj: Plottables, parent):
+    """
+    Open a dialog to select from where to load a data object.
+
+    For use in actions and buttons.
+    """
+    save_location, _ = open_dialog.to_save_file(parent=parent)
 
     if save_location:
         with open(save_location, "wb") as f:
@@ -211,3 +216,17 @@ def save_to_user_selected_file(data_obj: Plottables):
         return save_location
     else:
         return False
+
+def load_by_dialog(parent) -> object:
+    """
+    Open a dialog to select from where to load a data object.
+
+    For use in actions and buttons.
+    """
+    load_location = open_dialog.for_some_file(parent=parent)
+
+    if load_location:
+        with open(load_location, "rb") as f:
+            data_object = pickle.load(f)
+
+        return data_object

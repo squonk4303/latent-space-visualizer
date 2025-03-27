@@ -90,7 +90,6 @@ def test_loading_cold_model_file(data_object):
 
 @pytest.mark.slow
 def test_save_and_load_certain_file(data_object):
-    # mock file select (try to have the mock return a tempfile-path
     temp_file = tempfile.NamedTemporaryFile()
     mocked_getsavefilename = patch.object(
         QFileDialog,
@@ -100,9 +99,33 @@ def test_save_and_load_certain_file(data_object):
 
     with mocked_getsavefilename:
         # Check that the file isn't bogus by loading it and asserting the content
-        loading.save_to_user_selected_file(data_object)
+        loading.save_to_user_selected_file(data_object, parent=None)
         other_data = loading.quickload(temp_file.name)
         assert np.array_equal(
             other_data.dataset_plottable, data_object.dataset_plottable
         )
         # TODO: One which does the same for the window's action
+
+
+@pytest.fixture
+def temp_pickle(data_object):
+    temp_file = tempfile.NamedTemporaryFile()
+    loading.quicksave(data_object, temp_file.name)
+    return temp_file.name
+
+
+@pytest.mark.slow
+def test_load_by_dialog(data_object, temp_pickle):
+    temp_file = tempfile.NamedTemporaryFile()
+    loading.quicksave(data_object, temp_file.name)
+    mocked_getopenfilename = patch.object(
+        QFileDialog,
+        "getOpenFileName",
+        return_value=(temp_file.name, "All Files (*)"),
+    )
+    print("*** Does it exits:", os.path.exists(temp_file.name))
+
+    with mocked_getopenfilename:
+        loaded_data = loading.load_by_dialog(parent=None)
+        assert loaded_data == data_object
+

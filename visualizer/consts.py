@@ -32,6 +32,7 @@ QUICKSAVE_PATH = os.path.join(SAVE_DIR, "quicksave.pickle")
 FILE_FILTERS = {
     "pictures": "Image Files (*.png *.jpg *.jpeg *.webp *.bmp *.gif *.tif *.tiff *.svg)",
     "pytorch": "PyTorch Files (*.pt *.pth)",
+    "pickle": "Pickle Files (*.pickle *.pck *pcl)",
     "whatever": "All Files (*)",
 }
 

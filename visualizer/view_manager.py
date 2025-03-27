@@ -355,7 +355,8 @@ class PrimaryWindow(QMainWindow):
         loading.quicksave(self.data)
 
     def save_to_certain_file_wrapper(self):
-        loading.save_to_user_selected_file(self.data)
+        _ = loading.save_to_user_selected_file(self.data, parent=self)
+
 
     def load_file_wrapper(self):
-        pass
+        self.data = loading.load_by_dialog(parent=self)
