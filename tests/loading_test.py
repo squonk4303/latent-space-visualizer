@@ -31,6 +31,15 @@ def data_object():
     return data
 
 
+@pytest.fixture
+def temp_pickle(data_object) -> str:
+    """Generate a temporary file with basic object data."""
+    temp_file = tempfile.NamedTemporaryFile()
+    loading.quicksave(data_object, temp_file.name)
+    # Yield here prevents the temp-file from immediately self-destructing
+    yield temp_file.name
+
+
 @pytest.mark.require_pretrained_model
 def test_load_model():
     """Just runs this to see if it crashes."""
@@ -107,25 +116,14 @@ def test_save_and_load_certain_file(data_object):
         # TODO: One which does the same for the window's action
 
 
-@pytest.fixture
-def temp_pickle(data_object):
-    temp_file = tempfile.NamedTemporaryFile()
-    loading.quicksave(data_object, temp_file.name)
-    return temp_file.name
-
-
 @pytest.mark.slow
 def test_load_by_dialog(data_object, temp_pickle):
-    temp_file = tempfile.NamedTemporaryFile()
-    loading.quicksave(data_object, temp_file.name)
     mocked_getopenfilename = patch.object(
         QFileDialog,
         "getOpenFileName",
-        return_value=(temp_file.name, "All Files (*)"),
+        return_value=(temp_pickle, "All Files (*)"),
     )
-    print("*** Does it exits:", os.path.exists(temp_file.name))
 
     with mocked_getopenfilename:
         loaded_data = loading.load_by_dialog(parent=None)
         assert loaded_data == data_object
-
