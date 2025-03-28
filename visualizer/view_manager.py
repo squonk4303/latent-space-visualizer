@@ -365,11 +365,7 @@ class PrimaryWindow(QMainWindow):
         The returned function is a callback function used as a parameter in
         f.ex. buttons and actions.
         """
-
-        def f():
-            self.tab_layout.setCurrentIndex(n)
-
-        return f
+        return lambda: self.tab_layout.setCurrentIndex(n)
 
     def quickload_wrapper(self):
         """Load from default save file directly to .data"""
