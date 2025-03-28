@@ -163,7 +163,7 @@ class PrimaryWindow(QMainWindow):
         # --- Plot Tab ---
 
         # Add the plot widget as a tab
-        self.plot = PlotWidget()
+        self.plot = PlotWidget(parent=self)
         self.toolbar = self.plot.make_toolbar()
 
         quicksave_button = QPushButton("Quicksave Plot")

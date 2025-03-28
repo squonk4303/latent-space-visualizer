@@ -21,7 +21,7 @@ from visualizer import consts, parse
 class MplCanvas(FigureCanvasQTAgg):
     """Make a canvas for the plot to render onto."""
 
-    def __init__(self, parent=None, width=5, height=4, dpi=100):
+    def __init__(self, parent, width=5, height=4, dpi=100):
         fig = Figure(figsize=(width, height), dpi=dpi)
 
         if consts.flags["xkcd"]:
@@ -36,7 +36,7 @@ class MplCanvas(FigureCanvasQTAgg):
 class PlotWidget(QWidget):
     """Define and draw a graphical plot."""
 
-    def __init__(self, parent=None):
+    def __init__(self, parent):
         super().__init__(parent)
 
         self.parent = parent
