@@ -36,7 +36,7 @@ def superseed(seed):
     consts.seed = seed
 
 
-def grab_image_paths_in_dir(dir_path, recursive=False):
+def grab_image_paths_in_dir(dir_path, *, recursive=False):
     """
     Return all image files found in a directory.
 
@@ -45,8 +45,9 @@ def grab_image_paths_in_dir(dir_path, recursive=False):
     - Does not search through subdirectories or symlinks
     - Ignores hidden files
 
-    @Wilhelmsen: Consider iglob; it makes an iterator, which would save memory with large datasets
-                 Though, it *is* just a list of strings...
+    @Wilhelmsen: Consider a variation using iglob; it makes an iterator,
+                 which would save memory with large datasets Though,
+                 it *is* just a list of strings...
     @Wilhelmsen: Let dir_path be a list *args maybe...
     """
     extensions = [
@@ -62,14 +63,14 @@ def grab_image_paths_in_dir(dir_path, recursive=False):
     ]
 
     # Make strings such as "/over/hills/far/away/*.jpeg", for dir_path "/over/hills/far/away/"
-    # For some reason requires both the **/* AND recursive=True in glob.glob
+    # For some reason *does* require both the **/* and recursive=True in glob.glob
     if recursive:
         patterns = [os.path.join(dir_path, f"**/*{ex}") for ex in extensions]
     else:
         patterns = [os.path.join(dir_path, f"*{ex}") for ex in extensions]
 
     # The list comprehension statement here makes a nested list,
-    # and 'sum' is used here to flatten that list
+    # and 'sum(list, [])' is used here to flatten that list
     filepaths = sum(
         [
             glob.glob(pattern, root_dir=dir_path, recursive=recursive)
@@ -77,4 +78,5 @@ def grab_image_paths_in_dir(dir_path, recursive=False):
         ],
         [],
     )
+
     return filepaths

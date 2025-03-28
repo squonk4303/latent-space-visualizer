@@ -21,21 +21,17 @@ class Plottables:
         for a, b in zip(dataclasses.astuple(self), dataclasses.astuple(other)):
             if type(a) is not type(b):
                 return False
-
             else:
                 match type(a):
                     case torch.Tensor:
                         if not torch.equal(a, b):
                             return False
-
                     case np.ndarray:
                         if not np.array_equal(a, b):
                             return False
-
                     case _:
                         if a != b:
                             return False
-
         return True
 
     def __repr__(self):

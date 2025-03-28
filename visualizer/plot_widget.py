@@ -1,5 +1,4 @@
 #!/usr/env/bin python3
-
 import numpy as np
 
 from PyQt6.QtWidgets import (
@@ -19,7 +18,7 @@ from visualizer import consts, parse
 
 
 class MplCanvas(FigureCanvasQTAgg):
-    """Make a canvas for the plot to render onto."""
+    """Hold a canvas for the plot to render onto."""
 
     def __init__(self, parent, width=5, height=4, dpi=100):
         fig = Figure(figsize=(width, height), dpi=dpi)
@@ -34,9 +33,8 @@ class MplCanvas(FigureCanvasQTAgg):
 
 
 class PlotWidget(QWidget):
-    """Define and draw a graphical plot."""
-
     def __init__(self, parent):
+        """Define and draw a graphical plot."""
         super().__init__(parent)
 
         self.parent = parent
@@ -74,10 +72,6 @@ class PlotWidget(QWidget):
         self.canvas.draw()
 
     def make_toolbar(self):
-        """
-        Generates a toolbar object for the matplotlib plot.
-
-        A trivial encapsulation, for testing and later expansion.
-        """
+        """Generate a toolbar object for the matplotlib plot."""
         toolbar = NavigationToolbar(self.canvas, self.parent)
         return toolbar

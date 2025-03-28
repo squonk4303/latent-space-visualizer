@@ -7,6 +7,7 @@ from visualizer.view_manager import PrimaryWindow
 
 
 def main() -> int:
+    """Entry point to the program."""
     # Parse arguments
     arguments.parse_them()
 

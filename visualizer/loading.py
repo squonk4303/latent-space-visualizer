@@ -90,7 +90,7 @@ def preliminary_dim_reduction(model, image_tensors, layer):
 
 
 def apply_tsne(features, target_dimensions=2):
-    """Applies t-SNE to the features and returns the result."""
+    """Reduce features' dimensionality by t-SNE and return the 2d/3d coordinates."""
     # Ensure a reasonable/legal perplexity value
     perplexity_value = min(30, len(features) - 1)
 
@@ -109,8 +109,8 @@ def hooker(t: list):
     """
     Return a hook function which appends model output to the given list.
 
-    Keep in mind that assigning an existing list to a variable
-    actually provides a "pointer" to the list
+    Keep in mind that assigning an existing list to a variable actually
+    provides a reference to the list, as opposed to a copy of which.
     """
 
     def f(module, args, output):
@@ -183,6 +183,7 @@ def layer_summary(loaded_model, start_layer=0, end_layer=0):
 
 
 def quickload(load_location=consts.QUICKSAVE_PATH):
+    """Load python object from pickle file."""
     with open(load_location, "rb") as f:
         data_obj = pickle.load(f)
 
@@ -190,7 +191,8 @@ def quickload(load_location=consts.QUICKSAVE_PATH):
 
 
 def quicksave(data_obj: Plottables, save_location=consts.QUICKSAVE_PATH):
-    # Create parent directory (including *its* parents) in case it (or *they*) don't exist
+    """Save python object to pickle file."""
+    # If parent directory doesn't exist, create it (including its progenitors)
     parent_dir = os.path.abspath(os.path.join(save_location, os.pardir))
     os.makedirs(parent_dir, exist_ok=True)
 
@@ -216,6 +218,7 @@ def save_to_user_selected_file(data_obj: Plottables, parent):
         return save_location
     else:
         return False
+
 
 def load_by_dialog(parent) -> object:
     """

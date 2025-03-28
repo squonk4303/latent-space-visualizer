@@ -9,24 +9,24 @@ class StackedLayoutManager(QStackedLayout):
     """Class to manage a stacked layout to replicate a tabbed interface."""
 
     def __init__(self, items=None):
-        """Creates an empty stacked layout"""
+        """Create an empty stacked layout."""
         super().__init__()
         if items is not None:
             for item in items:
                 self.add_widget(item)
 
     def add_widget(self, widget):
-        """Appends a widget to the layout"""
+        """Append a widget to the layout."""
         self.addWidget(widget)
 
     def add_layout(self, layout):
-        """Appends a layout to the layout"""
+        """Append a layout to the layout."""
         widget = QWidget()
         widget.setLayout(layout)
         self.addWidget(widget)
 
     def scroll_somewhere(self, n=1):
-        """Scrolls to a layer relatively , according to n"""
+        """Scroll to a layer relatively , according to n."""
         if self.count() != 0:
             maximum = self.count()
             current_index = self.currentIndex()
@@ -34,9 +34,9 @@ class StackedLayoutManager(QStackedLayout):
             self.setCurrentIndex(new_index)
 
     def scroll_forth(self):
-        """Scrolls to next layer"""
+        """Scroll to next layer."""
         self.scroll_somewhere(1)
 
     def scroll_back(self):
-        """Scrolls to prev layer"""
+        """Scroll to prev layer."""
         self.scroll_somewhere(-1)

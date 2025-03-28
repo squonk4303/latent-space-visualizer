@@ -18,17 +18,19 @@ from PyQt6.QtWidgets import (
 )
 
 from visualizer import consts, loading, open_dialog, utils
-from visualizer.plottables import Plottables
+from visualizer.consts import DR_technique as Technique
 from visualizer.external.fcn import FCNResNet101
+from visualizer.loading import apply_tsne as t_sne
+from visualizer.plottables import Plottables
 from visualizer.plot_widget import PlotWidget
 from visualizer.stacked_layout_manager import StackedLayoutManager
-from visualizer.consts import DR_technique as Technique
-from visualizer.loading import apply_tsne as t_sne
+
 
 class PrimaryWindow(QMainWindow):
     """
-    Primary window of the program
-    This is where all the action happens
+    Primary window of the program.
+
+    This is where all the action happens...
     """
 
     def __init__(self, *args, **kwargs):
@@ -240,25 +242,37 @@ class PrimaryWindow(QMainWindow):
         self.file_menu = file_menu
 
     def load_model_file(self):
+        """
+        Open dialog for finding a trained neural-net-model, and inform user if successful.
+
+        For use in buttons and actions.
+        """
         model_path = open_dialog.for_trained_model_file(parent=self)
         if model_path:
             self.model_feedback_label.setText("You chose: " + model_path)
 
     def find_dataset(self):
         """
-        Open dialog for finding dataset.
+        Open dialog for finding dataset, and inform user if successful.
 
-        Called by dataset_selection_button.
+        Is intended to be used to be used for directories containing the datasets.
+
+        For use in buttons and actions.
         """
         dataset_dir = open_dialog.for_directory(parent=self)
         if dataset_dir:
             self.dataset_feedback_label.setText("You found: " + dataset_dir)
 
     def find_picture(self):
-        """Get image from user choice and prepare it for processing."""
+        """
+        Open dialog for finding picture, and inform user if successful.
+
+        For use in buttons and actions.
+        """
         image_path = open_dialog.for_image_file(parent=self)
         if image_path:
-            # @Wilhelmsen: Yet to check validity and resize image
+            # @Wilhelmsen: Yet to check image validity
+            # @Wilhelmsen: Yet to resize image for better display in GUI
             self.single_image_label.setText(image_path)
             self.single_image_thumb_label.setPixmap(QPixmap(image_path))
 
@@ -272,25 +286,33 @@ class PrimaryWindow(QMainWindow):
             # Then again it could be helpful to have them put over there immediately...
 
     def technique_loader(features, target_dimensionality=2, reduction=Technique.T_SNE):
-        
-         #Added a switch for later implementation of more reduction methods
+        """
+        @Linnea: Write a docstring for this method.
+        """
+
+        # Added a switch for later implementation of more reduction methods
         match reduction:
-            case Technique.T_SNE: #Maybe have this be based off of enums  instead?
-                return t_sne(features,target_dimensionality)
+            case Technique.T_SNE:  # Maybe have this be based off of enums  instead?
+                return t_sne(features, target_dimensionality)
             case Technique.PCA:
-                return None # TBI (TO BE IMPLEMENTED)
-            case Technique.UMAP:    
-                return None # TBI
+                return None  # TBI (TO BE IMPLEMENTED)
+            case Technique.UMAP:
+                return None  # TBI
             case Technique.TRIMAP:
-                return None # TBI
+                return None  # TBI
             case Technique.PACMAP:
-                return None # TBI
-            case _:                 # Default case
+                return None  # TBI
+            case _:  # Default case
                 return None
                 raise RuntimeError("No reduction technique selected!")
 
     # @Wilhelmsen: This should be MOCKED and harangued
     def start_cooking(self):
+        """
+        Walk through the dim-reduction process with pre-determined parameters.
+
+        Mostly for use in testing/development.
+        """
         # Make sure to define device
         consts.DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -337,7 +359,12 @@ class PrimaryWindow(QMainWindow):
         self.quicksave_wrapper()
 
     def callable_goto_tab(self, n):
-        """Return a function which changes to tab specified by argument."""
+        """
+        Return a function which changes to tab specified by argument.
+
+        The returned function is a callback function used as a parameter in
+        f.ex. buttons and actions.
+        """
 
         def f():
             self.tab_layout.setCurrentIndex(n)
@@ -345,6 +372,7 @@ class PrimaryWindow(QMainWindow):
         return f
 
     def quickload_wrapper(self):
+        """Load from default save file directly to .data"""
         self.data = loading.quickload()
 
         if self.data.dataset_plottable is not None:
@@ -353,13 +381,15 @@ class PrimaryWindow(QMainWindow):
             print("There's nothing here! TODO")
 
     def quicksave_wrapper(self):
+        """Save .data directly to default save file."""
         loading.quicksave(self.data)
 
     def save_to_certain_file_wrapper(self):
+        """Open dialog for a file for which to save .data"""
         _ = loading.save_to_user_selected_file(self.data, parent=self)
 
-
     def load_file_wrapper(self):
+        """Open dialog for file from which to load into .data"""
         self.data = loading.load_by_dialog(parent=self)
 
         if self.data is not None:

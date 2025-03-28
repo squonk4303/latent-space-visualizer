@@ -6,6 +6,11 @@ from visualizer import utils
 
 
 def parse_them():
+    """
+    Parse the arguments to be called from CLI.
+
+    Meant to be called as basically the first thing in the program.
+    """
     # Set up for command-line arguments
     parser = argparse.ArgumentParser(description=consts.PROGRAM_DESCRIPTION)
 
