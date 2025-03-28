@@ -46,9 +46,6 @@ SMALL_DATASET = os.path.join(REPO_DIR, "pics/small_dataset")
 MEDIUM_DATASET = os.path.join(REPO_DIR, "pics/medium_dataset")
 GRAPHICAL_IMAGE = os.path.join(REPO_DIR, "pics/crouton.png")
 
-SINE_CSV = os.path.join(REPO_DIR, "source/sine.csv")
-SINE_COSINE = os.path.join(REPO_DIR, "source/sin_cos.csv")
-
 DEFAULT_MODEL_CATEGORIES = ["skin"]
 DEVICE = None
 
