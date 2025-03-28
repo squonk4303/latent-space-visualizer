@@ -240,7 +240,7 @@ class PrimaryWindow(QMainWindow):
         self.file_menu = file_menu
 
     def load_model_file(self):
-        model_path = open_dialog.for_trained_model_file(self)
+        model_path = open_dialog.for_trained_model_file(parent=self)
         if model_path:
             self.model_feedback_label.setText("You chose: " + model_path)
 
@@ -250,13 +250,13 @@ class PrimaryWindow(QMainWindow):
 
         Called by dataset_selection_button.
         """
-        dataset_dir = open_dialog.for_directory(self)
+        dataset_dir = open_dialog.for_directory(parent=self)
         if dataset_dir:
             self.dataset_feedback_label.setText("You found: " + dataset_dir)
 
     def find_picture(self):
         """Get image from user choice and prepare it for processing."""
-        image_path = open_dialog.for_image_file(self)
+        image_path = open_dialog.for_image_file(parent=self)
         if image_path:
             # @Wilhelmsen: Yet to check validity and resize image
             self.single_image_label.setText(image_path)

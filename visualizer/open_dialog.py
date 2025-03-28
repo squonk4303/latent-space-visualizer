@@ -9,10 +9,10 @@ from visualizer import consts
 
 
 def for_file(
-    # *, yet TODO; @Wilhelmsen: make all except caption kw-only
+    caption="",
+    *,
     parent,
     file_filters=consts.FILE_FILTERS.values(),
-    caption="",
     options=QFileDialog.Option.ReadOnly,
 ):
     """
@@ -41,41 +41,6 @@ def for_file(
     return filepath, selected_filter
 
 
-def for_some_file(parent, caption=""):
-    """Launch a file dialog where user is prompted to pick out any file their heart desires."""
-    filepath, _ = for_file(parent, caption=caption)
-    return filepath
-
-
-def for_image_file(parent, caption=""):
-    """Launch file dialog where user is intended to pick out a graphical image file."""
-    filters = [
-        consts.FILE_FILTERS["pictures"],
-        consts.FILE_FILTERS["whatever"],
-    ]
-    filepath, _ = for_file(parent, filters, caption=caption)
-    return filepath
-
-
-def for_trained_model_file(parent, caption=""):
-    """Launch file dialog where user is intended to pick out the file for a trained nn-model."""
-    filters = [
-        consts.FILE_FILTERS["pytorch"],
-        consts.FILE_FILTERS["whatever"],
-    ]
-    filepath, _ = for_file(parent, filters, caption=caption)
-    return filepath
-
-
-def for_directory(parent, caption=""):
-    """Launch a file dialog where user is prompted to pick out a directory."""
-    dirpath = QFileDialog.getExistingDirectory(
-        parent=parent,
-        caption=caption,
-    )
-    return dirpath
-
-
 def to_save_file(
     caption="",
     *,
@@ -83,15 +48,12 @@ def to_save_file(
     file_filters=consts.FILE_FILTERS.values(),
     options=QFileDialog.Option.ReadOnly,
 ):
-    """."""
+    """Launch file dialog where user is prompted for where to save a .pickle file."""
     # Test whether file_filters is a subset of-- or equal to, the legal file filters
     if not set(file_filters) <= set(consts.FILE_FILTERS.values()):
         raise RuntimeError("Unacceptable list of file filters")
 
     # Generate Qt-readable filter specifications
-    # @Wilhelmsen: Find a way to make the initial_filter to be a reasonable
-    # choice, instead of random, which it is now. Perhaps make the
-    # FILE_FILTERS an ordered dict, and place "whatever" first?
     file_filters = list(file_filters)
     initial_filter = file_filters[0]
     filters = ";;".join(file_filters)
@@ -110,3 +72,38 @@ def to_save_file(
     )
 
     return filepath, selected_filter
+
+
+def for_some_file(caption="", *, parent):
+    """Launch a file dialog where user is prompted to pick out any file their heart desires."""
+    filepath, _ = for_file(caption, parent=parent)
+    return filepath
+
+
+def for_image_file(caption="", *, parent):
+    """Launch file dialog where user is intended to pick out a graphical image file."""
+    filters = [
+        consts.FILE_FILTERS["pictures"],
+        consts.FILE_FILTERS["whatever"],
+    ]
+    filepath, _ = for_file(caption, parent=parent, file_filters=filters)
+    return filepath
+
+
+def for_trained_model_file(caption="", *, parent):
+    """Launch file dialog where user is intended to pick out the file for a trained nn-model."""
+    filters = [
+        consts.FILE_FILTERS["pytorch"],
+        consts.FILE_FILTERS["whatever"],
+    ]
+    filepath, _ = for_file(caption, parent=parent, file_filters=filters)
+    return filepath
+
+
+def for_directory(caption="", *, parent):
+    """Launch a file dialog where user is prompted to pick out a directory."""
+    dirpath = QFileDialog.getExistingDirectory(
+        parent=parent,
+        caption=caption,
+    )
+    return dirpath
