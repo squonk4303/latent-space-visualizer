@@ -39,15 +39,16 @@ jobs:
       - name: INSTALL PYTHON DEPENDENCIES
         run: |
           python -m pip install --upgrade pip
-          pip install pyqt6 pytest pytest-qt flake8 black
+          pip install pyqt6 pytest pytest-cov pytest-qt flake8 black
           pip install -r requirements.txt
           pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
 
-      - name: RUN PYTEST THROUGH XVFB
+      - name: RUN PYTEST THROUGH XVFB AND SHOW COVERAGE
         env:
           QT_QPA_PLATFORM: offscreen
         # Skips tests which include loading a pretrained model
-        run: xvfb-run pytest -v -m "not require_pretrained_model and not stub"
+        run: xvfb-run pytest --cov=visualizer --verbose -m \
+            "not require_pretrained_model and not stub" tests/
 
       - name: LINT WITH FLAKE8
         # We use Black for auto-formatting, but this is still helpful for
