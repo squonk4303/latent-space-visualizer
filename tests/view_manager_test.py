@@ -122,4 +122,13 @@ def test_quicksave_n_quickload(primary_window, data_object):
     )
 
 
+def test_cookin_brains(primary_window):
+    primary_window.start_cooking_brains()
+
+    # Assert that some filepaths are found and placed in a dataset structure
+    # ^^ same with labels (unsure about with image data)
+    # May want to transfer as a test for the dataset structure itself
+
+    # Assert 
+
 # @Wilhelmsen: Yet to test that quickloading plots its data

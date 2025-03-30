@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import os
 import torch
 
 from PyQt6.QtGui import (
@@ -305,6 +306,48 @@ class PrimaryWindow(QMainWindow):
             case _:  # Default case
                 return None
                 raise RuntimeError("No reduction technique selected!")
+
+    def start_cooking_brains(self):
+        """
+        Walk through the dim-reduction process with the brain dataset.
+
+        For use in testing/development. Deletion pending.
+        """
+        # Make sure to define device
+        consts.DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+        # ------------------------------------
+        # Ordering image paths with categories
+        # ------------------------------------
+
+        # Prepare data
+        dirs = [
+            os.path.join(consts.REPO_DIR, "pics/brains/category0/PNG/"),
+            os.path.join(consts.REPO_DIR, "pics/brains/category1/PNG/"),
+            os.path.join(consts.REPO_DIR, "pics/brains/category2/PNG/"),
+            os.path.join(consts.REPO_DIR, "pics/brains/category3/PNG/"),
+        ]
+        # self.data.selected_layer = "layer4"
+
+        # NOTE that categories and dirs have to be lined up to correspond in their discrete lists
+        categories = ["category0", "category1", "category2", "category3"]
+        d = {
+            category: utils.grab_image_paths_in_dir(pics)
+            for category, pics in zip(categories, dirs)
+        }
+
+        print("--- d:", d.keys())
+        print("--- in cat0:", len(d[categories[0]]))
+
+        # -----------------
+        # Loading the Model
+        # -----------------
+
+        # self.data.model = FCNResNet101(categories)  # <-- NOTE May have to swap with another model
+        # self.data.model.load(consts.TRAINED_MODEL)
+
+        # dataset_paths = utils.grab_image_paths_in_dir(consts.MEDIUM_DATASET)
+        # image_tensors = loading.dataset_to_tensors(dataset_paths)
 
     # @Wilhelmsen: This should be MOCKED and harangued
     def start_cooking(self):
