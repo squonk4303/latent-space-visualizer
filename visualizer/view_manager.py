@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 import os
 import torch
+import torchvision
+import warnings
+from torchvision.models import resnet101, ResNet101_Weights  # NOTE sucky capitalization
 
 from PyQt6.QtGui import (
     QAction,
@@ -331,23 +334,22 @@ class PrimaryWindow(QMainWindow):
 
         # NOTE that categories and dirs have to be lined up to correspond in their discrete lists
         categories = ["category0", "category1", "category2", "category3"]
-        d = {
+        D = {
             category: utils.grab_image_paths_in_dir(pics)
             for category, pics in zip(categories, dirs)
         }
 
-        print("--- d:", d.keys())
-        print("--- in cat0:", len(d[categories[0]]))
+        print("--- D:", D.keys())
+        print("--- in cat0:", len(D[categories[0]]))
 
         # -----------------
         # Loading the Model
         # -----------------
 
-        # self.data.model = FCNResNet101(categories)  # <-- NOTE May have to swap with another model
-        # self.data.model.load(consts.TRAINED_MODEL)
-
-        # dataset_paths = utils.grab_image_paths_in_dir(consts.MEDIUM_DATASET)
-        # image_tensors = loading.dataset_to_tensors(dataset_paths)
+        # @Wilhelmsen: Easiest way to import a pretrained model but that's not what's up
+        weights = ResNet101_Weights.DEFAULT
+        self.data.model = resnet101(weights=weights)
+        self.data.model.eval()
 
     # @Wilhelmsen: This should be MOCKED and harangued
     def start_cooking(self):
