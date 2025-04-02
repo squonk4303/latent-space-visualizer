@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 import os
+import PIL
 import torch
 import torchvision
 import warnings
 from torchvision.models import resnet101, ResNet101_Weights  # NOTE sucky capitalization
+from tqdm import tqdm
 
 from PyQt6.QtGui import (
     QAction,
@@ -350,6 +352,58 @@ class PrimaryWindow(QMainWindow):
         weights = ResNet101_Weights.DEFAULT
         self.data.model = resnet101(weights=weights)
         self.data.model.eval()
+
+        # ----------------
+        # Extract Features
+        # ----------------
+        # Muchly taken from preliminary_dim_reduction
+
+        # Register hook; it's a list because they have pointer-like qualities
+        hooked_feature = []
+        features = []
+
+        # Keep in mind that what attribute to hook is different per model type
+        hook_handle = self.data.model.layer3.register_forward_hook(
+            loading.hooker(hooked_feature)
+        )
+
+        preprocessing = torchvision.transforms.Compose(
+            [
+                torchvision.transforms.Resize(consts.STANDARD_IMG_SIZE),
+                torchvision.transforms.ToTensor(),
+            ]
+        )
+
+        # @Wilhelmsen: I'd prefer for this to be a single un-nested for-loop, maybe?
+        for label, files in D.items():
+            # @Wilhelmsen: NOTE input temporarily truncated /!/!\!\
+            for path in tqdm(files[0:2], desc=f"Extracting from {label}"):
+                hooked_feature.clear()
+                # Load image as tensor
+                image = PIL.Image.open(path).convert("RGB")
+
+                if image is None:
+                    print(f"Couldn't convert {path}")
+                    continue
+
+                # Apply preprocessing on image and send to device
+                image = preprocessing(image).unsqueeze(0).to(consts.DEVICE)
+
+                # Pass model through image; this triggers the hook
+                # Calling the model takes quite a bit of time, it does
+                with torch.no_grad():
+                    _ = self.data.model(image)
+                    feature_map = hooked_feature[0]
+
+                # Transform hooked feature to a PyTorch tensor
+                if not isinstance(feature_map, torch.Tensor):
+                    feature_map = torch.tensor(
+                        feature_map, dtype=torch.float32, device=consts.DEVICE
+                    )
+
+                features.append(feature_map)
+        
+        print("".join([f"{i.shape}\n" for i in features]))
 
     # @Wilhelmsen: This should be MOCKED and harangued
     def start_cooking(self):

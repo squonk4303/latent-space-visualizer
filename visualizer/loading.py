@@ -57,10 +57,7 @@ def preliminary_dim_reduction(model, image_tensors, layer):
 
             feature_map = hooked_feature[0]
 
-            # Ensure feature map is a PyTorch tensor
-            # @Wilhelmsen: find out what on earth the point of this is.
-            # Do it when in the encapsulation process
-            # And see whether hooked_feature can be something besides a list
+            # Ensure hooked feature is a PyTorch tensor
             if not isinstance(feature_map, torch.Tensor):
                 feature_map = torch.tensor(
                     feature_map, dtype=torch.float32, device=consts.DEVICE
@@ -76,8 +73,6 @@ def preliminary_dim_reduction(model, image_tensors, layer):
                 .numpy()
             )
             features.append(feature_vector)
-
-            # @Wilhelmsen: Could memory be saved by using 'del img' here?
 
     # Ensure features have correct 2D shape; (num_samples, num_features)
     # @Wilhelmsen: Just find out what the point is. Do it in encapsulation process.
