@@ -4,6 +4,7 @@ import PIL
 import torch
 import torchvision
 import warnings
+from sklearn.manifold import TSNE
 from torchvision.models import resnet101, ResNet101_Weights  # NOTE sucky capitalization
 from tqdm import tqdm
 
@@ -27,7 +28,7 @@ from visualizer import consts, loading, open_dialog, utils
 from visualizer.consts import DR_technique as Technique
 from visualizer.external.fcn import FCNResNet101
 from visualizer.loading import apply_tsne as t_sne
-from visualizer.plottables import Plottables
+from visualizer.plottables import Feature, Plottables
 from visualizer.plot_widget import PlotWidget
 from visualizer.stacked_layout_manager import StackedLayoutManager
 
@@ -401,9 +402,37 @@ class PrimaryWindow(QMainWindow):
                         feature_map, dtype=torch.float32, device=consts.DEVICE
                     )
 
-                features.append(feature_map)
-        
-        print("".join([f"{i.shape}\n" for i in features]))
+                self.data.features[label] = Feature(path, feature_map)
+
+        hook_handle.remove()
+
+        print(
+            "".join(
+                [
+                    f"{k}, ...{v.path[-8:]}, {v.feature.shape}\n"
+                    for k, v in self.data.features.items()
+                ]
+            )
+        )
+
+        # ---------------------------------------------------------------------------
+        # t-SNE and Plot
+        # ---------------------------------------------------------------------------
+
+        # t-SNE the features
+        perplexity_value = min(30, len(self.data.features) - 1)
+        tsne_conf = TSNE(
+            perplexity=perplexity_value,
+            random_state=consts.seed,
+        )
+
+        # self.data.tsne = tsne_conf.fit_transform(self.data.features[0])
+
+        # Then put on plot, with corresponding colors
+        # for feature in self.data.features:
+        #     pass
+
+        # self.plot.after_t_sne_ing(self.data.features)
 
     # @Wilhelmsen: This should be MOCKED and harangued
     def start_cooking(self):
