@@ -355,70 +355,16 @@ class PrimaryWindow(QMainWindow):
         # ----------------
         # Extract Features
         # ----------------
-        # Muchly taken from preliminary_dim_reduction
-
-        # Register hook; it's a list because they have pointer-like qualities
-        hooked_feature = []
-        features = []
-
-        # Keep in mind that what attribute to hook is different per model type
-        hook_handle = self.data.model.layer3.register_forward_hook(
-            loading.hooker(hooked_feature)
-        )
-
-        preprocessing = torchvision.transforms.Compose(
-            [
-                torchvision.transforms.Resize(128),  # @Wilhelmsen: Revert this sometime.
-                torchvision.transforms.ToTensor(),
-            ]
-        )
+        # @Wilhelmsen: Change the data storage for this. I can't tolerate the redundancy in labels
 
         # @Wilhelmsen: I'd prefer for this to be a single un-nested for-loop, maybe?
         for label, files in D.items():
-            # @Wilhelmsen: NOTE input temporarily truncated /!/!\!\
-            for path in tqdm(files[0:12], desc=f"Extracting from {label}"):
-                hooked_feature.clear()
-                # Load image as tensor
-                image = PIL.Image.open(path).convert("RGB")
+            self.data.labels, self.data.paths, self.data.features = (
+                loading.preliminary_dim_reduction_2(self.data.model, "layer4", label, files)
+            )
 
-                if image is None:
-                    print(f"Couldn't convert {path}")
-                    continue
+            assert len(self.data.labels) == len(self.data.paths) == len(self.data.features)
 
-                # Apply preprocessing on image and send to device
-                image = preprocessing(image).unsqueeze(0).to(consts.DEVICE)
-
-                # Pass model through image; this triggers the hook
-                # Calling the model takes quite a bit of time, it does
-                with torch.no_grad():
-                    _ = self.data.model(image)
-                    feature_map = hooked_feature[0]
-
-                # Transform hooked feature to a PyTorch tensor
-                if not isinstance(feature_map, torch.Tensor):
-                    feature_map = torch.tensor(
-                        feature_map, dtype=torch.float32, device=consts.DEVICE
-                    )
-                # Reduce dimensionality using Global Average Pooling (GAP)
-                # https://pytorch.org/docs/stable/generated/torch.nn.functional.adaptive_avg_pool2d.html#torch.nn.functional.adaptive_avg_pool2d
-                # @Wilhelmsen: Opiton for different dim.reduction techniques.
-                # Do it when in the encapsulation process
-                feature_vector = (
-                    torch.nn.functional.adaptive_avg_pool2d(feature_map, (1, 1))
-                    .squeeze()
-                    .cpu()
-                    .numpy()
-                )
-
-                # @Wilhelmsen: Shameful redundancy in labels. Consider refactoring
-                self.data.labels.append(label)
-                self.data.paths.append(path)
-                features.append(feature_vector)
-                print("--- feature_map.shape:", feature_map.shape)
-                print("--- feature_vector.shape:", feature_vector.shape)
-                print("--- len(features):", len(features))
-
-        self.data.features = np.asarray(features).reshape(len(features), -1)
         print(
             "".join(
                 [
@@ -430,25 +376,20 @@ class PrimaryWindow(QMainWindow):
             )
         )
 
-
-        hook_handle.remove()
-
         # ---------------------------------------------------------------------------
         # t-SNE and Plot
         # ---------------------------------------------------------------------------
 
         # t-SNE the features
         perplexity_value = min(30, len(self.data.features) - 1)
-        # perplexity_value = 3
         tsne_conf = TSNE(
             n_components=2,
             perplexity=perplexity_value,
             random_state=consts.seed,
         )
 
-        # self.data.tsne = tsne_conf.fit_transform(self.data.features[0])
         self.data.tsne = tsne_conf.fit_transform(self.data.features)
-        
+
         print("\n".join([f"{t[0]}\t{t[1]}" for t in self.data.tsne]))
 
         # Then put on plot, with corresponding colors

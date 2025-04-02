@@ -36,6 +36,85 @@ def dataset_to_tensors(image_paths: list):
     return tensors
 
 
+def preliminary_dim_reduction_2(model, layer, label, files):
+    """
+    Reduce the dimensionality of tensors to something t-SNE can more easily digest.
+    """
+    # @Wilhelmsen: Be parat for adding hooks in the arguments here.
+    #       Possible implementaiton: dict of hooks as parameter;
+    #       a for loop sets up hooks and which attributes they connect to
+    #       then a dictionary is returned based on something to identify
+    #       the hooks and a list of what they've hooked. Possibly
+
+    # Register hook; hooked_feature is a list for its pointer-like qualities
+    hooked_feature = []
+    labels, paths, features = [], [], []
+
+    # Keep in mind that what attribute to hook is different per model type
+    # @Wilhelmsen: x = getattr(self.data.model, layer) ...TODO
+    hook_handle = model.layer3.register_forward_hook(
+        hooker(hooked_feature)
+    )
+
+    preprocessing = torchvision.transforms.Compose(
+        [
+            # @Wilhelmsen: Restore this image resize to the const again sometime
+            torchvision.transforms.Resize(128),
+            torchvision.transforms.ToTensor(),
+        ]
+    )
+
+    # @Wilhelmsen: NOTE input temporarily truncated /!/!\!\
+    for path in tqdm(files[0:12], desc=f"Extracting from {label}"):
+        hooked_feature.clear()
+        # Load image as tensor
+        image = PIL.Image.open(path).convert("RGB")
+
+        if image is None:
+            print(f"Couldn't convert {path}")
+            # features.append(path, None)
+            continue
+
+        # Apply preprocessing on image and send to device
+        image = preprocessing(image).unsqueeze(0).to(consts.DEVICE)
+
+        # Pass model through image; this triggers the hook
+        # Calling the model takes quite a bit of time, it does
+        with torch.no_grad():
+            _ = model(image)
+            feature_map = hooked_feature[0]
+
+        # Transform hooked feature to a PyTorch tensor
+        if not isinstance(feature_map, torch.Tensor):
+            feature_map = torch.tensor(
+                feature_map, dtype=torch.float32, device=consts.DEVICE
+            )
+        # Reduce dimensionality using Global Average Pooling (GAP)
+        # https://pytorch.org/docs/stable/generated/torch.nn.functional.adaptive_avg_pool2d.html#torch.nn.functional.adaptive_avg_pool2d
+        # @Wilhelmsen: Opiton for different dim.reduction techniques.
+        # Do it when in the encapsulation process
+        feature_vector = (
+            torch.nn.functional.adaptive_avg_pool2d(feature_map, (1, 1))
+            .squeeze()
+            .cpu()
+            .numpy()
+        )
+
+        labels.append(label)
+        paths.append(path)
+        features.append(feature_vector)
+
+        print("--- feature_map.shape:", feature_map.shape)
+        print("--- feature_vector.shape:", feature_vector.shape)
+        print("--- len(features):", len(features))
+
+    features = np.asarray(features).reshape(len(features), -1)
+
+    hook_handle.remove()
+
+    return labels, paths, features
+
+
 def preliminary_dim_reduction(model, image_tensors, layer):
     """Reduce the dimensionality of tensors to something t-SNE can more easily digest."""
     # Register hook and yadda yadda
