@@ -368,7 +368,7 @@ class PrimaryWindow(QMainWindow):
 
         preprocessing = torchvision.transforms.Compose(
             [
-                torchvision.transforms.Resize(consts.STANDARD_IMG_SIZE),
+                torchvision.transforms.Resize(128),  # @Wilhelmsen: Revert this sometime.
                 torchvision.transforms.ToTensor(),
             ]
         )
@@ -376,7 +376,7 @@ class PrimaryWindow(QMainWindow):
         # @Wilhelmsen: I'd prefer for this to be a single un-nested for-loop, maybe?
         for label, files in D.items():
             # @Wilhelmsen: NOTE input temporarily truncated /!/!\!\
-            for path in tqdm(files[0:2], desc=f"Extracting from {label}"):
+            for path in tqdm(files[0:12], desc=f"Extracting from {label}"):
                 hooked_feature.clear()
                 # Load image as tensor
                 image = PIL.Image.open(path).convert("RGB")
@@ -399,17 +399,30 @@ class PrimaryWindow(QMainWindow):
                     feature_map = torch.tensor(
                         feature_map, dtype=torch.float32, device=consts.DEVICE
                     )
+                # Reduce dimensionality using Global Average Pooling (GAP)
+                # https://pytorch.org/docs/stable/generated/torch.nn.functional.adaptive_avg_pool2d.html#torch.nn.functional.adaptive_avg_pool2d
+                # @Wilhelmsen: Opiton for different dim.reduction techniques.
+                # Do it when in the encapsulation process
+                feature_vector = (
+                    torch.nn.functional.adaptive_avg_pool2d(feature_map, (1, 1))
+                    .squeeze()
+                    .cpu()
+                    .numpy()
+                )
 
                 # @Wilhelmsen: Shameful redundancy in labels. Consider refactoring
                 self.data.labels.append(label)
                 self.data.paths.append(path)
-                features.append(feature_map)
-                # self.data.features.append(Feature(label, path, feature_map))
+                features.append(feature_vector)
+                print("--- feature_map.shape:", feature_map.shape)
+                print("--- feature_vector.shape:", feature_vector.shape)
+                print("--- len(features):", len(features))
 
+        self.data.features = np.asarray(features).reshape(len(features), -1)
         print(
             "".join(
                 [
-                    f"{l}, ...{p[-8:]}, {f.shape}\n"
+                    f"{l}, ...{p[-8:]}, {f}\n"
                     for l, p, f in zip(
                         self.data.labels, self.data.paths, self.data.features
                     )
@@ -417,7 +430,6 @@ class PrimaryWindow(QMainWindow):
             )
         )
 
-        self.data.features = np.asarray(features)
 
         hook_handle.remove()
 
@@ -429,12 +441,15 @@ class PrimaryWindow(QMainWindow):
         perplexity_value = min(30, len(self.data.features) - 1)
         # perplexity_value = 3
         tsne_conf = TSNE(
+            n_components=2,
             perplexity=perplexity_value,
             random_state=consts.seed,
         )
 
         # self.data.tsne = tsne_conf.fit_transform(self.data.features[0])
         self.data.tsne = tsne_conf.fit_transform(self.data.features)
+        
+        print("\n".join([f"{t[0]}\t{t[1]}" for t in self.data.tsne]))
 
         # Then put on plot, with corresponding colors
         # for feature in self.data.features:
