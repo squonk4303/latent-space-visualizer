@@ -5,15 +5,16 @@ import torch
 
 
 @dataclasses.dataclass
-class Feature:
+class Features:
     """
     Class to hold relevant data related to features.
 
     Mostly defined to improve interface with class Plottables > >
     """
 
+    label: str
     path: str
-    feature: torch.Tensor
+    feature: np.array
     # @Linnea: Be glad I didn't name these "toody" and "threedy"
     two_dee = None
     three_dee = None
@@ -30,8 +31,11 @@ class Plottables:
     # TODO: What about dict with settings? Like whether user displayed in 2d or 3d and such
 
     # Map features and relevant values to a label
-    # Note that Feature must be initialized with both path and feature
-    features: dict[str, Feature] = dataclasses.field(default_factory=dict)
+    # Note that Feature must be initialized with label, path, and feature
+    # features: Feature = Feature()
+    labels: list = dataclasses.field(default_factory=list)
+    paths: list = dataclasses.field(default_factory=list)
+    features: list = dataclasses.field(default_factory=list)
 
     def __eq__(self, other):
         """

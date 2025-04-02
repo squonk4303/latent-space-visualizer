@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
+import numpy as np
 import os
 import PIL
 import torch
 import torchvision
 import warnings
 from sklearn.manifold import TSNE
-from torchvision.models import resnet101, ResNet101_Weights  # NOTE sucky capitalization
+from torchvision.models import resnet101 as rn101, ResNet101_Weights as rn101_weights
 from tqdm import tqdm
 
 from PyQt6.QtGui import (
@@ -28,7 +29,7 @@ from visualizer import consts, loading, open_dialog, utils
 from visualizer.consts import DR_technique as Technique
 from visualizer.external.fcn import FCNResNet101
 from visualizer.loading import apply_tsne as t_sne
-from visualizer.plottables import Feature, Plottables
+from visualizer.plottables import Features, Plottables
 from visualizer.plot_widget import PlotWidget
 from visualizer.stacked_layout_manager import StackedLayoutManager
 
@@ -342,16 +343,13 @@ class PrimaryWindow(QMainWindow):
             for category, pics in zip(categories, dirs)
         }
 
-        print("--- D:", D.keys())
-        print("--- in cat0:", len(D[categories[0]]))
-
         # -----------------
         # Loading the Model
         # -----------------
 
         # @Wilhelmsen: Easiest way to import a pretrained model but that's not what's up
-        weights = ResNet101_Weights.DEFAULT
-        self.data.model = resnet101(weights=weights)
+        weights = rn101_weights.DEFAULT
+        self.data.model = rn101(weights=weights)
         self.data.model.eval()
 
         # ----------------
@@ -402,18 +400,26 @@ class PrimaryWindow(QMainWindow):
                         feature_map, dtype=torch.float32, device=consts.DEVICE
                     )
 
-                self.data.features[label] = Feature(path, feature_map)
-
-        hook_handle.remove()
+                # @Wilhelmsen: Shameful redundancy in labels. Consider refactoring
+                self.data.labels.append(label)
+                self.data.paths.append(path)
+                features.append(feature_map)
+                # self.data.features.append(Feature(label, path, feature_map))
 
         print(
             "".join(
                 [
-                    f"{k}, ...{v.path[-8:]}, {v.feature.shape}\n"
-                    for k, v in self.data.features.items()
+                    f"{l}, ...{p[-8:]}, {f.shape}\n"
+                    for l, p, f in zip(
+                        self.data.labels, self.data.paths, self.data.features
+                    )
                 ]
             )
         )
+
+        self.data.features = np.asarray(features)
+
+        hook_handle.remove()
 
         # ---------------------------------------------------------------------------
         # t-SNE and Plot
@@ -421,12 +427,14 @@ class PrimaryWindow(QMainWindow):
 
         # t-SNE the features
         perplexity_value = min(30, len(self.data.features) - 1)
+        # perplexity_value = 3
         tsne_conf = TSNE(
             perplexity=perplexity_value,
             random_state=consts.seed,
         )
 
         # self.data.tsne = tsne_conf.fit_transform(self.data.features[0])
+        self.data.tsne = tsne_conf.fit_transform(self.data.features)
 
         # Then put on plot, with corresponding colors
         # for feature in self.data.features:
