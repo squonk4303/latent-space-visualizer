@@ -6,7 +6,9 @@ import torch
 import torchvision
 import warnings
 from sklearn.manifold import TSNE
-from torchvision.models import resnet101 as rn101, ResNet101_Weights as rn101_weights
+
+# NOTE: Sucky capitalization on torchvision.models because one is a function and one is a class
+from torchvision.models import resnet101, ResNet101_Weights
 from tqdm import tqdm
 
 from PyQt6.QtGui import (
@@ -300,7 +302,8 @@ class PrimaryWindow(QMainWindow):
 
         # Added a switch for later implementation of more reduction methods
         match reduction:
-            case Technique.T_SNE:  # Maybe have this be based off of enums  instead?
+            case Technique.T_SNE:
+                # @Linnea: Better to rename the function in its definition and also refer to it by namespace
                 return t_sne(features, target_dimensionality)
             case Technique.PCA:
                 return None  # TBI (TO BE IMPLEMENTED)
@@ -323,6 +326,15 @@ class PrimaryWindow(QMainWindow):
         # Make sure to define device
         consts.DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+        # -----------------
+        # Loading the Model
+        # -----------------
+
+        # @Wilhelmsen: Easiest way to import a pretrained model but that's not what's up
+        weights = ResNet101_Weights.DEFAULT
+        self.data.model = resnet101(weights=weights)
+        self.data.model.eval()
+
         # ------------------------------------
         # Ordering image paths with categories
         # ------------------------------------
@@ -334,7 +346,7 @@ class PrimaryWindow(QMainWindow):
             os.path.join(consts.REPO_DIR, "pics/brains/category2/PNG/"),
             os.path.join(consts.REPO_DIR, "pics/brains/category3/PNG/"),
         ]
-        # self.data.selected_layer = "layer4"
+        self.data.selected_layer = "layer4"
 
         # NOTE that categories and dirs have to be lined up to correspond in their discrete lists
         categories = ["category0", "category1", "category2", "category3"]
@@ -343,27 +355,16 @@ class PrimaryWindow(QMainWindow):
             for category, pics in zip(categories, dirs)
         }
 
-        # -----------------
-        # Loading the Model
-        # -----------------
-
-        # @Wilhelmsen: Easiest way to import a pretrained model but that's not what's up
-        weights = rn101_weights.DEFAULT
-        self.data.model = rn101(weights=weights)
-        self.data.model.eval()
-
         # ----------------
         # Extract Features
         # ----------------
         # @Wilhelmsen: Change the data storage for this. I can't tolerate the redundancy in labels
-
-        # @Wilhelmsen: I'd prefer for this to be a single un-nested for-loop, maybe?
         for label, files in D.items():
             self.data.labels, self.data.paths, self.data.features = (
-                loading.preliminary_dim_reduction_2(self.data.model, "layer4", label, files)
+                loading.preliminary_dim_reduction_2(
+                    self.data.model, self.data.selected_layer, label, files
+                )
             )
-
-            assert len(self.data.labels) == len(self.data.paths) == len(self.data.features)
 
         print(
             "".join(

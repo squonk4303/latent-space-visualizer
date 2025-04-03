@@ -45,30 +45,38 @@ def preliminary_dim_reduction_2(model, layer, label, files):
     #       a for loop sets up hooks and which attributes they connect to
     #       then a dictionary is returned based on something to identify
     #       the hooks and a list of what they've hooked. Possibly
+    #           Actually, maybe you can just plant the hook outside the function...
 
     # Register hook; hooked_feature is a list for its pointer-like qualities
     hooked_feature = []
     labels, paths, features = [], [], []
 
-    # Keep in mind that what attribute to hook is different per model type
-    # @Wilhelmsen: x = getattr(self.data.model, layer) ...TODO
-    hook_handle = model.layer3.register_forward_hook(
-        hooker(hooked_feature)
-    )
+    # Keep in mind that what attribute to hook may be different per model type
+    hook_handle = getattr(model, layer).register_forward_hook(hooker(hooked_feature))
 
     preprocessing = torchvision.transforms.Compose(
         [
-            # @Wilhelmsen: Restore this image resize to the const again sometime
-            torchvision.transforms.Resize(128),
+            # @Wilhelmsen: NOTE: Image size is reduced for testing
+            torchvision.transforms.Resize(28),
             torchvision.transforms.ToTensor(),
         ]
     )
 
     # @Wilhelmsen: NOTE input temporarily truncated /!/!\!\
-    for path in tqdm(files[0:12], desc=f"Extracting from {label}"):
+    for path in tqdm(files[0:100], desc=f"Extracting from {label}"):
         hooked_feature.clear()
         # Load image as tensor
-        image = PIL.Image.open(path).convert("RGB")
+        try:
+            image = PIL.Image.open(path).convert("RGB")
+        except OSError:
+            # @Wilhelmsen: Improve this error message; happens when binary is messed up in file
+            # Such as when you open the bin in a text editor and remove a random segment
+            # Not that I would know anything about that
+            # @Wilhelmsen: Also find the error message at empty file
+            # @Wilhelmsen: Also find the error message at non-binary file
+            # (not that being non-binary is an error, just if you're a png)
+            print(f"Truncated file read; continuing without image in {path}")
+            continue
 
         if image is None:
             print(f"Couldn't convert {path}")
@@ -103,10 +111,6 @@ def preliminary_dim_reduction_2(model, layer, label, files):
         labels.append(label)
         paths.append(path)
         features.append(feature_vector)
-
-        print("--- feature_map.shape:", feature_map.shape)
-        print("--- feature_vector.shape:", feature_vector.shape)
-        print("--- len(features):", len(features))
 
     features = np.asarray(features).reshape(len(features), -1)
 
