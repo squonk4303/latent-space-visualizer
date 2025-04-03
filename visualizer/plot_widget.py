@@ -1,5 +1,7 @@
 #!/usr/env/bin python3
 import numpy as np
+import random
+from sklearn.manifold import TSNE
 
 from PyQt6.QtWidgets import (
     QWidget,
@@ -71,7 +73,56 @@ class PlotWidget(QWidget):
 
         self.canvas.draw()
 
+    def with_tsne(self, plottables):
+        # Get random sample of mpl-compliant colors
+        colors = random.sample(consts.COLORS, len(consts.COLORS))
+
+        # labels = [k for k in plottables.keys()]
+        # print("".join(f"{key}, {element}\n" for key, value in dict.items() for element in value])
+
+        """
+        labels = [key, element for key, value in plottable.items() for elemene in value]
+        """
+
+        # all_feats = [t.features for v in plottables.values() for t in v]
+
+        labels, all_feats = tuple(
+            zip(
+                *list(
+                    (key, element.features)
+                    for key, value in plottables.items()
+                    for element in value
+                )
+            )
+        )
+
+        print("--- labels:", labels)
+        print("--- all_feats:", all_feats)
+        print("".join(f"{t.shape}\t" for t in all_feats))
+        all_feats = np.array(all_feats).reshape(len(all_feats), -1)
+        print("".join(f"{t.shape}\t" for t in all_feats))
+
+        # t-SNE the features
+        perplexity_value = min(30, len(all_feats) - 1)
+        tsne_conf = TSNE(
+            n_components=2,
+            perplexity=perplexity_value,
+            random_state=consts.seed,
+        )
+
+        coords = tsne_conf.fit_transform(all_feats)
+
+        print("--- t-SNE ---")
+        print("\n".join([f"{t[0]}\t{t[1]}" for t in coords]))
+
+        for i, j in zip(labels, coords):
+            # self.canvas.axes.scatter(
+            pass
+
     def make_toolbar(self):
         """Generate a toolbar object for the matplotlib plot."""
+        # @Wilhelmsen: Consider making this so it only generates a toolbar
+        # if there's not already one registered to the parent. Else return
+        # the one that is.
         toolbar = NavigationToolbar(self.canvas, self.parent)
         return toolbar

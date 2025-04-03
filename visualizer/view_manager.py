@@ -379,7 +379,7 @@ class PrimaryWindow(QMainWindow):
                 self.data.model, self.data.selected_layer, label, files
             )
 
-            # Such as this:
+            # Such as this, where the lists are numpy.ndarrays:
             # self.data.plottables["category0"] = [
             #     PathsAndFeatures("/file/path_0", [1, 2, 3, 4]),
             #     PathsAndFeatures("/file/path_5", [6, 7, 8, 9]),
@@ -403,20 +403,7 @@ class PrimaryWindow(QMainWindow):
         # ---------------------------------------------------------------------------
 
         # t-SNE the features
-        perplexity_value = min(30, len(self.data.features) - 1)
-        tsne_conf = TSNE(
-            n_components=2,
-            perplexity=perplexity_value,
-            random_state=consts.seed,
-        )
-
-        self.data.tsne = tsne_conf.fit_transform(self.data.features)
-
-        print("--- t-SNE ---")
-        print("\n".join([f"{t[0]}\t{t[1]}" for t in self.data.tsne]))
-
-        self.plot.plot_from_2d(self.data.tsne)
-        self.plot.with_color_by_label(self.data.labels, self.data.tsne)
+        self.plot.with_tsne(self.data.plottables)
 
         # Then put on plot, with corresponding colors
         # for feature in self.data.features:
