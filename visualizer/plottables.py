@@ -33,9 +33,9 @@ class Plottables:
     # Map features and relevant values to a label
     # Note that Feature must be initialized with label, path, and feature
     # features: Feature = Feature()
-    labels: list = dataclasses.field(default_factory=list)
-    paths: list = dataclasses.field(default_factory=list)
-    features: list = dataclasses.field(default_factory=list)
+    labels: list[str] = dataclasses.field(default_factory=list)
+    paths: list[str] = dataclasses.field(default_factory=list)
+    features: list[torch.Tensor] = dataclasses.field(default_factory=list)
 
     def __eq__(self, other):
         """

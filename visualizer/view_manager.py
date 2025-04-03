@@ -359,12 +359,38 @@ class PrimaryWindow(QMainWindow):
         # Extract Features
         # ----------------
         # @Wilhelmsen: Change the data storage for this. I can't tolerate the redundancy in labels
+        self.data.features = None
         for label, files in D.items():
-            self.data.labels, self.data.paths, self.data.features = (
-                loading.preliminary_dim_reduction_2(
-                    self.data.model, self.data.selected_layer, label, files
-                )
+            # @Wilhelmsen: Change the interface for plottables in the model. "self.data.whatever" is sucks
+            # Note that label is sent in and returns unchanged. Bad bad bad bad.
+            labels, paths, features = loading.preliminary_dim_reduction_2(
+                self.data.model, self.data.selected_layer, label, files
             )
+
+            # @Wilhelmsen: assert this in the test suite
+            # such as this:
+            # labels = ["category2", "category2", "category2"]
+            # self.data.labels += labels
+            # self.data.labels == ["category0", "category0", "category0",
+            #                      "category1", "category1", "category1",
+            #                      "category2", "category2", "category2"]
+            self.data.labels += labels
+            self.data.paths += paths
+
+            # @Wilhelmsen: assert this in the test suite
+            # such as this (where features and self.data.features are np.ndarrays):
+            # features = [[7,0,7],[8,0,8],[9,0,9]]
+            # self.data.features += features
+            # self.data.features == [[1,0,1], [2,0,2], [3,0,3],
+            #                        [4,0,4], [5,0,5], [6,0,6],
+            #                        [7,0,7], [8,0,8], [9,0,9]]
+            if self.data.features is None:
+                self.data.features = features
+            else:
+                self.data.features = np.append(self.data.features, features, axis=0)
+
+            # @Wilhelmsen: move this to the test suite
+            assert len(self.data.labels) == len(self.data.paths) == len(self.data.paths)
 
         print(
             "".join(
@@ -391,6 +417,7 @@ class PrimaryWindow(QMainWindow):
 
         self.data.tsne = tsne_conf.fit_transform(self.data.features)
 
+        print("--- t-SNE ---")
         print("\n".join([f"{t[0]}\t{t[1]}" for t in self.data.tsne]))
 
         # Then put on plot, with corresponding colors
