@@ -20,6 +20,22 @@ Launch a GUI which helps manipulate the latent space of a trained neural-network
 And that kind of thing.
 """
 
+COLORS = [
+    "chartreuse",
+    "crimson",
+    "darkseagreen",
+    "darkslategray",
+    "gold",
+    "khaki",
+    "mediumorchid",
+    "moccasin",
+    "navy",
+    "palegreen",
+    "salmon",
+    "sienna",
+    "violet",
+]
+
 
 # File-paths &c.
 # @Wilhelmsen: We should consider changing the valid image file extensions
