@@ -2,23 +2,10 @@
 import dataclasses
 import numpy as np
 import torch
+from collections import namedtuple
 
-
-@dataclasses.dataclass
-class Features:
-    """
-    Class to hold relevant data related to features.
-
-    Mostly defined to improve interface with class Plottables > >
-    """
-
-    label: str
-    path: str
-    feature: np.array
-    # @Linnea: Be glad I didn't name these "toody" and "threedy"
-    two_dee = None
-    three_dee = None
-    color = None
+# Class for a better interface to paths and features
+PathsAndFeatures = namedtuple("PathsAndFeatures", ["path", "features"])
 
 
 @dataclasses.dataclass
@@ -36,6 +23,8 @@ class Plottables:
     labels: list[str] = dataclasses.field(default_factory=list)
     paths: list[str] = dataclasses.field(default_factory=list)
     features: list[torch.Tensor] = dataclasses.field(default_factory=list)
+
+    plottables: dict[str, list[PathsAndFeatures]] = dataclasses.field(default_factory=list)
 
     def __eq__(self, other):
         """

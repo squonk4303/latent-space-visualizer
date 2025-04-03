@@ -31,7 +31,7 @@ from visualizer import consts, loading, open_dialog, utils
 from visualizer.consts import DR_technique as Technique
 from visualizer.external.fcn import FCNResNet101
 from visualizer.loading import apply_tsne as t_sne
-from visualizer.plottables import Features, Plottables
+from visualizer.plottables import PathsAndFeatures, Plottables
 from visualizer.plot_widget import PlotWidget
 from visualizer.stacked_layout_manager import StackedLayoutManager
 
@@ -207,14 +207,26 @@ class PrimaryWindow(QMainWindow):
         # --- Cheats ---
 
         dev_button = QPushButton("Cheat")
-        dev_button.clicked.connect(self.start_cooking)
+        dev_button.clicked.connect(self.start_cooking_brains)
         start_tab.addWidget(dev_button)
 
         if consts.flags["dev"]:
-            self.start_cooking()  # <-- Just goes ahead and starts cooking
+            self.start_cooking_brains()  # <-- Just goes ahead and starts cooking brains
 
     def initiate_menu_bar(self):
         """Set up the top menu-bar, its sub-menus, actions, and signals."""
+
+        # @Wilhelmsen: initiate_menu_bar is overdue for a refactor
+        # I think most of the things that have to be exported out of this
+        # method-- Like actions and such --should be moved out.
+
+        # There's also a case to be made for spilling the entire function
+        # out into __init__, since it's just run once there anyways, and
+        # the only thing encapsulating it over here is doing, is locically
+        # grouping certain boilerplate actions, and putting certain
+        # variables in a limited scope. As I can tell. This is a topic for
+        # discussion.
+
         menubar = self.menuBar()
 
         # Action which opens the file dialog
@@ -359,52 +371,35 @@ class PrimaryWindow(QMainWindow):
         # Extract Features
         # ----------------
         # @Wilhelmsen: Change the data storage for this. I can't tolerate the redundancy in labels
-        self.data.features = None
+        self.data.plottables = {}
         for label, files in D.items():
             # @Wilhelmsen: Change the interface for plottables in the model. "self.data.whatever" is sucks
             # Note that label is sent in and returns unchanged. Bad bad bad bad.
-            labels, paths, features = loading.preliminary_dim_reduction_2(
+            paths, features = loading.preliminary_dim_reduction_2(
                 self.data.model, self.data.selected_layer, label, files
             )
 
-            # @Wilhelmsen: assert this in the test suite
-            # such as this:
-            # labels = ["category2", "category2", "category2"]
-            # self.data.labels += labels
-            # self.data.labels == ["category0", "category0", "category0",
-            #                      "category1", "category1", "category1",
-            #                      "category2", "category2", "category2"]
-            self.data.labels += labels
-            self.data.paths += paths
+            # Such as this:
+            # self.data.plottables["category0"] = [
+            #     PathsAndFeatures("/file/path_0", [1, 2, 3, 4]),
+            #     PathsAndFeatures("/file/path_5", [6, 7, 8, 9]),
+            #     ... ,
+            # ]
 
-            # @Wilhelmsen: assert this in the test suite
-            # such as this (where features and self.data.features are np.ndarrays):
-            # features = [[7,0,7],[8,0,8],[9,0,9]]
-            # self.data.features += features
-            # self.data.features == [[1,0,1], [2,0,2], [3,0,3],
-            #                        [4,0,4], [5,0,5], [6,0,6],
-            #                        [7,0,7], [8,0,8], [9,0,9]]
-            if self.data.features is None:
-                self.data.features = features
-            else:
-                self.data.features = np.append(self.data.features, features, axis=0)
-
-            # @Wilhelmsen: move this to the test suite
-            assert len(self.data.labels) == len(self.data.paths) == len(self.data.paths)
+            self.data.plottables[label] = [
+                PathsAndFeatures(p, f) for p, f in zip(paths, features)
+            ]
 
         print(
             "".join(
-                [
-                    f"{l}, ...{p[-8:]}, {f}\n"
-                    for l, p, f in zip(
-                        self.data.labels, self.data.paths, self.data.features
-                    )
-                ]
+                f"{L}, ...{p[-8:]}, {f.shape}\n"
+                for L, obj in self.data.plottables.items()
+                for p, f in obj
             )
         )
 
         # ---------------------------------------------------------------------------
-        # t-SNE and Plot
+        # t-SNE & Plot
         # ---------------------------------------------------------------------------
 
         # t-SNE the features
@@ -419,6 +414,9 @@ class PrimaryWindow(QMainWindow):
 
         print("--- t-SNE ---")
         print("\n".join([f"{t[0]}\t{t[1]}" for t in self.data.tsne]))
+
+        self.plot.plot_from_2d(self.data.tsne)
+        self.plot.with_color_by_label(self.data.labels, self.data.tsne)
 
         # Then put on plot, with corresponding colors
         # for feature in self.data.features:

@@ -38,8 +38,11 @@ def dataset_to_tensors(image_paths: list):
 
 def preliminary_dim_reduction_2(model, layer, label, files):
     """
-    Reduce the dimensionality of tensors to something t-SNE can more easily digest.
+    Reduce the dimensionality of vectors in certain layer of nn-model
+
+    to something t-SNE can more easily digest.
     """
+
     # @Wilhelmsen: Be parat for adding hooks in the arguments here.
     #       Possible implementaiton: dict of hooks as parameter;
     #       a for loop sets up hooks and which attributes they connect to
@@ -63,7 +66,7 @@ def preliminary_dim_reduction_2(model, layer, label, files):
     )
 
     # @Wilhelmsen: NOTE input temporarily truncated /!/!\!\
-    for path in tqdm(files[0:100], desc=f"Extracting from {label}"):
+    for path in tqdm(files[0:4], desc=f"Extracting from {label}"):
         hooked_feature.clear()
         # Load image as tensor
         try:
@@ -116,7 +119,7 @@ def preliminary_dim_reduction_2(model, layer, label, files):
 
     hook_handle.remove()
 
-    return labels, paths, features
+    return paths, features
 
 
 def preliminary_dim_reduction(model, image_tensors, layer):
