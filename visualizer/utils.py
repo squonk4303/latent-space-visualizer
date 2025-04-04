@@ -2,6 +2,7 @@
 import glob
 import numpy as np
 import os
+import random
 import torch
 
 from visualizer import consts
@@ -32,6 +33,7 @@ def superseed(seed):
     See more at ()[https://pytorch.org/docs/stable/notes/randomness.html]
     """
     np.random.seed(seed)
+    random.seed(seed)
     torch.manual_seed(seed)
     consts.seed = seed
 
