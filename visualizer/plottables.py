@@ -4,27 +4,28 @@ import numpy as np
 import torch
 from collections import namedtuple
 
-# Class for a better interface to paths and features
-PathsAndFeatures = namedtuple("PathsAndFeatures", ["path", "features"])
+
+@dataclasses.dataclass
+class PathsAndFeatures:
+    path: str
+    features: np.ndarray
+    tsne: list = None
 
 
 @dataclasses.dataclass
 class Plottables:
     model: torch.nn.Module = None
-    selected_layer: str = None
+    layer: str = None
+    # @Wilhelmsen: Get rid of the deprecated... *dies*
     dataset_intermediary: torch.tensor = None
     dataset_plottable: torch.tensor = None
     image_plottable: tuple = None
     # TODO: What about dict with settings? Like whether user displayed in 2d or 3d and such
 
-    # Map features and relevant values to a label
-    # Note that Feature must be initialized with label, path, and feature
-    # features: Feature = Feature()
-    labels: list[str] = dataclasses.field(default_factory=list)
-    paths: list[str] = dataclasses.field(default_factory=list)
-    features: list[torch.Tensor] = dataclasses.field(default_factory=list)
-
-    plottables: dict[str, list[PathsAndFeatures]] = dataclasses.field(default_factory=list)
+    # Map features and other relevant values to a label
+    plottables: dict[str, list[PathsAndFeatures]] = dataclasses.field(
+        default_factory=list
+    )
 
     def __eq__(self, other):
         """

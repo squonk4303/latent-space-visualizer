@@ -358,7 +358,7 @@ class PrimaryWindow(QMainWindow):
             os.path.join(consts.REPO_DIR, "pics/brains/category2/PNG/"),
             os.path.join(consts.REPO_DIR, "pics/brains/category3/PNG/"),
         ]
-        self.data.selected_layer = "layer4"
+        self.data.layer = "layer4"
 
         # NOTE that categories and dirs have to be lined up to correspond in their discrete lists
         categories = ["category0", "category1", "category2", "category3"]
@@ -376,7 +376,7 @@ class PrimaryWindow(QMainWindow):
             # @Wilhelmsen: Change the interface for plottables in the model. "self.data.whatever" is sucks
             # Note that label is sent in and returns unchanged. Bad bad bad bad.
             paths, features = loading.preliminary_dim_reduction_2(
-                self.data.model, self.data.selected_layer, label, files
+                self.data.model, self.data.layer, label, files
             )
 
             # Such as this, where the lists are numpy.ndarrays:
@@ -389,14 +389,6 @@ class PrimaryWindow(QMainWindow):
             self.data.plottables[label] = [
                 PathsAndFeatures(p, f) for p, f in zip(paths, features)
             ]
-
-        print(
-            "".join(
-                f"{L}, ...{p[-8:]}, {f.shape}\n"
-                for L, obj in self.data.plottables.items()
-                for p, f in obj
-            )
-        )
 
         # ---------------------------------------------------------------------------
         # t-SNE & Plot
@@ -423,7 +415,7 @@ class PrimaryWindow(QMainWindow):
 
         # Prepare data
         categories = consts.DEFAULT_MODEL_CATEGORIES
-        self.data.selected_layer = "layer4"
+        self.data.layer = "layer4"
         self.data.model = FCNResNet101(categories)
         self.data.model.load(consts.TRAINED_MODEL)
         dataset_paths = utils.grab_image_paths_in_dir(consts.MEDIUM_DATASET)
@@ -433,7 +425,7 @@ class PrimaryWindow(QMainWindow):
         print("".join([f"tensor: {t.shape}\n" for t in image_tensors]))
 
         self.data.dataset_intermediary = loading.preliminary_dim_reduction(
-            self.data.model, image_tensors, self.data.selected_layer
+            self.data.model, image_tensors, self.data.layer
         )
 
         print(

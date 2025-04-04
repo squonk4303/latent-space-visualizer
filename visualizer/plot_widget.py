@@ -74,9 +74,7 @@ class PlotWidget(QWidget):
         self.canvas.draw()
 
     def with_tsne(self, plottables):
-        # Get random sample of mpl-compliant colors
-        colors = random.sample(consts.COLORS, len(consts.COLORS))
-
+        # Put all features in a list, and all labels in a list with corresponding indices
         # Python list comprehension is awesome; And the zip function; And tuple assignment
         labels, all_feats = tuple(
             zip(
@@ -98,17 +96,25 @@ class PlotWidget(QWidget):
             perplexity=perplexity_value,
             random_state=consts.seed,
         )
-
         coords = tsne_conf.fit_transform(all_feats)
+        # print("".join([f"{x}\t{y}\n" for x, y in coords]))
 
-        print("".join([f"{x}\t{y}\n" for x, y in coords]))
+        # Coords is now an iter
+        # So it should be possible to loop over all the values in dict Plottables
+        # And assign coords to the .tsne values there
 
-        # @Wilhelmsn: Move this assertion to tests
-        assert len(all_feats) == len(coords) == len(labels)
+        # @Wilhelmsen: Consider again whether plottables.values() always returns in the expected order
+        for coord, pathandfeature in zip(
+            coords, [p for obj in plottables.values() for p in obj]
+        ):
+            pathandfeature.tsne = coord
 
-        colors = iter(random.sample(consts.COLORS, k=len(plottables)))
+        print("".join(f"{w.tsne}\n" for obj in plottables.values() for w in obj))
 
-        # Map each label to a random color
+        # @Wilhelmsen: Move this assertion to tests
+        # assert len(all_feats) == len(coords) == len(labels)
+
+        # Map each label to a color
         color_map = {
             label: color
             for label, color in zip(
@@ -117,8 +123,14 @@ class PlotWidget(QWidget):
             )
         }
 
-        for label, coords in zip(labels, coords):
-            self.canvas.axes.scatter(coords[0], coords[1], label=label, c=color_map[label])
+        for label, data in plottables.items():
+            tsne = [obj.tsne for obj in data]
+            # print(label, tsne)
+            print("".join(f"{label}, {i}\n" for i in tsne))
+            x, y = [list(t) for t in zip(*tsne)]
+            # print("".join(f"{label}, {i}\n" for i in transformed))
+
+            self.canvas.axes.scatter(x, y, label=label, c=color_map[label])
             self.canvas.axes.legend()
 
     def make_toolbar(self):
