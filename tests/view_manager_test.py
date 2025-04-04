@@ -122,6 +122,7 @@ def test_quicksave_n_quickload(primary_window, data_object):
     )
 
 
+@pytest.mark.require_pretrained_model
 def test_cookin_brains(primary_window):
     primary_window.start_cooking_brains()
 

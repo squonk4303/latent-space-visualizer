@@ -77,18 +77,10 @@ class PlotWidget(QWidget):
         # Get random sample of mpl-compliant colors
         colors = random.sample(consts.COLORS, len(consts.COLORS))
 
-        # labels = [k for k in plottables.keys()]
-        # print("".join(f"{key}, {element}\n" for key, value in dict.items() for element in value])
-
-        """
-        labels = [key, element for key, value in plottable.items() for elemene in value]
-        """
-
-        # all_feats = [t.features for v in plottables.values() for t in v]
-
+        # Python list comprehension is awesome; And the zip function; And tuple assignment
         labels, all_feats = tuple(
             zip(
-                *list(
+                *tuple(
                     (key, element.features)
                     for key, value in plottables.items()
                     for element in value
@@ -96,11 +88,8 @@ class PlotWidget(QWidget):
             )
         )
 
-        print("--- labels:", labels)
-        print("--- all_feats:", all_feats)
-        print("".join(f"{t.shape}\t" for t in all_feats))
+        # Make sure the feats are represented as a numpy.ndarray
         all_feats = np.array(all_feats).reshape(len(all_feats), -1)
-        print("".join(f"{t.shape}\t" for t in all_feats))
 
         # t-SNE the features
         perplexity_value = min(30, len(all_feats) - 1)
@@ -112,12 +101,25 @@ class PlotWidget(QWidget):
 
         coords = tsne_conf.fit_transform(all_feats)
 
-        print("--- t-SNE ---")
-        print("\n".join([f"{t[0]}\t{t[1]}" for t in coords]))
+        print("".join([f"{x}\t{y}\n" for x, y in coords]))
 
-        for i, j in zip(labels, coords):
-            # self.canvas.axes.scatter(
-            pass
+        # @Wilhelmsn: Move this assertion to tests
+        assert len(all_feats) == len(coords) == len(labels)
+
+        colors = iter(random.sample(consts.COLORS, k=len(plottables)))
+
+        # Map each label to a random color
+        color_map = {
+            label: color
+            for label, color in zip(
+                [k for k in plottables.keys()],
+                random.sample(consts.COLORS, k=len(plottables)),
+            )
+        }
+
+        for label, coords in zip(labels, coords):
+            self.canvas.axes.scatter(coords[0], coords[1], label=label, c=color_map[label])
+            self.canvas.axes.legend()
 
     def make_toolbar(self):
         """Generate a toolbar object for the matplotlib plot."""
