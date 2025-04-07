@@ -13,20 +13,23 @@ class FCNResNet101(nn.Module):
         self.model = models.segmentation.fcn_resnet101(
             weights=models.segmentation.fcn.FCN_ResNet101_Weights.COCO_WITH_VOC_LABELS_V1
         )
-        if categories is not None:
-            self.set_categories(categories)
-
-    def set_categories(self, categories):
-        self._categories = nn.ParameterDict(
-            {i: nn.Parameter(torch.Tensor(0)) for i in categories}
-        )
-        num_categories = len(self._categories)
-        self.model.classifier[4] = nn.Conv2d(512, num_categories, 1)
-        self.model.aux_classifier[4] = nn.Conv2d(256, num_categories, 1)
+        self.categories = categories
 
     @property
     def categories(self):
         return self._categories
+
+    @categories.setter
+    def categories(self, categories):
+        if categories is not None:
+            self._categories = nn.ParameterDict(
+                {i: nn.Parameter(torch.Tensor(0)) for i in categories}
+            )
+            num_categories = len(self._categories)
+            self.model.classifier[4] = nn.Conv2d(512, num_categories, 1)
+            self.model.aux_classifier[4] = nn.Conv2d(256, num_categories, 1)
+        else:
+            self._categories = nn.ParameterDict()
 
     def forward(self, image: torch.Tensor):
         return self.model(image)
@@ -50,7 +53,7 @@ class FCNResNet101(nn.Module):
             for i in checkpoint["state_dict"]
             if i.startswith("_categories.")
         ]
-        self.set_categories(categories)
+        self.categories = categories
 
         # Load state_dict into model; the model being the current object
         self.load_state_dict(checkpoint["state_dict"], strict=True)
