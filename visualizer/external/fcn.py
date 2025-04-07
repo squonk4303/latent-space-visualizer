@@ -25,9 +25,6 @@ class FCNResNet101(nn.Module):
             self._categories = nn.ParameterDict(
                 {i: nn.Parameter(torch.Tensor(0)) for i in categories}
             )
-            num_categories = len(self._categories)
-            self.model.classifier[4] = nn.Conv2d(512, num_categories, 1)
-            self.model.aux_classifier[4] = nn.Conv2d(256, num_categories, 1)
         else:
             self._categories = nn.ParameterDict()
 
@@ -55,8 +52,11 @@ class FCNResNet101(nn.Module):
         ]
         self.categories = categories
 
-        # Load state_dict into model; the model being the current object
-        self.load_state_dict(checkpoint["state_dict"], strict=True)
+        # Set certain submodules based on the categories
+        num_categories = len(self.categories)
+        self.model.classifier[4] = nn.Conv2d(512, num_categories, 1)
+        self.model.aux_classifier[4] = nn.Conv2d(256, num_categories, 1)
 
+        self.load_state_dict(checkpoint["state_dict"], strict=True)
         self.to(consts.DEVICE)
         self.eval()
