@@ -58,35 +58,36 @@ class TestImageGrabber:
 
     def test_imagegrabber_gets_any_extension(self):
         grabbed = utils.grab_image_paths_in_dir(self.dir_100.name)
-        # fmt: off
         goal = [
+            # fmt: off
             self.file_101.name,    self.file_102.name,    self.file_103.name,
             self.file_104.name,    self.file_105.name,    self.file_106.name,
             self.file_107.name,    self.file_108.name,    self.file_109.name,
+            # fmt: on
         ]
-        # fmt: on
 
         # glob.glob returns list in arbitrary order, so compare without order
         assert set(grabbed) == set(goal)
 
     def test_ignore_unimportant_files(self):
         grabbed = utils.grab_image_paths_in_dir(self.dir_900.name)
-        # This looks inconsistent with python convention, BUT
-        # Using {} makes an empty dict, so the docs suggest this instead.
+        # Using 'set()' as opposed to '{}' seems inconsistent with python
+        # convention, BUT Using '{}' makes an empty dict, so the docs
+        # recommend using the empty set constructor.
         # src: https://docs.python.org/3/tutorial/datastructures.html#sets
         assert set(grabbed) == set()
 
     def test_recursive(self):
 
         grabbed = utils.grab_image_paths_in_dir(self.dir_100.name, recursive=True)
-        # fmt: off
         goal = [
+            # fmt: off
             self.file_101.name,    self.file_102.name,    self.file_103.name,
             self.file_104.name,    self.file_105.name,    self.file_106.name,
             self.file_107.name,    self.file_108.name,    self.file_109.name,
 
             self.file_111.name,    self.file_112.name,    self.file_113.name,
+            # fmt: on
         ]
-        # fmt: on
 
         assert set(grabbed) == set(goal)

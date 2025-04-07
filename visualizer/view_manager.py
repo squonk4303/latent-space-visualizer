@@ -275,7 +275,7 @@ class PrimaryWindow(QMainWindow):
 
     def find_dataset(self):
         """
-        Open dialog for finding dataset, and inform user if successful.
+        Open dialog for finding dataset, and TODO: inform user if successful.
 
         Is intended to be used to be used for directories containing the datasets.
 
@@ -362,7 +362,7 @@ class PrimaryWindow(QMainWindow):
 
         # NOTE that categories and dirs have to be lined up to correspond in their discrete lists
         categories = ["category0", "category1", "category2", "category3"]
-        D = {
+        pics_by_category = {
             category: utils.grab_image_paths_in_dir(pics)
             for category, pics in zip(categories, dirs)
         }
@@ -372,7 +372,7 @@ class PrimaryWindow(QMainWindow):
         # ----------------
         # @Wilhelmsen: Change the data storage for this. I can't tolerate the redundancy in labels
         self.data.plottables = {}
-        for label, files in D.items():
+        for label, files in pics_by_category.items():
             # @Wilhelmsen: Change the interface for plottables in the model. "self.data.whatever" is sucks
             # Note that label is sent in and returns unchanged. Bad bad bad bad.
             paths, features = loading.preliminary_dim_reduction_2(
