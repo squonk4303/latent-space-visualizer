@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-import numpy as np
 import os
+import warnings
+
+import numpy as np
 import PIL
 import torch
 import torchvision
-import warnings
 from sklearn.manifold import TSNE
 
 # NOTE: Sucky capitalization on torchvision.models because one is a function and one is a class
@@ -206,9 +207,13 @@ class PrimaryWindow(QMainWindow):
 
         # --- Cheats ---
 
-        dev_button = QPushButton("Cheat")
-        dev_button.clicked.connect(self.start_cooking_brains)
-        start_tab.addWidget(dev_button)
+        dev_button_1 = QPushButton("Cook 1")
+        dev_button_1.clicked.connect(self.start_cooking)
+        start_tab.addWidget(dev_button_1)
+
+        dev_button_2 = QPushButton("Cook 2")
+        dev_button_2.clicked.connect(self.start_cooking_brains)
+        start_tab.addWidget(dev_button_2)
 
         if consts.flags["dev"]:
             self.start_cooking_brains()  # <-- Just goes ahead and starts cooking brains
@@ -414,14 +419,30 @@ class PrimaryWindow(QMainWindow):
         consts.DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         # Prepare data
-        categories = consts.DEFAULT_MODEL_CATEGORIES
+        categories = {
+            # fmt: off
+            "apple", "banana", "bear", "bird", "book", "bowl", "broccoli",
+            "carrot", "cat", "cow", "dog", "fork", "frisbee", "giraffe",
+            "horse", "keyboard", "knife", "orange", "remote", "sheep", "spoon",
+            "sports ball", "toilet", "tv", "vase", "wine glass", "zebra",
+            # fmt: on
+        }
+
         self.data.layer = "layer4"
         self.data.model = FCNResNet101(categories)
-        self.data.model.load(consts.TRAINED_MODEL)
+
+        self.data.model.load("models.ignore/rgb-aug0/best_model.pth")
+        # self.data.model.load("models.ignore/rgb-aug0/checkpoint.pth")
+        # self.data.model.load("models.ignore/rgb-aug1/best_model.pth")
+        # self.data.model.load("models.ignore/rgb-aug1/checkpoint.pth")
+        # self.data.model.load("models.ignore/rgb-aug2/best_model.pth")
+        # self.data.model.load("models.ignore/rgb-aug2/checkpoint.pth")
+
         dataset_paths = utils.grab_image_paths_in_dir(consts.MEDIUM_DATASET)
         image_tensors = loading.dataset_to_tensors(dataset_paths)
-        _ = loading.dataset_to_tensors((consts.GRAPHICAL_IMAGE,))
+        # _ = loading.dataset_to_tensors((consts.GRAPHICAL_IMAGE,))
 
+        print(self.data.model)
         print("".join([f"tensor: {t.shape}\n" for t in image_tensors]))
 
         self.data.dataset_intermediary = loading.preliminary_dim_reduction(
@@ -430,10 +451,8 @@ class PrimaryWindow(QMainWindow):
 
         print(
             "".join(
-                [
-                    f"data.dataset_intermediary: {t.shape}\n"
-                    for t in self.data.dataset_intermediary
-                ]
+                f"data.dataset_intermediary: {t.shape}\n"
+                for t in self.data.dataset_intermediary
             )
         )
 
@@ -443,10 +462,8 @@ class PrimaryWindow(QMainWindow):
 
         print(
             "".join(
-                [
-                    f"self.data.dataset_plottable: {t}\n"
-                    for t in self.data.dataset_plottable
-                ]
+                f"self.data.dataset_plottable: {t}\n"
+                for t in self.data.dataset_plottable
             )
         )
 

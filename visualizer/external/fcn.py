@@ -8,11 +8,15 @@ from visualizer import consts
 class FCNResNet101(nn.Module):
     """House a FCN_ResNet101 model from pytorch, adjusted for Mekides' interface."""
 
-    def __init__(self, categories):
+    def __init__(self, categories=None):
         super().__init__()
         self.model = models.segmentation.fcn_resnet101(
             weights=models.segmentation.fcn.FCN_ResNet101_Weights.COCO_WITH_VOC_LABELS_V1
         )
+        if categories is not None:
+            self.set_categories(categories)
+
+    def set_categories(self, categories):
         self._categories = nn.ParameterDict(
             {i: nn.Parameter(torch.Tensor(0)) for i in categories}
         )
