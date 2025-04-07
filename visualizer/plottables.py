@@ -2,7 +2,6 @@
 import dataclasses
 import numpy as np
 import torch
-from collections import namedtuple
 
 
 @dataclasses.dataclass

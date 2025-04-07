@@ -8,7 +8,6 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QFileDialog
 
 from visualizer import consts
-from visualizer.external.fcn import FCNResNet101
 from visualizer.plottables import Plottables
 from visualizer.view_manager import PrimaryWindow
 
@@ -108,6 +107,11 @@ def test_cancelled_file_select(primary_window, qtbot):
 
 @pytest.mark.slow
 def test_quicksave_n_quickload(primary_window, data_object):
+    """
+    Quicksave and quickload an object to assert if the loaded copy is equal.
+
+    NOTE: Overwrites the quicksave.
+    """
     primary_window.data = data_object
     primary_window.quicksave_action.trigger()
     primary_window.quickload_action.trigger()
@@ -130,6 +134,5 @@ def test_cookin_brains(primary_window):
     # ^^ same with labels (unsure about with image data)
     # May want to transfer as a test for the dataset structure itself
 
-    # Assert 
 
 # @Wilhelmsen: Yet to test that quickloading plots its data

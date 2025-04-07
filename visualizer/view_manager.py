@@ -1,16 +1,9 @@
 #!/usr/bin/env python3
 import os
-import warnings
-
-import numpy as np
-import PIL
 import torch
-import torchvision
-from sklearn.manifold import TSNE
 
 # NOTE: Sucky capitalization on torchvision.models because one is a function and one is a class
 from torchvision.models import resnet101, ResNet101_Weights
-from tqdm import tqdm
 
 from PyQt6.QtGui import (
     QAction,
@@ -430,36 +423,12 @@ class PrimaryWindow(QMainWindow):
 
         dataset_paths = utils.grab_image_paths_in_dir(consts.MEDIUM_DATASET)
         image_tensors = loading.dataset_to_tensors(dataset_paths)
-        # _ = loading.dataset_to_tensors((consts.GRAPHICAL_IMAGE,))
-
-        print(self.data.model)
-        print("".join([f"tensor: {t.shape}\n" for t in image_tensors]))
 
         self.data.dataset_intermediary = loading.preliminary_dim_reduction(
             self.data.model, image_tensors, self.data.layer
         )
-
-        print(
-            "".join(
-                f"data.dataset_intermediary: {t.shape}\n"
-                for t in self.data.dataset_intermediary
-            )
-        )
-
         self.data.dataset_plottable = loading.apply_tsne(self.data.dataset_intermediary)
-        # self.dataset_plottable = self.technique_loader(reduced_features)
-        # tsned_single = loading.apply_tsne(single_image_tensor)
-
-        print(
-            "".join(
-                f"self.data.dataset_plottable: {t}\n"
-                for t in self.data.dataset_plottable
-            )
-        )
-
         self.plot.plot_from_2d(self.data.dataset_plottable)
-        # self.plot.plot_from_2d(tsned_single)
-
         self.quicksave_wrapper()
 
     def callable_goto_tab(self, n):

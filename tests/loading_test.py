@@ -6,7 +6,7 @@ import pytest
 import tempfile
 import torch
 
-from PyQt6.QtWidgets import QApplication, QFileDialog
+from PyQt6.QtWidgets import QFileDialog
 
 from visualizer import consts, loading, utils
 from visualizer.external.fcn import FCNResNet101

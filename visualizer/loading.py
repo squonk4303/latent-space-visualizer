@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-from pathlib import Path
-from sklearn.manifold import TSNE
-from tqdm import tqdm
 import mmap
-import numpy as np
 import os
 import pickle
-import PIL
 import tempfile
+
+from sklearn.manifold import TSNE
+from tqdm import tqdm
+import numpy as np
+import PIL
 import torch
 import torchvision
 
@@ -26,7 +26,7 @@ def dataset_to_tensors(image_paths: list):
 
     preprocessing = torchvision.transforms.Compose(
         [
-            torchvision.transforms.Resize(consts.STANDARD_IMG_SIZE),
+            torchvision.transforms.Resize(28),
             torchvision.transforms.ToTensor(),
         ]
     )

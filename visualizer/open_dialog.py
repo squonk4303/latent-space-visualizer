@@ -3,7 +3,6 @@
 Module with functions tohandle file dialogs.
 """
 import datetime
-import os
 from PyQt6.QtWidgets import QFileDialog
 from visualizer import consts
 

@@ -60,9 +60,9 @@ class TestImageGrabber:
         grabbed = utils.grab_image_paths_in_dir(self.dir_100.name)
         goal = [
             # fmt: off
-            self.file_101.name,    self.file_102.name,    self.file_103.name,
-            self.file_104.name,    self.file_105.name,    self.file_106.name,
-            self.file_107.name,    self.file_108.name,    self.file_109.name,
+            self.file_101.name, self.file_102.name, self.file_103.name,
+            self.file_104.name, self.file_105.name, self.file_106.name,
+            self.file_107.name, self.file_108.name, self.file_109.name,
             # fmt: on
         ]
 
@@ -82,11 +82,11 @@ class TestImageGrabber:
         grabbed = utils.grab_image_paths_in_dir(self.dir_100.name, recursive=True)
         goal = [
             # fmt: off
-            self.file_101.name,    self.file_102.name,    self.file_103.name,
-            self.file_104.name,    self.file_105.name,    self.file_106.name,
-            self.file_107.name,    self.file_108.name,    self.file_109.name,
+            self.file_101.name, self.file_102.name, self.file_103.name,
+            self.file_104.name, self.file_105.name, self.file_106.name,
+            self.file_107.name, self.file_108.name, self.file_109.name,
 
-            self.file_111.name,    self.file_112.name,    self.file_113.name,
+            self.file_111.name, self.file_112.name, self.file_113.name,
             # fmt: on
         ]
 

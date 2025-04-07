@@ -2,7 +2,6 @@
 import pytest
 
 from PyQt6.QtWidgets import (
-    QApplication,
     QHBoxLayout,
     QLayout,
     QVBoxLayout,
@@ -10,6 +9,7 @@ from PyQt6.QtWidgets import (
 )
 
 from visualizer.stacked_layout_manager import StackedLayoutManager
+
 
 @pytest.fixture
 def empty_layout():

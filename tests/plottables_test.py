@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import dataclasses
-import numpy as np
 import pytest
 import torch
 from visualizer import consts

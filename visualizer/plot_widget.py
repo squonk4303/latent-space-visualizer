@@ -109,7 +109,7 @@ class PlotWidget(QWidget):
         ):
             pathandfeature.tsne = coord
 
-        print("".join(f"{w.tsne}\n" for obj in plottables.values() for w in obj))
+        # print("".join(f"{w.tsne}\n" for obj in plottables.values() for w in obj))
 
         # @Wilhelmsen: Move this assertion to tests
         # assert len(all_feats) == len(coords) == len(labels)
@@ -126,7 +126,7 @@ class PlotWidget(QWidget):
         for label, data in plottables.items():
             tsne = [obj.tsne for obj in data]
             # print(label, tsne)
-            print("".join(f"{label}, {i}\n" for i in tsne))
+            # print("".join(f"{label}, {i}\n" for i in tsne))
             x, y = [list(t) for t in zip(*tsne)]
             # print("".join(f"{label}, {i}\n" for i in transformed))
 
