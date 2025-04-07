@@ -250,7 +250,7 @@ class PrimaryWindow(QMainWindow):
         file_menu.addAction(self.save_as_action)
         file_menu.addAction(self.load_file_action)
 
-        # The Greater Navigaiton Menu
+        # The Greater Navigation Menu
         self.navigate_menu = menubar.addMenu("&Tab")
         self.navigate_menu.addAction(next_tab)
         self.navigate_menu.addAction(prev_tab)
@@ -368,7 +368,6 @@ class PrimaryWindow(QMainWindow):
         # ----------------
         # Extract Features
         # ----------------
-        # @Wilhelmsen: Change the data storage for this. I can't tolerate the redundancy in labels
         self.data.plottables = {}
         for label, files in pics_by_category.items():
             # @Wilhelmsen: Change the interface for plottables in the model. "self.data.whatever" is sucks
@@ -391,24 +390,14 @@ class PrimaryWindow(QMainWindow):
         # ---------------------------------------------------------------------------
         # t-SNE & Plot
         # ---------------------------------------------------------------------------
-
-        # t-SNE the features
         self.plot.with_tsne(self.data.plottables)
 
-        # Then put on plot, with corresponding colors
-        # for feature in self.data.features:
-        #     pass
-
-        # self.plot.after_t_sne_ing(self.data.features)
-
-    # @Wilhelmsen: This should be MOCKED and harangued
     def start_cooking(self):
         """
         Walk through the dim-reduction process with pre-determined parameters.
 
         Mostly for use in testing/development.
         """
-        # Make sure to define device
         consts.DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         self.data.layer = "layer4"
