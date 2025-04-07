@@ -418,18 +418,8 @@ class PrimaryWindow(QMainWindow):
         # Make sure to define device
         consts.DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-        # Prepare data
-        categories = {
-            # fmt: off
-            "apple", "banana", "bear", "bird", "book", "bowl", "broccoli",
-            "carrot", "cat", "cow", "dog", "fork", "frisbee", "giraffe",
-            "horse", "keyboard", "knife", "orange", "remote", "sheep", "spoon",
-            "sports ball", "toilet", "tv", "vase", "wine glass", "zebra",
-            # fmt: on
-        }
-
         self.data.layer = "layer4"
-        self.data.model = FCNResNet101(categories)
+        self.data.model = FCNResNet101()
 
         self.data.model.load("models.ignore/rgb-aug0/best_model.pth")
         # self.data.model.load("models.ignore/rgb-aug0/checkpoint.pth")

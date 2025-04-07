@@ -44,6 +44,14 @@ class FCNResNet101(nn.Module):
             for key, value in checkpoint["state_dict"].items()
         }
 
+        # Get all expected categories and apply them
+        categories = [
+            i.removeprefix("_categories.")
+            for i in checkpoint["state_dict"]
+            if i.startswith("_categories.")
+        ]
+        self.set_categories(categories)
+
         # Load state_dict into model; the model being the current object
         self.load_state_dict(checkpoint["state_dict"], strict=True)
 
