@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 import numpy as np
 import random
+
 from sklearn.manifold import TSNE
+import PIL
 
 from PyQt6.QtWidgets import (
     QWidget,
@@ -9,12 +11,12 @@ from PyQt6.QtWidgets import (
 )
 
 # matplotlib necessarily imported after PyQt6
-import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qtagg import (
     FigureCanvasQTAgg,
     NavigationToolbar2QT as NavigationToolbar,
 )
 from matplotlib.figure import Figure
+import matplotlib.pyplot as plt
 
 from visualizer import consts, parse
 
@@ -105,7 +107,7 @@ class PlotWidget(QWidget):
 
         # @Wilhelmsen: Consider again whether plottables.values() always returns in the expected order
         for coord, pathandfeature in zip(
-            coords, [p for obj in plottables.values() for p in obj]
+            coords, (p for obj in plottables.values() for p in obj)
         ):
             pathandfeature.tsne = coord
 
@@ -114,21 +116,18 @@ class PlotWidget(QWidget):
         # @Wilhelmsen: Move this assertion to tests
         # assert len(all_feats) == len(coords) == len(labels)
 
-        # Map each label to a color
+        # Map each label to a randomly-sampled color
         color_map = {
             label: color
             for label, color in zip(
-                [k for k in plottables.keys()],
+                (category for category in plottables.keys()),
                 random.sample(consts.COLORS, k=len(plottables)),
             )
         }
 
         for label, data in plottables.items():
             tsne = [obj.tsne for obj in data]
-            # print(label, tsne)
-            # print("".join(f"{label}, {i}\n" for i in tsne))
             x, y = [list(t) for t in zip(*tsne)]
-            # print("".join(f"{label}, {i}\n" for i in transformed))
 
             self.canvas.axes.scatter(x, y, label=label, c=color_map[label])
             self.canvas.axes.legend()
@@ -140,3 +139,19 @@ class PlotWidget(QWidget):
         # the one that is.
         toolbar = NavigationToolbar(self.canvas, self.parent)
         return toolbar
+
+
+def surprise_plot(images):
+    """
+    An independent plot that can appear from almost anywhere.
+
+    Really for use in development.
+    """
+    fig, axs = plt.subplots(nrows=4, ncols=2)
+
+    for ax, image in zip(axs.flat, images):
+        i_data = PIL.Image.open(image)
+        ax.imshow(i_data)
+
+    plt.tight_layout()
+    plt.show()

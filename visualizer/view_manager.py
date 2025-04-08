@@ -410,7 +410,7 @@ class PrimaryWindow(QMainWindow):
         # self.data.model.load("models.ignore/rgb-aug2/best_model.pth")
         # self.data.model.load("models.ignore/rgb-aug2/checkpoint.pth")
 
-        dataset_paths = utils.grab_image_paths_in_dir(consts.MEDIUM_DATASET)
+        dataset_paths = utils.grab_image_paths_in_dir(consts.SMALL_DATASET)
         image_tensors = loading.dataset_to_tensors(dataset_paths)
 
         self.data.dataset_intermediary = loading.preliminary_dim_reduction(
