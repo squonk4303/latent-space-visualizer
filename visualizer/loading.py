@@ -160,6 +160,7 @@ def preliminary_dim_reduction(model, image_tensors, layer):
             )
             features.append(feature_vector)
 
+
     # Ensure features have correct 2D shape; (num_samples, num_features)
     # @Wilhelmsen: Just find out what the point is. Do it in encapsulation process.
     features = np.array(features).reshape(len(features), -1)
