@@ -155,7 +155,7 @@ class PrimaryWindow(QMainWindow):
         # Button Which Confirms Input and Goes to Graph Tab
         # -------------------------------------------------
         self.register_stuff_button = QPushButton("Go for it~!")
-        self.register_stuff_button.setDisabled(True)
+        self.register_stuff_button.setDisabled(False)
         self.register_stuff_button.clicked.connect(self.start_cooking)
 
         # Put them all in order

@@ -4,8 +4,29 @@ from torch import nn
 from torchvision import models
 from visualizer import consts
 
+### OOOPS CHANGE filename to "segmentation.py"
 
-class FCNResNet101(nn.Module):
+class SegmentationInterface(nn.Module):
+
+    def __init__(self):
+        super().__init__()
+
+    @property
+    def categories(self):
+        return list(self._categories.keys())
+
+    @categories.setter
+    def categories(self, value):
+        if value is not None:
+            self._categories = nn.ParameterDict(
+                {i: nn.Parameter(torch.Tensor(0)) for i in value}
+            )
+        else:
+            self._categories = nn.ParameterDict()
+
+
+
+class FCNResNet101(SegmentationInterface):
     """House a FCN_ResNet101 model from pytorch, adjusted for Mekides' interface."""
 
     def __init__(self, categories=None):
@@ -14,19 +35,6 @@ class FCNResNet101(nn.Module):
             weights=models.segmentation.fcn.FCN_ResNet101_Weights.COCO_WITH_VOC_LABELS_V1
         )
         self.categories = categories
-
-    @property
-    def categories(self):
-        return self._categories
-
-    @categories.setter
-    def categories(self, categories):
-        if categories is not None:
-            self._categories = nn.ParameterDict(
-                {i: nn.Parameter(torch.Tensor(0)) for i in categories}
-            )
-        else:
-            self._categories = nn.ParameterDict()
 
     def forward(self, image: torch.Tensor):
         return self.model(image)
@@ -53,7 +61,7 @@ class FCNResNet101(nn.Module):
         self.categories = categories
 
         # Set certain submodules based on the categories
-        num_categories = len(self.categories)
+        num_categories = len(self._categories)
         self.model.classifier[4] = nn.Conv2d(512, num_categories, 1)
         self.model.aux_classifier[4] = nn.Conv2d(256, num_categories, 1)
 
