@@ -67,7 +67,9 @@ class PrimaryWindow(QMainWindow):
         greater_layout.addLayout(tab_buttons_layout)
         greater_layout.addLayout(self.tab_layout)
 
-        # --- Declare Actions ---
+        # -------
+        # Actions
+        # -------
 
         # Quick-saving
         # quickappend_action = QAction("Quickappend Plot", parent=self)
@@ -77,15 +79,26 @@ class PrimaryWindow(QMainWindow):
         self.quickload_action.triggered.connect(self.quickload_wrapper)
         self.quicksave_action.triggered.connect(self.quicksave_wrapper)
 
-        # Saving-as
+        # Save-as-ing
         self.save_as_action = QAction("Proper Save", parent=self)
         self.load_file_action = QAction("Proper Load", parent=self)
 
         self.save_as_action.triggered.connect(self.save_to_certain_file_wrapper)
         self.load_file_action.triggered.connect(self.load_file_wrapper)
 
-        # Seu up the menu bar and submenus
-        self.initiate_menu_bar()
+        # Open the file dialog
+        self.action_to_open_file = QAction(consts.OPEN_FILE_LABEL, self)
+        self.action_to_open_file.triggered.connect(self.load_model_file)
+
+        # Scroll to next/previous tabs
+        self.next_tab = QAction("&Next tab", self)
+        self.prev_tab = QAction("&Previous tab", self)
+        # https://doc.qt.io/qt-6/qkeysequence.html#StandardKey-enum
+        self.next_tab.setShortcut(QKeySequence.StandardKey.MoveToNextPage)
+        self.prev_tab.setShortcut(QKeySequence.StandardKey.MoveToPreviousPage)
+
+        self.next_tab.triggered.connect(self.tab_layout.scroll_forth)
+        self.prev_tab.triggered.connect(self.tab_layout.scroll_back)
 
         # --- Initialize start screen ---
 
@@ -189,9 +202,13 @@ class PrimaryWindow(QMainWindow):
         graph_tab.addWidget(save_as_button)
         graph_tab.addWidget(load_file_button)
 
-        # --- Window Configuration ---
+        # Menu bar and submenus
+        # ---------------------
+        self.init_menu_bar()
 
-        self.resize(650, 450)
+        # Window Configuration
+        # --------------------
+
         self.setWindowTitle(consts.WINDOW_TITLE)
         self.setStatusBar(QStatusBar(self))
         widget = QWidget()
@@ -211,55 +228,23 @@ class PrimaryWindow(QMainWindow):
         if consts.flags["dev"]:
             self.start_cooking_brains()  # <-- Just goes ahead and starts cooking brains
 
-    def initiate_menu_bar(self):
-        """Set up the top menu-bar, its sub-menus, actions, and signals."""
-
-        # @Wilhelmsen: initiate_menu_bar is overdue for a refactor
-        # I think most of the things that have to be exported out of this
-        # method-- Like actions and such --should be moved out.
-
-        # There's also a case to be made for spilling the entire function
-        # out into __init__, since it's just run once there anyways, and
-        # the only thing encapsulating it over here is doing, is locically
-        # grouping certain boilerplate actions, and putting certain
-        # variables in a limited scope. As I can tell. This is a topic for
-        # discussion.
+    def init_menu_bar(self):
+        """Set up the menu bar, including sub-menus."""
 
         menubar = self.menuBar()
 
-        # Action which opens the file dialog
-        action_to_open_file = QAction(consts.OPEN_FILE_LABEL, self)
-        action_to_open_file.triggered.connect(self.load_model_file)
-
-        # Actions to scroll to next/previous tabs
-        next_tab = QAction("&Next tab", self)
-        prev_tab = QAction("&Previous tab", self)
-        # https://doc.qt.io/qt-6/qkeysequence.html#StandardKey-enum
-        next_tab.setShortcut(QKeySequence.StandardKey.MoveToNextPage)
-        prev_tab.setShortcut(QKeySequence.StandardKey.MoveToPreviousPage)
-
-        next_tab.triggered.connect(self.tab_layout.scroll_forth)
-        prev_tab.triggered.connect(self.tab_layout.scroll_back)
-
         # The Greater File Menu
         file_menu = menubar.addMenu("&File")
-        file_menu.addAction(action_to_open_file)
-
+        file_menu.addAction(self.action_to_open_file)
         file_menu.addAction(self.quickload_action)
         file_menu.addAction(self.quicksave_action)
         file_menu.addAction(self.save_as_action)
         file_menu.addAction(self.load_file_action)
 
         # The Greater Navigation Menu
-        self.navigate_menu = menubar.addMenu("&Tab")
-        self.navigate_menu.addAction(next_tab)
-        self.navigate_menu.addAction(prev_tab)
-
-        # Make these variables available to class namespace
-        self.action_to_open_file = action_to_open_file
-        self.next_tab = next_tab
-        self.prev_tab = prev_tab
-        self.file_menu = file_menu
+        navigate_menu = menubar.addMenu("&Tab")
+        navigate_menu.addAction(self.next_tab)
+        navigate_menu.addAction(self.prev_tab)
 
     def load_model_file(self):
         """
