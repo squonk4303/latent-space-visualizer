@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
-import numpy as np
 import random
-
-from sklearn.manifold import TSNE
-import PIL
 
 from PyQt6.QtWidgets import (
     QWidget,
@@ -16,7 +12,10 @@ from matplotlib.backends.backend_qtagg import (
     NavigationToolbar2QT as NavigationToolbar,
 )
 from matplotlib.figure import Figure
+from sklearn.manifold import TSNE
 import matplotlib.pyplot as plt
+import numpy as np
+import PIL
 
 from visualizer import consts, parse
 
@@ -46,17 +45,6 @@ class PlotWidget(QWidget):
         self.canvas = MplCanvas(self)
 
         layout.addWidget(self.canvas)
-
-    def plot_sine(self):
-        x = np.linspace(0, 20, 50)
-        y = np.sin(x)
-        self.canvas.axes.plot(x, y)
-        self.canvas.draw()
-
-    def plot_from_csv(self, filepath):
-        data = parse.csv_as_list(filepath)
-        self.canvas.axes.plot(data)
-        self.canvas.draw()
 
     def plot_from_2d(self, array_2d: np.ndarray):
         """
@@ -141,17 +129,24 @@ class PlotWidget(QWidget):
         return toolbar
 
 
-def surprise_plot(images):
+def surprise_plot(layer):
     """
-    An independent plot that can appear from almost anywhere.
+    An independent plot that can appear from almost anywhere. Watch out!
 
     Really for use in development.
     """
-    fig, axs = plt.subplots(nrows=4, ncols=2)
+    from math import sqrt, ceil
 
-    for ax, image in zip(axs.flat, images):
-        i_data = PIL.Image.open(image)
-        ax.imshow(i_data)
+    num_kernels = layer.shape[1]
+    fig, axs = plt.subplots(nrows=16, ncols=16, layout="constrained")
 
-    plt.tight_layout()
+    # print("*** layer[1]:", "".join(f"*  {i}\n" for i in layer))
+    print("layer", layer)
+
+    # for ax, image in zip(axs.flat, images):
+    for i, ax in enumerate(axs.flat):
+        if i < num_kernels:
+            ax.imshow(layer[0, i].cpu().numpy())
+            ax.axis("off")
+
     plt.show()
