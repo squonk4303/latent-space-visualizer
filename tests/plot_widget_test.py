@@ -17,13 +17,13 @@ def test_graph_visible(primary_window, qtbot):
     assert plot_widget is not None
 
     assert not primary_window.plot.isVisible()
-    primary_window.callable_goto_tab(1)()
+    primary_window.goto_tab(1)()
     assert primary_window.plot.isVisible()
 
 
 def test_toolbar_visible(primary_window, qtbot):
     assert not primary_window.toolbar.isVisible()
-    primary_window.callable_goto_tab(1)()
+    primary_window.goto_tab(1)()
     assert primary_window.toolbar.isVisible()
 
 

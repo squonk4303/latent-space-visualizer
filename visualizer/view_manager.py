@@ -37,9 +37,14 @@ class PrimaryWindow(QMainWindow):
     This is where all the action happens...
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self):
         """Constructor for the primary window"""
-        super().__init__(*args, **kwargs)
+
+        # ---------------------------
+        # Definitions and Initiations
+        # ---------------------------
+
+        super().__init__()
 
         # Prepare data-holding object
         self.data = Plottables()
@@ -55,8 +60,8 @@ class PrimaryWindow(QMainWindow):
         # Add buttons to navigate to each tab
         self.start_tab_button = QPushButton("0")
         self.graph_tab_button = QPushButton("1")
-        self.start_tab_button.clicked.connect(self.callable_goto_tab(0))
-        self.graph_tab_button.clicked.connect(self.callable_goto_tab(1))
+        self.start_tab_button.clicked.connect(self.goto_tab(0))
+        self.graph_tab_button.clicked.connect(self.goto_tab(1))
 
         tab_buttons_layout = QHBoxLayout()
         tab_buttons_layout.addWidget(self.start_tab_button)
@@ -72,17 +77,14 @@ class PrimaryWindow(QMainWindow):
         # -------
 
         # Quick-saving
-        # quickappend_action = QAction("Quickappend Plot", parent=self)
         self.quickload_action = QAction("Quickload Plot", parent=self)
         self.quicksave_action = QAction("Quicksave Plot", parent=self)
-
         self.quickload_action.triggered.connect(self.quickload_wrapper)
         self.quicksave_action.triggered.connect(self.quicksave_wrapper)
 
-        # Save-as-ing
+        # Save-as...-ing
         self.save_as_action = QAction("Proper Save", parent=self)
         self.load_file_action = QAction("Proper Load", parent=self)
-
         self.save_as_action.triggered.connect(self.save_to_certain_file_wrapper)
         self.load_file_action.triggered.connect(self.load_file_wrapper)
 
@@ -96,14 +98,16 @@ class PrimaryWindow(QMainWindow):
         # https://doc.qt.io/qt-6/qkeysequence.html#StandardKey-enum
         self.next_tab.setShortcut(QKeySequence.StandardKey.MoveToNextPage)
         self.prev_tab.setShortcut(QKeySequence.StandardKey.MoveToPreviousPage)
-
         self.next_tab.triggered.connect(self.tab_layout.scroll_forth)
         self.prev_tab.triggered.connect(self.tab_layout.scroll_back)
 
-        # --- Initialize start screen ---
+        # =======================
+        # Initialize start screen
+        # =======================
 
         # Row For Model Selection
         # -----------------------
+
         self.model_feedback_label = QLabel("<-- File dialog for .pth")
         openfile_button = QPushButton("Select Trained NN Model")
         openfile_button.clicked.connect(self.load_model_file)
@@ -112,20 +116,9 @@ class PrimaryWindow(QMainWindow):
         row_model_selection.addWidget(openfile_button)
         row_model_selection.addWidget(self.model_feedback_label)
 
-        # Row For Category Selection
-        # --------------------------
-        self.category_feedback_label = QLabel(
-            "<-- Either a text input or a menu where you get to choose between a lot of text-options-- "
-            "and get to choose multiple. Consider QListView or QListWidget for this."
-        )
-        category_button = QPushButton("Select Categories")
-
-        row_category_selection = QHBoxLayout()
-        row_category_selection.addWidget(category_button)
-        row_category_selection.addWidget(self.category_feedback_label)
-
         # Row For Layer Selection
         # -----------------------
+
         self.layer_feedback_label = QLabel("<-- You know-- something to select layers")
         layer_button = QPushButton("Select layer")
 
@@ -135,6 +128,7 @@ class PrimaryWindow(QMainWindow):
 
         # Row For Dataset Selection
         # -------------------------
+
         dataset_selection_button = QPushButton("Select Dataset")
         self.dataset_feedback_label = QLabel(
             "<-- Just a file dialog for directories should be fine"
@@ -145,41 +139,30 @@ class PrimaryWindow(QMainWindow):
         row_dataset_selection.addWidget(dataset_selection_button)
         row_dataset_selection.addWidget(self.dataset_feedback_label)
 
-        # Row For Single Picture Selection
-        # --------------------------------
-        # Note on pixmap from https://doc.qt.io/qt-6/qpixmap.html#details
-        # QPixmap is designed and optimized for showing images on screen
-        self.single_image_label = QLabel("<-- Normal file dialog for images")
-        self.single_image_thumb_label = QLabel()
-        self.single_image_thumb_label.setPixmap(QPixmap("assets/default_pic.png"))
-        single_image_button = QPushButton("Select Image")
-        single_image_button.clicked.connect(self.find_picture)
+        # Feedback Label
+        # --------------
 
-        # Has a row on top:     [button]  [label]
-        # Then one underneath:  [image thumbnail]
-        single_image_subrow = QHBoxLayout()
-        single_image_subrow.addWidget(single_image_button)
-        single_image_subrow.addWidget(self.single_image_label)
-
-        row_single_image = QVBoxLayout()
-        row_single_image.addLayout(single_image_subrow)
-        row_single_image.addWidget(self.single_image_thumb_label)
+        self.feedback_label = QLabel()
 
         # Button Which Confirms Input and Goes to Graph Tab
         # -------------------------------------------------
+
         self.register_stuff_button = QPushButton("Go for it~!")
-        self.register_stuff_button.setDisabled(False)
+        self.register_stuff_button.setDisabled(True)
         self.register_stuff_button.clicked.connect(self.start_cooking)
 
         # Put them all in order
+        # ---------------------
+
         start_tab.addLayout(row_model_selection)
-        start_tab.addLayout(row_category_selection)
         start_tab.addLayout(row_dataset_selection)
         start_tab.addLayout(row_layer_selection)
-        start_tab.addLayout(row_single_image)
+        start_tab.addWidget(self.feedback_label)
         start_tab.addWidget(self.register_stuff_button)
 
-        # --- Plot Tab ---
+        # ========
+        # Plot Tab
+        # ========
 
         # Add the plot widget as a tab
         self.plot = PlotWidget(parent=self)
@@ -202,20 +185,25 @@ class PrimaryWindow(QMainWindow):
         graph_tab.addWidget(save_as_button)
         graph_tab.addWidget(load_file_button)
 
-        # Menu bar and submenus
         # ---------------------
+        # Menu Bar And Submenus
+        # ---------------------
+
         self.init_menu_bar()
 
+        # --------------------
         # Window Configuration
         # --------------------
 
+        self.resize(1080, 640)
         self.setWindowTitle(consts.WINDOW_TITLE)
         self.setStatusBar(QStatusBar(self))
         widget = QWidget()
         widget.setLayout(greater_layout)
         self.setCentralWidget(widget)
 
-        # --- Cheats ---
+        # Cheats
+        # ------
 
         dev_button_1 = QPushButton("Cook 1")
         dev_button_1.clicked.connect(self.start_cooking)
@@ -407,7 +395,7 @@ class PrimaryWindow(QMainWindow):
         self.plot.plot_from_2d(self.data.dataset_plottable)
         self.quicksave_wrapper()
 
-    def callable_goto_tab(self, n):
+    def goto_tab(self, n):
         """
         Return a function which changes to tab specified by argument.
 
