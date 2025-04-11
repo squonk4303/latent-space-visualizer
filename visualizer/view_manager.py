@@ -23,8 +23,8 @@ from PyQt6.QtWidgets import (
 
 from visualizer import consts, loading, open_dialog, utils
 from visualizer.consts import DR_technique as Technique
-from visualizer.external.fcn import FCNResNet101
 from visualizer.loading import apply_tsne as t_sne
+from visualizer.models.fcn_resnet101 import FCNResNet101
 from visualizer.plottables import PathsAndFeatures, Plottables
 from visualizer.plot_widget import PlotWidget
 from visualizer.stacked_layout_manager import StackedLayoutManager

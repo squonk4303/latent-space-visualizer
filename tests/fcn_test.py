@@ -4,7 +4,7 @@ import pickle
 import pytest
 import torch
 from visualizer import consts
-from visualizer.external.fcn import FCNResNet101
+from visualizer.models.fcn_resnet101 import FCNResNet101
 
 FILE = os.path.join(consts.SAVE_DIR, "fcn.pth")
 
