@@ -244,11 +244,14 @@ class PrimaryWindow(QMainWindow):
             self.try_to_activate_goforit_button()
 
     def try_to_activate_goforit_button(self):
-        """Evaluate and enact whether the go-for-it-button should be enabled."""
-        if self.data.model and self.data.layer and self.data.paths:
-            self.go_for_it_button.setDisabled(False)
-        else:
-            self.go_for_it_button.setDisabled(True)
+        """
+        Evaluate and enact whether the go-for-it-button should be enabled.
+
+        Meaning if dataset, layer and model are selected, the button is activated,
+        and if any of these are found to be insufficient, the button is deactivated.
+        """
+        should_enable = not self.data.model and self.data.layer and self.data.paths
+        self.go_for_it_button.setDisabled(should_enable)
 
     def find_dataset(self):
         """
