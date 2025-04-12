@@ -63,7 +63,6 @@ MEDIUM_DATASET = os.path.join(REPO_DIR, "pics/medium_dataset")
 GRAPHICAL_IMAGE = os.path.join(REPO_DIR, "pics/crouton.png")
 
 DEFAULT_MODEL_CATEGORIES = ["skin"]
-DEVICE = None
 
 
 # Enums for dimensionality reduction techniques

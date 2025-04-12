@@ -21,6 +21,7 @@ def dataset_to_tensors(image_paths: list):
 
     Returned tensors are of shape `height * width * RGB`.
     """
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     # Open images for processing with PIL.Image.open
     dataset = [PIL.Image.open(image).convert("RGB") for image in image_paths]
 
@@ -31,7 +32,7 @@ def dataset_to_tensors(image_paths: list):
         ]
     )
 
-    tensors = [preprocessing(img).unsqueeze(0).to(consts.DEVICE) for img in dataset]
+    tensors = [preprocessing(img).unsqueeze(0).to(device) for img in dataset]
 
     return tensors
 
@@ -42,6 +43,7 @@ def preliminary_dim_reduction_2(model, layer, label, files):
 
     to something t-SNE can more easily digest.
     """
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     # @Wilhelmsen: Be parat for adding hooks in the arguments here.
     #       Possible implementaiton: dict of hooks as parameter;
@@ -87,7 +89,7 @@ def preliminary_dim_reduction_2(model, layer, label, files):
             continue
 
         # Apply preprocessing on image and send to device
-        image = preprocessing(image).unsqueeze(0).to(consts.DEVICE)
+        image = preprocessing(image).unsqueeze(0).to(device)
 
         # Pass model through image; this triggers the hook
         # Calling the model takes quite a bit of time, it does
@@ -97,9 +99,7 @@ def preliminary_dim_reduction_2(model, layer, label, files):
 
         # Transform hooked feature to a PyTorch tensor
         if not isinstance(feature_map, torch.Tensor):
-            feature_map = torch.tensor(
-                feature_map, dtype=torch.float32, device=consts.DEVICE
-            )
+            feature_map = torch.tensor(feature_map, dtype=torch.float32, device=device)
         # Reduce dimensionality using Global Average Pooling (GAP)
         # https://pytorch.org/docs/stable/generated/torch.nn.functional.adaptive_avg_pool2d.html#torch.nn.functional.adaptive_avg_pool2d
         # @Wilhelmsen: Opiton for different dim.reduction techniques.
@@ -124,6 +124,7 @@ def preliminary_dim_reduction_2(model, layer, label, files):
 
 def preliminary_dim_reduction(model, image_tensors, layer):
     """Reduce the dimensionality of tensors to something t-SNE can more easily digest."""
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     # Register hook and yadda yadda
     # Otherwise use function find_layer to let user choose layer
     # Then use gitattr() to dynamically select the layer based on user choice...!
@@ -146,7 +147,7 @@ def preliminary_dim_reduction(model, image_tensors, layer):
             # Ensure hooked feature is a PyTorch tensor
             if not isinstance(feature_map, torch.Tensor):
                 feature_map = torch.tensor(
-                    feature_map, dtype=torch.float32, device=consts.DEVICE
+                    feature_map, dtype=torch.float32, device=device
                 )
             # Reduce dimensionality using Global Average Pooling (GAP)
             # https://pytorch.org/docs/stable/generated/torch.nn.functional.adaptive_avg_pool2d.html#torch.nn.functional.adaptive_avg_pool2d
@@ -159,7 +160,6 @@ def preliminary_dim_reduction(model, image_tensors, layer):
                 .numpy()
             )
             features.append(feature_vector)
-
 
     # Ensure features have correct 2D shape; (num_samples, num_features)
     # @Wilhelmsen: Just find out what the point is. Do it in encapsulation process.

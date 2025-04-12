@@ -6,6 +6,7 @@ from visualizer import consts
 
 ### OOOPS CHANGE filename to "segmentation.py"
 
+
 class SegmentationInterface(nn.Module):
 
     def __init__(self):
@@ -25,7 +26,6 @@ class SegmentationInterface(nn.Module):
             self._categories = nn.ParameterDict()
 
 
-
 class FCNResNet101(SegmentationInterface):
     """House a FCN_ResNet101 model from pytorch, adjusted for Mekides' interface."""
 
@@ -41,10 +41,9 @@ class FCNResNet101(SegmentationInterface):
 
     def load(self, trained_file):
         """Load a trained model from path into current object."""
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         # Load model data from checkpoint in file
-        checkpoint = torch.load(
-            trained_file, map_location=consts.DEVICE, weights_only=False
-        )
+        checkpoint = torch.load(trained_file, map_location=device, weights_only=False)
 
         # Strip "module." from any key-names in state_dict
         checkpoint["state_dict"] = {
@@ -66,5 +65,5 @@ class FCNResNet101(SegmentationInterface):
         self.model.aux_classifier[4] = nn.Conv2d(256, num_categories, 1)
 
         self.load_state_dict(checkpoint["state_dict"], strict=True)
-        self.to(consts.DEVICE)
+        self.to(device)
         self.eval()

@@ -291,9 +291,6 @@ class PrimaryWindow(QMainWindow):
 
         For use in testing/development. Deletion pending.
         """
-        # Make sure to define device
-        consts.DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
         # -----------------
         # Loading the Model
         # -----------------
@@ -356,8 +353,6 @@ class PrimaryWindow(QMainWindow):
 
         Mostly for use in testing/development.
         """
-        consts.DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
         self.data.layer = "layer4"
         self.data.model = FCNResNet101()
 

@@ -16,7 +16,6 @@ from visualizer.plottables import Plottables
 # --- Fixtures ---
 @pytest.fixture
 def data_object():
-    consts.DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     data = Plottables()
     # data.model = FCNResNet101(["skin"])
     # data.model.load(consts.TRAINED_MODEL)
@@ -44,7 +43,6 @@ def temp_pickle(data_object) -> str:
 def test_load_model():
     """Just runs this to see if it crashes."""
     # @Wilhelmsen: Is there anything more useful to test here?
-    consts.DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = FCNResNet101(["skin"])
     model.load(consts.TRAINED_MODEL)
     assert model is not None

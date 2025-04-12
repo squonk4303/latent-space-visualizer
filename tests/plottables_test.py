@@ -9,7 +9,6 @@ from visualizer.plottables import Plottables
 # --- Fixtures ---
 @pytest.fixture
 def data_object():
-    consts.DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     data = Plottables()
     # data.model = FCNResNet101(["skin"])
     # data.model.load(consts.TRAINED_MODEL)
