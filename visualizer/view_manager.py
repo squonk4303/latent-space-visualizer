@@ -242,19 +242,28 @@ class PrimaryWindow(QMainWindow):
         """
         model_path = open_dialog.for_trained_model_file(parent=self)
         if model_path:
-            self.model_feedback_label.setText("You chose: " + model_path)
+            try:
+                self.data.model = FCNResNet101()
+                self.data.model.load(model_path)
+                self.model_feedback_label.setText("You chose: " + model_path)
+                self.feedback_label.setText("You chose: " + model_path)
+                print("something went right")
+            except RuntimeError as e:
+                print(f"something went wrong, {e}")
+                self.feedback_label.setText("You fucked up")
+
 
     def find_dataset(self):
         """
         Open dialog for finding dataset, and TODO: inform user if successful.
 
         Is intended to be used to be used for directories containing the datasets.
-
         For use in buttons and actions.
         """
         dataset_dir = open_dialog.for_directory(parent=self)
         if dataset_dir:
             self.dataset_feedback_label.setText("You found: " + dataset_dir)
+            self.feedback_label.setText("You found: " + dataset_dir)
 
     def find_picture(self):
         """
@@ -268,15 +277,6 @@ class PrimaryWindow(QMainWindow):
             # @Wilhelmsen: Yet to resize image for better display in GUI
             self.single_image_label.setText(image_path)
             self.single_image_thumb_label.setPixmap(QPixmap(image_path))
-
-            # Start the process of dim.reducing the image
-            # Note that we wrap image_path in a tuple
-            _ = loading.dataset_to_tensors((image_path,))
-            # And take it through t-SNE just for good measure too
-            # Or not...
-            # Maybe it's best to leave that for whwn things are plotted onto the graph...
-            # I'm wondering if t-SNED coords shouldn't be stored over there anyways.
-            # Then again it could be helpful to have them put over there immediately...
 
     def technique_loader(features, target_dimensionality=2, reduction=Technique.T_SNE):
         """
