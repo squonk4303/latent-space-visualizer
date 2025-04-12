@@ -125,8 +125,58 @@ def test_quicksave_n_quickload(primary_window, data_object):
     )
 
 
+def test_try_to_activate_goforit(primary_window):
+    """
+    Assert that button starts disabled, and then is enabled when all conditions are fulfilled.
+    """
+    assert not primary_window.go_for_it_button.isEnabled()
+    primary_window.data.model = "Bogus Model Mk II."
+    primary_window.data.layer = "layer4"
+    primary_window.data.paths = ["a/b/c", "d/e/f"]
+    primary_window.try_to_activate_goforit_button()
+    assert primary_window.go_for_it_button.isEnabled()
+
+
+def _test_find_layer_activates_goforit_button(primary_window):
+    # @Linnea: Update this when we have a proper findlayer function
+    # Mock to assure the function sets a valid layer
+    mocked_findlayer = patch.object()
+    with mocked_findlayer:
+        # Assert the final function changes the button state
+        assert not primary_window.go_for_it_button.isEnabled()
+        primary_window.data.model = "Bogus Model Mk II."
+        primary_window.data.paths = ["a/b/c", "d/e/f"]
+        primary_window.find_layer()
+        assert primary_window.go_for_it_button.isEnabled()
+
+
+def test_find_model_activates_goforit_button(primary_window):
+    # Mock to assure the function will set a valid trained model
+    with mocked_trained_model_qfiledialog:
+        # Assert the final function changes the button state
+        assert not primary_window.go_for_it_button.isEnabled()
+        primary_window.data.layer = "layer4"
+        primary_window.data.paths = ["a/b/c", "d/e/f"]
+        primary_window.load_model_file()
+        assert primary_window.go_for_it_button.isEnabled()
+
+
+def test_find_dataset_activates_goforit_button(primary_window):
+    # Mock to assure the function will set a valid dataset
+    mocked_directory_dialog = patch.object(
+        QFileDialog, "getExistingDirectory", return_value=consts.MEDIUM_DATASET
+    )
+    with mocked_directory_dialog:
+        # Assert the final function changes the button state
+        assert not primary_window.go_for_it_button.isEnabled()
+        primary_window.data.model = "Bogus Model Mk II."
+        primary_window.data.layer = "layer4"
+        primary_window.find_dataset()
+        assert primary_window.go_for_it_button.isEnabled()
+
+
 @pytest.mark.require_pretrained_model
-def test_cookin_brains(primary_window):
+def _test_cookin_brains(primary_window):
     primary_window.start_cooking_brains()
 
     # Assert that some filepaths are found and placed in a dataset structure

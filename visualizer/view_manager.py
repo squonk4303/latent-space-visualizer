@@ -245,7 +245,7 @@ class PrimaryWindow(QMainWindow):
 
     def try_to_activate_goforit_button(self):
         """Evaluate and enact whether the go-for-it-button should be enabled."""
-        if self.data.model and self.data.layer and self.data.dataset:
+        if self.data.model and self.data.layer and self.data.paths:
             self.go_for_it_button.setDisabled(False)
         else:
             self.go_for_it_button.setDisabled(True)
@@ -259,11 +259,11 @@ class PrimaryWindow(QMainWindow):
         """
         dataset_dir = open_dialog.for_directory(parent=self)
         if dataset_dir:
-            all_pics = utils.grab_image_paths_in_dir(dataset_dir)
-            text = dataset_dir + ", length: " + str(len(all_pics))
-            print("dataset len:", len(all_pics))
+            self.data.paths = utils.grab_image_paths_in_dir(dataset_dir)
+            text = dataset_dir + ", length: " + str(len(self.data.paths))
             self.dataset_feedback_label.setText(text)
             self.feedback_label.setText(text)
+            self.try_to_activate_goforit_button()
 
     def find_picture(self):
         """
