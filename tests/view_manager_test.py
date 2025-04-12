@@ -2,7 +2,6 @@
 from unittest.mock import patch
 import numpy as np
 import pytest
-import torch
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QFileDialog

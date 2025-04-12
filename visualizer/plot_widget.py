@@ -15,9 +15,8 @@ from matplotlib.figure import Figure
 from sklearn.manifold import TSNE
 import matplotlib.pyplot as plt
 import numpy as np
-import PIL
 
-from visualizer import consts, parse
+from visualizer import consts
 
 
 class MplCanvas(FigureCanvasQTAgg):

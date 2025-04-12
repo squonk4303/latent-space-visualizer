@@ -2,9 +2,6 @@
 import torch
 from torch import nn
 from torchvision import models
-from visualizer import consts
-
-### OOOPS CHANGE filename to "segmentation.py"
 
 
 class SegmentationInterface(nn.Module):

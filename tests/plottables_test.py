@@ -2,7 +2,6 @@
 import dataclasses
 import pytest
 import torch
-from visualizer import consts
 from visualizer.plottables import Plottables
 
 
