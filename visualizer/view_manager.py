@@ -178,6 +178,7 @@ class PrimaryWindow(QMainWindow):
     def init_layer_selection(self):
         self.layer_feedback_label = QLabel("<-- You know-- something to select layers")
         layer_button = QPushButton("Select layer")
+        layer_button.clicked.connect(self.find_layer)
         row_layer_selection = QHBoxLayout()
         row_layer_selection.addWidget(layer_button)
         row_layer_selection.addWidget(self.layer_feedback_label)
@@ -228,15 +229,26 @@ class PrimaryWindow(QMainWindow):
         """
         model_path = open_dialog.for_trained_model_file(parent=self)
         if model_path:
+            # @Wilhelmsen: Better error handling please!
+            # Try to prevent the program from crashing on bad file
+            # Maybe just by ensuring .pth as file extension...
             try:
                 self.data.model = FCNResNet101()
                 self.data.model.load(model_path)
                 self.model_feedback_label.setText("You chose: " + model_path)
                 self.feedback_label.setText("You chose: " + model_path)
-                print("something went right")
             except RuntimeError as e:
-                print(f"something went wrong, {e}")
-                self.feedback_label.setText("You fucked up")
+                print(f"something went wrong; {e}")
+                self.feedback_label.setText(e)
+
+            self.try_to_activate_goforit_button()
+
+    def try_to_activate_goforit_button(self):
+        """Evaluate and enact whether the go-for-it-button should be enabled."""
+        if self.data.model and self.data.layer and self.data.dataset:
+            self.go_for_it_button.setDisabled(False)
+        else:
+            self.go_for_it_button.setDisabled(True)
 
     def find_dataset(self):
         """
@@ -247,14 +259,17 @@ class PrimaryWindow(QMainWindow):
         """
         dataset_dir = open_dialog.for_directory(parent=self)
         if dataset_dir:
-            self.dataset_feedback_label.setText("You found: " + dataset_dir)
-            self.feedback_label.setText("You found: " + dataset_dir)
+            all_pics = utils.grab_image_paths_in_dir(dataset_dir)
+            text = dataset_dir + ", length: " + str(len(all_pics))
+            print("dataset len:", len(all_pics))
+            self.dataset_feedback_label.setText(text)
+            self.feedback_label.setText(text)
 
     def find_picture(self):
         """
         Open dialog for finding picture, and inform user if successful.
 
-        For use in buttons and actions.
+        For use in buttons and actions. Probably deprecated.
         """
         image_path = open_dialog.for_image_file(parent=self)
         if image_path:
@@ -262,6 +277,16 @@ class PrimaryWindow(QMainWindow):
             # @Wilhelmsen: Yet to resize image for better display in GUI
             self.single_image_label.setText(image_path)
             self.single_image_thumb_label.setPixmap(QPixmap(image_path))
+
+    def find_layer(self):
+        """
+        @Linnea: Complete this function and add a small docstring
+                 Pretty please
+        """
+        selected_layer = "layer4"
+        if selected_layer:
+            self.data.layer = selected_layer
+            self.try_to_activate_goforit_button()
 
     def technique_loader(features, target_dimensionality=2, reduction=Technique.T_SNE):
         """
@@ -323,7 +348,6 @@ class PrimaryWindow(QMainWindow):
         # ----------------
         # Extract Features
         # ----------------
-        self.data.plottables = {}
         for label, files in pics_by_category.items():
             # @Wilhelmsen: Change the interface for plottables in the model. "self.data.whatever" is sucks
             # Note that label is sent in and returns unchanged. Bad bad bad bad.
@@ -337,7 +361,6 @@ class PrimaryWindow(QMainWindow):
             #     PathsAndFeatures("/file/path_5", [6, 7, 8, 9]),
             #     ... ,
             # ]
-
             self.data.plottables[label] = [
                 PathsAndFeatures(p, f) for p, f in zip(paths, features)
             ]

@@ -23,7 +23,7 @@ class Plottables:
 
     # Map features and other relevant values to a label
     plottables: dict[str, list[PathsAndFeatures]] = dataclasses.field(
-        default_factory=list
+        default_factory=dict
     )
 
     def __eq__(self, other):
