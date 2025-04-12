@@ -173,15 +173,3 @@ def test_find_dataset_activates_goforit_button(primary_window):
         primary_window.data.layer = "layer4"
         primary_window.find_dataset()
         assert primary_window.go_for_it_button.isEnabled()
-
-
-@pytest.mark.require_pretrained_model
-def _test_cookin_brains(primary_window):
-    primary_window.start_cooking_brains()
-
-    # Assert that some filepaths are found and placed in a dataset structure
-    # ^^ same with labels (unsure about with image data)
-    # May want to transfer as a test for the dataset structure itself
-
-
-# @Wilhelmsen: Yet to test that quickloading plots its data
