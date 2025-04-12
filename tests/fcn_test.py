@@ -4,12 +4,12 @@ import pickle
 import pytest
 import torch
 from visualizer import consts
-from visualizer.models.fcn_resnet101 import FCNResNet101
+from visualizer.models.segmentation import FCNResNet101
 
 FILE = os.path.join(consts.SAVE_DIR, "fcn.pth")
 
 
-def _write_object_to_file():
+def _test_write_object_to_file():
     """Note that this isn't run when pytest is called."""
     consts.DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = FCNResNet101(consts.DEFAULT_MODEL_CATEGORIES)

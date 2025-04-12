@@ -9,7 +9,7 @@ import torch
 from PyQt6.QtWidgets import QFileDialog
 
 from visualizer import consts, loading, utils
-from visualizer.models.fcn_resnet101 import FCNResNet101
+from visualizer.models.segmentation import FCNResNet101
 from visualizer.plottables import Plottables
 
 
