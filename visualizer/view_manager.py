@@ -50,11 +50,11 @@ class PrimaryWindow(QMainWindow):
         self.data = Plottables()
 
         # Set up the tabs in the window
-        start_tab = QVBoxLayout()
+        self.start_tab = QVBoxLayout()
         graph_tab = QVBoxLayout()
 
         self.tab_layout = StackedLayoutManager()
-        self.tab_layout.add_layout(start_tab)
+        self.tab_layout.add_layout(self.start_tab)
         self.tab_layout.add_layout(graph_tab)
 
         # Add buttons to navigate to each tab
@@ -101,64 +101,14 @@ class PrimaryWindow(QMainWindow):
         self.next_tab.triggered.connect(self.tab_layout.scroll_forth)
         self.prev_tab.triggered.connect(self.tab_layout.scroll_back)
 
-        # =======================
         # Initialize start screen
-        # =======================
-
-        # Row For Model Selection
         # -----------------------
 
-        self.model_feedback_label = QLabel("<-- File dialog for .pth")
-        openfile_button = QPushButton("Select Trained NN Model")
-        openfile_button.clicked.connect(self.load_model_file)
-
-        row_model_selection = QHBoxLayout()
-        row_model_selection.addWidget(openfile_button)
-        row_model_selection.addWidget(self.model_feedback_label)
-
-        # Row For Layer Selection
-        # -----------------------
-
-        self.layer_feedback_label = QLabel("<-- You know-- something to select layers")
-        layer_button = QPushButton("Select layer")
-
-        row_layer_selection = QHBoxLayout()
-        row_layer_selection.addWidget(layer_button)
-        row_layer_selection.addWidget(self.layer_feedback_label)
-
-        # Row For Dataset Selection
-        # -------------------------
-
-        dataset_selection_button = QPushButton("Select Dataset")
-        self.dataset_feedback_label = QLabel(
-            "<-- Just a file dialog for directories should be fine"
-        )
-        dataset_selection_button.clicked.connect(self.find_dataset)
-
-        row_dataset_selection = QHBoxLayout()
-        row_dataset_selection.addWidget(dataset_selection_button)
-        row_dataset_selection.addWidget(self.dataset_feedback_label)
-
-        # Feedback Label
-        # --------------
-
-        self.feedback_label = QLabel()
-
-        # Button Which Confirms Input and Goes to Graph Tab
-        # -------------------------------------------------
-
-        self.register_stuff_button = QPushButton("Go for it~!")
-        self.register_stuff_button.setDisabled(True)
-        self.register_stuff_button.clicked.connect(self.start_cooking)
-
-        # Put them all in order
-        # ---------------------
-
-        start_tab.addLayout(row_model_selection)
-        start_tab.addLayout(row_dataset_selection)
-        start_tab.addLayout(row_layer_selection)
-        start_tab.addWidget(self.feedback_label)
-        start_tab.addWidget(self.register_stuff_button)
+        self.init_model_selection()
+        self.init_layer_selection()
+        self.init_dataset_selection()
+        self.init_feedback_label()
+        self.init_go_for_it_button()
 
         # ========
         # Plot Tab
@@ -207,14 +157,50 @@ class PrimaryWindow(QMainWindow):
 
         dev_button_1 = QPushButton("Cook 1")
         dev_button_1.clicked.connect(self.start_cooking)
-        start_tab.addWidget(dev_button_1)
+        self.start_tab.addWidget(dev_button_1)
 
         dev_button_2 = QPushButton("Cook 2")
         dev_button_2.clicked.connect(self.start_cooking_brains)
-        start_tab.addWidget(dev_button_2)
+        self.start_tab.addWidget(dev_button_2)
 
         if consts.flags["dev"]:
             self.start_cooking_brains()  # <-- Just goes ahead and starts cooking brains
+
+    def init_model_selection(self):
+        self.model_feedback_label = QLabel("<-- File dialog for .pth")
+        openfile_button = QPushButton("Select Trained NN Model")
+        openfile_button.clicked.connect(self.load_model_file)
+        row_model_selection = QHBoxLayout()
+        row_model_selection.addWidget(openfile_button)
+        row_model_selection.addWidget(self.model_feedback_label)
+        self.start_tab.addLayout(row_model_selection)
+
+    def init_layer_selection(self):
+        self.layer_feedback_label = QLabel("<-- You know-- something to select layers")
+        layer_button = QPushButton("Select layer")
+        row_layer_selection = QHBoxLayout()
+        row_layer_selection.addWidget(layer_button)
+        row_layer_selection.addWidget(self.layer_feedback_label)
+        self.start_tab.addLayout(row_layer_selection)
+
+    def init_dataset_selection(self):
+        dataset_selection_button = QPushButton("Select Dataset")
+        self.dataset_feedback_label = QLabel("<-- Just a file dialog for directories")
+        dataset_selection_button.clicked.connect(self.find_dataset)
+        row_dataset_selection = QHBoxLayout()
+        row_dataset_selection.addWidget(dataset_selection_button)
+        row_dataset_selection.addWidget(self.dataset_feedback_label)
+        self.start_tab.addLayout(row_dataset_selection)
+
+    def init_go_for_it_button(self):
+        self.go_for_it_button = QPushButton("Go for it~!")
+        self.go_for_it_button.setDisabled(True)
+        self.go_for_it_button.clicked.connect(self.start_cooking)
+        self.start_tab.addWidget(self.go_for_it_button)
+
+    def init_feedback_label(self):
+        self.feedback_label = QLabel("")
+        self.start_tab.addWidget(self.feedback_label)
 
     def init_menu_bar(self):
         """Set up the menu bar, including sub-menus."""
@@ -251,7 +237,6 @@ class PrimaryWindow(QMainWindow):
             except RuntimeError as e:
                 print(f"something went wrong, {e}")
                 self.feedback_label.setText("You fucked up")
-
 
     def find_dataset(self):
         """
