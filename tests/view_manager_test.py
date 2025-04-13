@@ -152,6 +152,7 @@ def _test_find_layer_activates_goforit_button(primary_window):
         assert primary_window.go_for_it_button.isEnabled()
 
 
+@pytest.mark.stub
 def test_find_model_activates_goforit_button(primary_window):
     # Mock to assure the function will set a valid trained model
     with mocked_trained_model_qfiledialog:
