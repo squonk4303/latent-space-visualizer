@@ -128,6 +128,7 @@ def test_try_to_activate_goforit(primary_window):
     """
     Assert that button starts disabled, and then is enabled when all conditions are fulfilled.
     """
+    primary_window.try_to_activate_goforit_button()
     assert not primary_window.go_for_it_button.isEnabled()
     primary_window.data.model = "Bogus Model Mk II."
     primary_window.data.layer = "layer4"
@@ -141,10 +142,12 @@ def _test_find_layer_activates_goforit_button(primary_window):
     # Mock to assure the function sets a valid layer
     mocked_findlayer = patch.object()
     with mocked_findlayer:
-        # Assert the final function changes the button state
+        # Assert the function doesn't enable the button erroneously
+        primary_window.find_layer()
         assert not primary_window.go_for_it_button.isEnabled()
         primary_window.data.model = "Bogus Model Mk II."
         primary_window.data.paths = ["a/b/c", "d/e/f"]
+        # Assert the final function changes the button state
         primary_window.find_layer()
         assert primary_window.go_for_it_button.isEnabled()
 
@@ -152,10 +155,12 @@ def _test_find_layer_activates_goforit_button(primary_window):
 def test_find_model_activates_goforit_button(primary_window):
     # Mock to assure the function will set a valid trained model
     with mocked_trained_model_qfiledialog:
-        # Assert the final function changes the button state
+        # Assert the function doesn't enable the button erroneously
+        primary_window.load_model_file()
         assert not primary_window.go_for_it_button.isEnabled()
         primary_window.data.layer = "layer4"
         primary_window.data.paths = ["a/b/c", "d/e/f"]
+        # Assert the final function changes the button state
         primary_window.load_model_file()
         assert primary_window.go_for_it_button.isEnabled()
 
@@ -166,9 +171,10 @@ def test_find_dataset_activates_goforit_button(primary_window):
         QFileDialog, "getExistingDirectory", return_value=consts.MEDIUM_DATASET
     )
     with mocked_directory_dialog:
-        # Assert the final function changes the button state
+        # Assert the function doesn't enable the button erroneously
         assert not primary_window.go_for_it_button.isEnabled()
         primary_window.data.model = "Bogus Model Mk II."
         primary_window.data.layer = "layer4"
+        # Assert the final function changes the button state
         primary_window.find_dataset()
         assert primary_window.go_for_it_button.isEnabled()
