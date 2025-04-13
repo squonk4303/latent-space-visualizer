@@ -132,7 +132,7 @@ def test_try_to_activate_goforit(primary_window):
     assert not primary_window.go_for_it_button.isEnabled()
     primary_window.data.model = "Bogus Model Mk II."
     primary_window.data.layer = "layer4"
-    primary_window.data.paths = ["a/b/c", "d/e/f"]
+    primary_window.data.dataset_location = "a/b/c/"
     primary_window.try_to_activate_goforit_button()
     assert primary_window.go_for_it_button.isEnabled()
 
@@ -146,7 +146,7 @@ def _test_find_layer_activates_goforit_button(primary_window):
         primary_window.find_layer()
         assert not primary_window.go_for_it_button.isEnabled()
         primary_window.data.model = "Bogus Model Mk II."
-        primary_window.data.paths = ["a/b/c", "d/e/f"]
+        primary_window.data.dataset_location = "a/b/c/"
         # Assert the final function changes the button state
         primary_window.find_layer()
         assert primary_window.go_for_it_button.isEnabled()
@@ -159,7 +159,7 @@ def test_find_model_activates_goforit_button(primary_window):
         primary_window.load_model_file()
         assert not primary_window.go_for_it_button.isEnabled()
         primary_window.data.layer = "layer4"
-        primary_window.data.paths = ["a/b/c", "d/e/f"]
+        primary_window.data.dataset_location = "a/b/c/"
         # Assert the final function changes the button state
         primary_window.load_model_file()
         assert primary_window.go_for_it_button.isEnabled()

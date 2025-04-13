@@ -249,20 +249,22 @@ class PrimaryWindow(QMainWindow):
         Meaning if dataset, layer and model are selected, the button is activated,
         and if any of these are found to be insufficient, the button is deactivated.
         """
-        should_enable = not self.data.model and self.data.layer and self.data.paths
-        self.go_for_it_button.setDisabled(should_enable)
+        should_be_disabled = bool(
+            not (self.data.model and self.data.layer and self.data.dataset_location)
+        )
+        self.go_for_it_button.setDisabled(should_be_disabled)
 
     def find_dataset(self):
         """
-        Open dialog for finding dataset, and TODO: inform user if successful.
+        Open dialog for finding dataset, and inform user if successful.
 
         Is intended to be used to be used for directories containing the datasets.
         For use in buttons and actions.
         """
-        dataset_dir = open_dialog.for_directory(parent=self)
-        if dataset_dir:
-            self.data.paths = utils.grab_image_paths_in_dir(dataset_dir)
-            text = dataset_dir + ", length: " + str(len(self.data.paths))
+        self.data.dataset_location = open_dialog.for_directory(parent=self)
+        if self.data.dataset_location:
+            paths = utils.grab_image_paths_in_dir(self.data.dataset_location)
+            text = self.data.dataset_location + ", length: " + str(len(paths))
             self.dataset_feedback_label.setText(text)
             self.feedback_label.setText(text)
             self.try_to_activate_goforit_button()

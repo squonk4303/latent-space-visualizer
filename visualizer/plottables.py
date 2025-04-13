@@ -14,8 +14,9 @@ class PathsAndFeatures:
 @dataclasses.dataclass
 class Plottables:
     model: torch.nn.Module = None
-    layer: str = None
+    layer: str = ""
     paths: list[str] = dataclasses.field(default_factory=list)
+    dataset_location: str = ""
 
     # @Wilhelmsen: Get rid of the deprecated... *dies*
     dataset_intermediary: torch.tensor = None
