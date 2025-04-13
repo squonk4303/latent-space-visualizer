@@ -24,7 +24,7 @@ from visualizer import consts, loading, open_dialog, utils
 from visualizer.consts import DR_technique as Technique
 from visualizer.loading import apply_tsne as t_sne
 from visualizer.models.segmentation import FCNResNet101
-from visualizer.plottables import PathsAndFeatures, Plottables
+from visualizer.plottables import Plottables, SavableData
 from visualizer.plot_widget import PlotWidget
 from visualizer.stacked_layout_manager import StackedLayoutManager
 
@@ -46,7 +46,7 @@ class PrimaryWindow(QMainWindow):
         super().__init__()
 
         # Prepare data-holding object
-        self.data = Plottables()
+        self.data = SavableData()
 
         # Set up the tabs in the window
         self.start_tab = QVBoxLayout()
@@ -314,6 +314,11 @@ class PrimaryWindow(QMainWindow):
                 return None
                 raise RuntimeError("No reduction technique selected!")
 
+    def start_cooking_iii(self):
+        print("--- self.data.model:", bool(self.data.model))
+        print("--- self.data.layer:", self.data.layer)
+        print("--- self.data.dataset_location:", self.data.dataset_location)
+
     def start_cooking_brains(self):
         """
         Walk through the dim-reduction process with the brain dataset.
@@ -353,26 +358,26 @@ class PrimaryWindow(QMainWindow):
         # Extract Features
         # ----------------
         for label, files in pics_by_category.items():
-            # @Wilhelmsen: Change the interface for plottables in the model. "self.data.whatever" is sucks
+            # @Wilhelmsen: Change the interface for old_plottables in the model. "self.data.whatever" is sucks
             # Note that label is sent in and returns unchanged. Bad bad bad bad.
             paths, features = loading.preliminary_dim_reduction_2(
                 self.data.model, self.data.layer, label, files
             )
 
             # Such as this, where the lists are numpy.ndarrays:
-            # self.data.plottables["category0"] = [
-            #     PathsAndFeatures("/file/path_0", [1, 2, 3, 4]),
-            #     PathsAndFeatures("/file/path_5", [6, 7, 8, 9]),
+            # self.data.old_plottables["category0"] = [
+            #     Plottables("/file/path_0", [1, 2, 3, 4]),
+            #     Plottables("/file/path_5", [6, 7, 8, 9]),
             #     ... ,
             # ]
-            self.data.plottables[label] = [
-                PathsAndFeatures(p, f) for p, f in zip(paths, features)
+            self.data.old_plottables[label] = [
+                Plottables(p, f) for p, f in zip(paths, features)
             ]
 
         # ---------------------------------------------------------------------------
         # t-SNE & Plot
         # ---------------------------------------------------------------------------
-        self.plot.with_tsne(self.data.plottables)
+        self.plot.with_tsne(self.data.old_plottables)
 
     def start_cooking(self):
         """

@@ -5,14 +5,15 @@ import torch
 
 
 @dataclasses.dataclass
-class PathsAndFeatures:
+class Plottables:
     path: str
+    label: str
     features: np.ndarray
     tsne: list = None
 
 
 @dataclasses.dataclass
-class Plottables:
+class SavableData:
     model: torch.nn.Module = None
     layer: str = ""
     paths: list[str] = dataclasses.field(default_factory=list)
@@ -25,7 +26,7 @@ class Plottables:
     # TODO: What about dict with settings? Like whether user displayed in 2d or 3d and such
 
     # Map features and other relevant values to a label
-    plottables: dict[str, list[PathsAndFeatures]] = dataclasses.field(
+    old_plottables: dict[str, list[Plottables]] = dataclasses.field(
         default_factory=dict
     )
 

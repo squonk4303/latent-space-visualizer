@@ -7,7 +7,7 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QFileDialog
 
 from visualizer import consts
-from visualizer.plottables import Plottables
+from visualizer.plottables import SavableData
 from visualizer.view_manager import PrimaryWindow
 
 
@@ -25,7 +25,7 @@ def primary_window(qtbot):
 
 @pytest.fixture
 def data_object():
-    data = Plottables()
+    data = SavableData()
     # data.model = FCNResNet101(["skin"])
     # data.model.load(consts.TRAINED_MODEL)
     data.dataset_plottable = np.array(

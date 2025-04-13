@@ -12,7 +12,7 @@ import torch
 import torchvision
 
 from visualizer import consts, open_dialog
-from visualizer.plottables import Plottables
+from visualizer.plottables import SavableData
 
 
 def dataset_to_tensors(image_paths: list):
@@ -272,7 +272,7 @@ def quickload(load_location=consts.QUICKSAVE_PATH):
     return data_obj
 
 
-def quicksave(data_obj: Plottables, save_location=consts.QUICKSAVE_PATH):
+def quicksave(data_obj: SavableData, save_location=consts.QUICKSAVE_PATH):
     """Save python object to pickle file."""
     # If parent directory doesn't exist, create it (including its progenitors)
     parent_dir = os.path.abspath(os.path.join(save_location, os.pardir))
@@ -284,7 +284,7 @@ def quicksave(data_obj: Plottables, save_location=consts.QUICKSAVE_PATH):
     print(f"Saved to {save_location}")
 
 
-def save_to_user_selected_file(data_obj: Plottables, parent):
+def save_to_user_selected_file(data_obj: SavableData, parent):
     """
     Open a dialog to select from where to load a data object.
 

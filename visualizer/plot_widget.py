@@ -62,14 +62,14 @@ class PlotWidget(QWidget):
 
         self.canvas.draw()
 
-    def with_tsne(self, plottables):
+    def with_tsne(self, old_plottables):
         # Put all features in a list, and all labels in a list with corresponding indices
         # Python list comprehension is awesome; And the zip function; And tuple assignment
         labels, all_feats = tuple(
             zip(
                 *tuple(
                     (key, element.features)
-                    for key, value in plottables.items()
+                    for key, value in old_plottables.items()
                     for element in value
                 )
             )
@@ -89,16 +89,16 @@ class PlotWidget(QWidget):
         # print("".join([f"{x}\t{y}\n" for x, y in coords]))
 
         # Coords is now an iter
-        # So it should be possible to loop over all the values in dict Plottables
+        # So it should be possible to loop over all the values in dict SavableData
         # And assign coords to the .tsne values there
 
-        # @Wilhelmsen: Consider again whether plottables.values() always returns in the expected order
+        # @Wilhelmsen: Consider again whether old_plottables.values() always returns in the expected order
         for coord, pathandfeature in zip(
-            coords, (p for obj in plottables.values() for p in obj)
+            coords, (p for obj in old_plottables.values() for p in obj)
         ):
             pathandfeature.tsne = coord
 
-        # print("".join(f"{w.tsne}\n" for obj in plottables.values() for w in obj))
+        # print("".join(f"{w.tsne}\n" for obj in old_plottables.values() for w in obj))
 
         # @Wilhelmsen: Move this assertion to tests
         # assert len(all_feats) == len(coords) == len(labels)
@@ -107,12 +107,12 @@ class PlotWidget(QWidget):
         color_map = {
             label: color
             for label, color in zip(
-                (category for category in plottables.keys()),
-                random.sample(consts.COLORS, k=len(plottables)),
+                (category for category in old_plottables.keys()),
+                random.sample(consts.COLORS, k=len(old_plottables)),
             )
         }
 
-        for label, data in plottables.items():
+        for label, data in old_plottables.items():
             tsne = [obj.tsne for obj in data]
             x, y = [list(t) for t in zip(*tsne)]
 

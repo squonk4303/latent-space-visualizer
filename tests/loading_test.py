@@ -10,13 +10,13 @@ from PyQt6.QtWidgets import QFileDialog
 
 from visualizer import consts, loading, utils
 from visualizer.models.segmentation import FCNResNet101
-from visualizer.plottables import Plottables
+from visualizer.plottables import SavableData
 
 
 # --- Fixtures ---
 @pytest.fixture
 def data_object():
-    data = Plottables()
+    data = SavableData()
     # data.model = FCNResNet101(["skin"])
     # data.model.load(consts.TRAINED_MODEL)
     data.dataset_plottable = np.array(

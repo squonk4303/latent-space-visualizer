@@ -14,23 +14,23 @@ Cook (3 of 2) verb:
 See also: "cook one's goose"
 """
 
+import os
+
 from torchvision.models import resnet101, ResNet101_Weights
+
+from visualizer import consts
 from visualizer.view_manager import PrimaryWindow
+from visualizer.models.segmentation import FCNResNet101
 
 
 def test_cookin_brains(qtbot):
     window = PrimaryWindow()
     qtbot.addWidget(window)
 
-    window.data.model = resnet101(weights=ResNet101_Weights.DEFAULT)
-    window.data.model.eval()
+    model = os.path.join(consts.REPO_DIR, "models.ignore/rgb-aug0/best_model.pth")
+    window.data.model = FCNResNet101()
+    window.data.model.load(model)
     window.data.layer = "layer4"
+    window.data.dataset_location = os.path.join(consts.REPO_DIR, "pics/dataset_w_json")
 
-    window.start_cooking()
-
-    # Assert that some filepaths are found and placed in a dataset structure
-    # ^^ same with labels (unsure about with image data)
-    # May want to transfer as a test for the dataset structure itself
-
-
-# @Wilhelmsen: Yet to test that quickloading plots its data
+    window.start_cooking_iii()

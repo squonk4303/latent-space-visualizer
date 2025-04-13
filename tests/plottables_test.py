@@ -2,13 +2,13 @@
 import dataclasses
 import pytest
 import torch
-from visualizer.plottables import Plottables
+from visualizer.plottables import SavableData
 
 
 # --- Fixtures ---
 @pytest.fixture
 def data_object():
-    data = Plottables()
+    data = SavableData()
     # data.model = FCNResNet101(["skin"])
     # data.model.load(consts.TRAINED_MODEL)
     data.dataset_plottable = torch.tensor(
@@ -23,9 +23,9 @@ def data_object():
 
 
 def test_assert_dataclass_equivalence(data_object):
-    # Define data1 and data2 as Plottables with equivalent values
-    data1 = Plottables(**dataclasses.asdict(data_object))
-    data2 = Plottables(**dataclasses.asdict(data_object))
+    # Define data1 and data2 as SavableData with equivalent values
+    data1 = SavableData(**dataclasses.asdict(data_object))
+    data2 = SavableData(**dataclasses.asdict(data_object))
 
     assert data1 == data2
     data2.dataset_plottable = None
@@ -33,9 +33,9 @@ def test_assert_dataclass_equivalence(data_object):
 
 
 def test_dataclass_identity(data_object):
-    # Define data1 and data2 as Plottables with equivalent values
-    data1 = Plottables(**dataclasses.asdict(data_object))
-    data2 = Plottables(**dataclasses.asdict(data_object))
+    # Define data1 and data2 as SavableData with equivalent values
+    data1 = SavableData(**dataclasses.asdict(data_object))
+    data2 = SavableData(**dataclasses.asdict(data_object))
 
     assert data1 is not data2
     data1 = data2
