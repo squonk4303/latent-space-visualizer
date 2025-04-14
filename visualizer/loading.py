@@ -52,9 +52,8 @@ def preliminary_dim_reduction_iii(model, layer, files):
     for i, cat in enumerate(model.categories):
         hex_color = base_colors[i % len(base_colors)]
         hex_color = hex_color.lstrip("#")
-        rgb = tuple(int(hex_color[j:j+2], 16) for j in (0, 2, 4))
+        rgb = tuple(int(hex_color[j : j + 2], 16) for j in (0, 2, 4))
         color_map[cat] = {"hex": "#" + hex_color, "rgb": rgb}
-
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -155,8 +154,9 @@ def preliminary_dim_reduction_iii(model, layer, files):
         false_color_img.save(mask_path)
         print(f"Saved false-color segmentation mask: {mask_path}")
 
+    features = np.array(features).reshape(len(features), -1)
 
-        print(features_list[0].shape)
+    return features
 
 
 def preliminary_dim_reduction_2(model, layer, label, files):

@@ -315,10 +315,6 @@ class PrimaryWindow(QMainWindow):
                 raise RuntimeError("No reduction technique selected!")
 
     def start_cooking_iii(self):
-        print("--- self.data.model:", type(self.data.model))
-        print("--- self.data.layer:", self.data.layer)
-        print("--- self.data.dataset_location:", self.data.dataset_location)
-
         # @Wilhelmsen: This could be an iglob
         image_locations = utils.grab_image_paths_in_dir(self.data.dataset_location)
         # print("*** image_locations:", image_locations)
@@ -327,13 +323,8 @@ class PrimaryWindow(QMainWindow):
             self.data.model, self.data.layer, image_locations
         )
 
-        # self.data.dataset_intermediary = loading.preliminary_dim_reduction(
-        #     self.data.model, image_tensors, self.data.layer
-        # )
-
-        # self.data.dataset_plottable = loading.apply_tsne(self.data.dataset_intermediary)
-        # self.plot.plot_from_2d(self.data.dataset_plottable)
-        # self.quicksave_wrapper()
+        self.data.dataset_plottable = loading.apply_tsne(self.data.dataset_intermediary)
+        self.plot.plot_from_2d(self.data.dataset_plottable)
 
     def start_cooking_brains(self):
         """
