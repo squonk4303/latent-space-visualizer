@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from collections import namedtuple
 import random
 
 from PyQt6.QtWidgets import (
@@ -75,11 +76,19 @@ class PlotWidget(QWidget):
             )
         }
 
-        print("*** color_map:", color_map)
+        # Make a dict which maps paths and coords to unique labels
+        plottables = {key: {"paths": [], "coords": []} for key in unique_labels}
 
         for L, p, c in zip(labels, paths, coords):
-            x, y = c
-            print("*** x, y:", x, y)
+            plottables[L]["paths"].append(p)
+            plottables[L]["coords"].append(c)
+
+        print("*** plottables:", plottables)
+
+        for L in plottables:
+            # x, y = zip(plottables[L]["coords"])
+            # print("*** x, y:", x, y)
+            x, y = zip(*plottables[L]["coords"])
 
             self.canvas.axes.scatter(x, y, label=L, c=color_map[L])
 
