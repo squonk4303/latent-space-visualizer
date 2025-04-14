@@ -62,6 +62,29 @@ class PlotWidget(QWidget):
 
         self.canvas.draw()
 
+    def the_plottables(self, labels, paths, coords):
+        # @Wilhelmsen: Make it detect whether coords are 2d or 3d and act accordingly
+
+        # Map each label to a randomly-sampled color
+        unique_labels = list(set(labels))
+        color_map = {
+            label: color
+            for label, color in zip(
+                unique_labels,
+                random.sample(consts.COLORS, k=len(unique_labels)),
+            )
+        }
+
+        print("*** color_map:", color_map)
+
+        for L, p, c in zip(labels, paths, coords):
+            x, y = c
+            print("*** x, y:", x, y)
+
+            self.canvas.axes.scatter(x, y, label=L, c=color_map[L])
+
+        self.canvas.axes.legend(loc="best")
+
     def with_tsne(self, old_plottables):
         # Put all features in a list, and all labels in a list with corresponding indices
         # Python list comprehension is awesome; And the zip function; And tuple assignment

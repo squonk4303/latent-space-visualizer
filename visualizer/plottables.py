@@ -30,6 +30,10 @@ class SavableData:
     # Map related features, paths, labels, &c together
     plottables: list[Plottables] = dataclasses.field(default_factory=list)
 
+    paths: list = dataclasses.field(default_factory=list)
+    labels: list = dataclasses.field(default_factory=list)
+    two_dee: list = dataclasses.field(default_factory=list)
+
     def __eq__(self, other):
         """
         Handle attributes with exceptional equalities with care.

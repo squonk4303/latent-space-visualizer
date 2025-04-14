@@ -332,12 +332,16 @@ class PrimaryWindow(QMainWindow):
 
         # @Wilhelmsen: This is where a data normalization would take place
 
-        for p, L, d in zip(paths, labels, plottable_data):
-            self.data.plottables.append(Plottables(path=p, label=L, tsne=d))
+        # for p, L, d in zip(paths, labels, plottable_data):
+        #     self.data.plottables.append(Plottables(path=p, label=L, tsne=d))
 
-        print("".join(f"{i}, {d}\n" for i, d in enumerate(self.data.plottables)))
+        self.data.labels = labels
+        self.data.paths = paths
+        self.data.two_dee = plottable_data
 
-        # self.plot.plot_from_2d(self.data.dataset_plottable)
+        # print("".join(f"{i}, {d}\n" for i, d in enumerate(self.data.plottables)))
+
+        self.plot.the_plottables(self.data.labels, self.data.paths, self.data.two_dee)
 
     def start_cooking_brains(self):
         """
