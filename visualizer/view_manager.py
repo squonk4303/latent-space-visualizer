@@ -195,7 +195,7 @@ class PrimaryWindow(QMainWindow):
     def init_go_for_it_button(self):
         self.go_for_it_button = QPushButton("Go for it~!")
         self.go_for_it_button.setDisabled(True)
-        self.go_for_it_button.clicked.connect(self.start_cooking)
+        self.go_for_it_button.clicked.connect(self.start_cooking_iii)
         self.start_tab.addWidget(self.go_for_it_button)
 
     def init_feedback_label(self):
@@ -315,9 +315,25 @@ class PrimaryWindow(QMainWindow):
                 raise RuntimeError("No reduction technique selected!")
 
     def start_cooking_iii(self):
-        print("--- self.data.model:", bool(self.data.model))
+        print("--- self.data.model:", type(self.data.model))
         print("--- self.data.layer:", self.data.layer)
         print("--- self.data.dataset_location:", self.data.dataset_location)
+
+        # @Wilhelmsen: This could be an iglob
+        image_locations = utils.grab_image_paths_in_dir(self.data.dataset_location)
+        # print("*** image_locations:", image_locations)
+
+        self.data.dataset_intermediary = loading.preliminary_dim_reduction_iii(
+            self.data.model, self.data.layer, image_locations
+        )
+
+        # self.data.dataset_intermediary = loading.preliminary_dim_reduction(
+        #     self.data.model, image_tensors, self.data.layer
+        # )
+
+        # self.data.dataset_plottable = loading.apply_tsne(self.data.dataset_intermediary)
+        # self.plot.plot_from_2d(self.data.dataset_plottable)
+        # self.quicksave_wrapper()
 
     def start_cooking_brains(self):
         """

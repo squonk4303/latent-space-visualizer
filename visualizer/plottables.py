@@ -18,6 +18,7 @@ class SavableData:
     layer: str = ""
     paths: list[str] = dataclasses.field(default_factory=list)
     dataset_location: str = ""
+    dataset_intermediary: torch.tensor = None
 
     # Map features and other relevant values to a label
     old_plottables: dict[str, list[Plottables]] = dataclasses.field(

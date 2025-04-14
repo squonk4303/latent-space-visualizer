@@ -37,6 +37,45 @@ def dataset_to_tensors(image_paths: list):
     return tensors
 
 
+def preliminary_dim_reduction_iii(model, layer, files):
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    preprocessing = torchvision.transforms.Compose(
+        [
+            # @Wilhelmsen: NOTE: Image size is reduced for testing
+            torchvision.transforms.Resize(28),
+            torchvision.transforms.ToTensor(),
+        ]
+    )
+
+    # Register hook; hooked_feature is a list for its pointer-like qualities
+    hooks = []
+    hook_location = getattr(model.model.backbone, layer)
+    hook_handle = hook_location.register_forward_hook(hooker(hooks))
+
+    tqdm = lambda a, desc: a  # TEMP: Quick tqdm-disabler
+    for image_location in tqdm(files[0:40], desc="prelim. dim. reduction"):
+        image = PIL.Image.open(image_location).convert("RGB")
+        image = preprocessing(image)
+
+        with torch.no_grad():
+            hooks.clear()
+            # Forward pass to get output and trigger hook
+            output = model(image.unsqueeze(0).to(device))
+            feature_map = hooks[0]
+            # Ensure array type and array element type
+            feature_vector = torch.tensor(feature_map, dtype=torch.float32).to(device)
+            # Apply GAP
+            feature_vector = (
+                torch.nn.functional.adaptive_avg_pool2d(feature_vector, (1, 1))
+                .squeeze()
+                .cpu()
+                .numpy()
+            )
+        print(hooks[0].shape)
+
+
 def preliminary_dim_reduction_2(model, layer, label, files):
     """
     Reduce the dimensionality of vectors in certain layer of nn-model
