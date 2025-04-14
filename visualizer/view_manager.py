@@ -290,6 +290,7 @@ class PrimaryWindow(QMainWindow):
         selected_layer = "layer4"
         if selected_layer:
             self.data.layer = selected_layer
+            self.layer_feedback_label = "You chose " + selected_layer
             self.try_to_activate_goforit_button()
 
     def technique_loader(features, target_dimensionality=2, reduction=Technique.T_SNE):
@@ -319,12 +320,24 @@ class PrimaryWindow(QMainWindow):
         image_locations = utils.grab_image_paths_in_dir(self.data.dataset_location)
         # print("*** image_locations:", image_locations)
 
-        self.data.dataset_intermediary = loading.preliminary_dim_reduction_iii(
+        reduced_data, paths, labels = loading.preliminary_dim_reduction_iii(
             self.data.model, self.data.layer, image_locations
         )
 
-        self.data.dataset_plottable = loading.apply_tsne(self.data.dataset_intermediary)
-        self.plot.plot_from_2d(self.data.dataset_plottable)
+        assert len(reduced_data) == len(paths) == len(labels)
+
+        # self.data.dataset_intermediary
+
+        plottable_data = loading.apply_tsne(reduced_data)
+
+        # @Wilhelmsen: This is where a data normalization would take place
+
+        for p, L, d in zip(paths, labels, plottable_data):
+            self.data.plottables.append(Plottables(path=p, label=L, tsne=d))
+
+        print("".join(f"{i}, {d}\n" for i, d in enumerate(self.data.plottables)))
+
+        # self.plot.plot_from_2d(self.data.dataset_plottable)
 
     def start_cooking_brains(self):
         """
@@ -366,7 +379,6 @@ class PrimaryWindow(QMainWindow):
         # ----------------
         for label, files in pics_by_category.items():
             # @Wilhelmsen: Change the interface for old_plottables in the model. "self.data.whatever" is sucks
-            # Note that label is sent in and returns unchanged. Bad bad bad bad.
             paths, features = loading.preliminary_dim_reduction_2(
                 self.data.model, self.data.layer, label, files
             )

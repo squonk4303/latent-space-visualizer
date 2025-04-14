@@ -6,9 +6,11 @@ import torch
 
 @dataclasses.dataclass
 class Plottables:
+    """A mutable tuple of related elements for plotting."""
+
     path: str
     label: str
-    features: np.ndarray
+    features: np.ndarray = None
     tsne: list = None
 
 

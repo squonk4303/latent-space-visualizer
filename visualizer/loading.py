@@ -67,6 +67,7 @@ def preliminary_dim_reduction_iii(model, layer, files):
 
     dominant_categories = []
     features = []
+    valid_paths = []
     filtered_filenames = []
     predicted_labels = []
 
@@ -75,7 +76,7 @@ def preliminary_dim_reduction_iii(model, layer, files):
     hook_location = getattr(model.model.backbone, layer)
     hook_handle = hook_location.register_forward_hook(hooker(features_list))
 
-    tqdm = lambda a, desc: a  # TEMP: Quick tqdm-disabler
+    tqdm = lambda a, desc: a  # @Wilhelmsen: TEMP: Quick tqdm-disabler
     for image_location in tqdm(files[0:40], desc="prelim. dim. reduction"):
         image = PIL.Image.open(image_location).convert("RGB")
         image = preprocessing(image)
@@ -128,6 +129,7 @@ def preliminary_dim_reduction_iii(model, layer, files):
             predicted_labels.append(dominant_class_idx)
             filtered_filenames.append(image_location)
             features.append(feature_vector)
+            valid_paths.append(image_location)
         else:
             print(f"Skipping {image_location} due to no valid class predictions.")
             continue
@@ -156,7 +158,7 @@ def preliminary_dim_reduction_iii(model, layer, files):
 
     features = np.array(features).reshape(len(features), -1)
 
-    return features
+    return features, valid_paths, dominant_categories
 
 
 def preliminary_dim_reduction_2(model, layer, label, files):
