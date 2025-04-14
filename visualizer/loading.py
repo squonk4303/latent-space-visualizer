@@ -39,6 +39,23 @@ def dataset_to_tensors(image_paths: list):
 
 def preliminary_dim_reduction_iii(model, layer, files):
 
+    from pathlib import Path
+    import plotly.express as px
+    import random
+
+    # Shuffle and assign unique colors
+    base_colors = px.colors.qualitative.Alphabet + px.colors.qualitative.Dark24
+    random.shuffle(base_colors)
+
+    # Construct the full color map with hex and RGB
+    color_map = {}
+    for i, cat in enumerate(model.categories):
+        hex_color = base_colors[i % len(base_colors)]
+        hex_color = hex_color.lstrip("#")
+        rgb = tuple(int(hex_color[j:j+2], 16) for j in (0, 2, 4))
+        color_map[cat] = {"hex": "#" + hex_color, "rgb": rgb}
+
+
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     preprocessing = torchvision.transforms.Compose(
@@ -49,53 +66,97 @@ def preliminary_dim_reduction_iii(model, layer, files):
         ]
     )
 
+    dominant_categories = []
+    features = []
+    filtered_filenames = []
+    predicted_labels = []
+
     # Register hook; hooked_feature is a list for its pointer-like qualities
-    hooks = []  # @Wilhelmsen: change this to a dict; for elegance
+    features_list = []  # @Wilhelmsen: change this to a dict or something; for elegance
     hook_location = getattr(model.model.backbone, layer)
-    hook_handle = hook_location.register_forward_hook(hooker(hooks))
+    hook_handle = hook_location.register_forward_hook(hooker(features_list))
 
     tqdm = lambda a, desc: a  # TEMP: Quick tqdm-disabler
     for image_location in tqdm(files[0:40], desc="prelim. dim. reduction"):
         image = PIL.Image.open(image_location).convert("RGB")
         image = preprocessing(image)
+        features_list.clear()
 
         with torch.no_grad():
-            hooks.clear()
             # Forward pass to get output and trigger hook
             output = model(image.unsqueeze(0).to(device))
 
-            # --- Handle Hook ---
-            feature_map = hooks[0]
-            # Ensure array type and array element type
-            feature_vector = torch.tensor(feature_map, dtype=torch.float32).to(device)
-            # Apply GAP
-            feature_vector = (
-                torch.nn.functional.adaptive_avg_pool2d(feature_vector, (1, 1))
-                .squeeze()
-                .cpu()
-                .numpy()
-            )
+        # --- Handle Hook ---
+        feature_map = features_list[0]
+        # Ensure array type and array element type
+        feature_vector = torch.tensor(feature_map, dtype=torch.float32).to(device)
+        # Apply GAP
+        feature_vector = (
+            torch.nn.functional.adaptive_avg_pool2d(feature_vector, (1, 1))
+            .squeeze()
+            .cpu()
+            .numpy()
+        )
 
-            # --- Handle Output ---
-            # Process prediction logits (assume output["out"] shape: [1, C, H, W])
-            logits = output["out"]
-            # Sigmoid transforms within the same dimensionality
-            # Here gets shape (C, H, W)
-            pred_mask = torch.sigmoid(logits).squeeze()
-            # Set values under threshold to 0
-            pred_mask[pred_mask < 0.2] = 0
+        # --- Handle Output ---
+        # Process prediction logits (assume output["out"] shape: [1, C, H, W])
+        logits = output["out"]
+        # Sigmoid transforms within the same dimensionality
+        # Here gets shape (C, H, W)
+        pred_mask = torch.sigmoid(logits).squeeze()
+        # Set values under threshold to 0
+        # @Wilhelmsen: this gate is disabled because the values in our set are all blocked by it
+        # pred_mask[pred_mask < 0.2] = 0
+        # print("*** pred_mask:", pred_mask)
 
-            if pred_mask.ndim == 3 and pred_mask.shape[0] == len(model.categories):
-                # Expected shape: (H, W)
-                pred_class = torch.argmax(pred_mask, dim=0).cpu().numpy()
+        if pred_mask.ndim == 3 and pred_mask.shape[0] == len(model.categories):
+            # Expected shape: (H, W)
+            pred_class = torch.argmax(pred_mask, dim=0).cpu().numpy()
 
-                # Identify background pixels
-                background_mask = (pred_mask.sum(dim=0) == 0).cpu().numpy()
-                pred_class[background_mask] = -1
-            else:
-                raise ValueError("Unexpected prediction shape.")
+            # Identify background pixels
+            background_mask = (pred_mask.sum(dim=0) == 0).cpu().numpy()
+            pred_class[background_mask] = -1
+        else:
+            raise ValueError("Unexpected prediction shape.")
 
-        print(hooks[0].shape)
+        # Determine dominant class, excluding background
+        valid_classes = pred_class[pred_class != -1]
+        if valid_classes.size > 0:
+            unique, counts = np.unique(valid_classes, return_counts=True)
+            dominant_class_idx = int(unique[np.argmax(counts)])
+            dominant_category = model.categories[dominant_class_idx]
+            dominant_categories.append(dominant_category)
+            predicted_labels.append(dominant_class_idx)
+            filtered_filenames.append(image_location)
+            features.append(feature_vector)
+        else:
+            print(f"Skipping {image_location} due to no valid class predictions.")
+            continue
+
+        # Generate false-color mask using RGB values
+        height, width = pred_class.shape
+        false_color = np.zeros((height, width, 3), dtype=np.uint8)
+
+        for class_idx, category in enumerate(model.categories):
+            mask = pred_class == class_idx
+            if category in color_map:
+                false_color[mask] = color_map[category]["rgb"]
+
+        # Set background pixels to black
+        false_color[pred_class == -1] = (0, 0, 0)
+
+        # Save false-color mask
+        false_color_img = PIL.Image.fromarray(false_color)
+        mask_dir = f"tsne_visualizations/mask"
+        os.makedirs(mask_dir, exist_ok=True)
+        filename = Path(image_location)
+        filename = filename.stem
+        mask_path = os.path.join(mask_dir, f"{filename}_mask.png")
+        false_color_img.save(mask_path)
+        print(f"Saved false-color segmentation mask: {mask_path}")
+
+
+        print(features_list[0].shape)
 
 
 def preliminary_dim_reduction_2(model, layer, label, files):
