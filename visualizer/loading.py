@@ -50,7 +50,7 @@ def preliminary_dim_reduction_iii(model, layer, files):
     )
 
     # Register hook; hooked_feature is a list for its pointer-like qualities
-    hooks = []
+    hooks = []  # @Wilhelmsen: change this to a dict; for elegance
     hook_location = getattr(model.model.backbone, layer)
     hook_handle = hook_location.register_forward_hook(hooker(hooks))
 
@@ -63,6 +63,8 @@ def preliminary_dim_reduction_iii(model, layer, files):
             hooks.clear()
             # Forward pass to get output and trigger hook
             output = model(image.unsqueeze(0).to(device))
+
+            # --- Handle Hook ---
             feature_map = hooks[0]
             # Ensure array type and array element type
             feature_vector = torch.tensor(feature_map, dtype=torch.float32).to(device)
@@ -73,6 +75,26 @@ def preliminary_dim_reduction_iii(model, layer, files):
                 .cpu()
                 .numpy()
             )
+
+            # --- Handle Output ---
+            # Process prediction logits (assume output["out"] shape: [1, C, H, W])
+            logits = output["out"]
+            # Sigmoid transforms within the same dimensionality
+            # Here gets shape (C, H, W)
+            pred_mask = torch.sigmoid(logits).squeeze()
+            # Set values under threshold to 0
+            pred_mask[pred_mask < 0.2] = 0
+
+            if pred_mask.ndim == 3 and pred_mask.shape[0] == len(model.categories):
+                # Expected shape: (H, W)
+                pred_class = torch.argmax(pred_mask, dim=0).cpu().numpy()
+
+                # Identify background pixels
+                background_mask = (pred_mask.sum(dim=0) == 0).cpu().numpy()
+                pred_class[background_mask] = -1
+            else:
+                raise ValueError("Unexpected prediction shape.")
+
         print(hooks[0].shape)
 
 
