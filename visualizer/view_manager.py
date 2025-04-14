@@ -195,7 +195,7 @@ class PrimaryWindow(QMainWindow):
     def init_go_for_it_button(self):
         self.go_for_it_button = QPushButton("Go for it~!")
         self.go_for_it_button.setDisabled(True)
-        self.go_for_it_button.clicked.connect(self.start_cooking)
+        self.go_for_it_button.clicked.connect(self.start_cooking_iii)
         self.start_tab.addWidget(self.go_for_it_button)
 
     def init_feedback_label(self):
@@ -290,6 +290,7 @@ class PrimaryWindow(QMainWindow):
         selected_layer = "layer4"
         if selected_layer:
             self.data.layer = selected_layer
+            self.layer_feedback_label = "You chose " + selected_layer
             self.try_to_activate_goforit_button()
 
     def technique_loader(features, target_dimensionality=2, reduction=Technique.T_SNE):
@@ -315,9 +316,32 @@ class PrimaryWindow(QMainWindow):
                 raise RuntimeError("No reduction technique selected!")
 
     def start_cooking_iii(self):
-        print("--- self.data.model:", bool(self.data.model))
-        print("--- self.data.layer:", self.data.layer)
-        print("--- self.data.dataset_location:", self.data.dataset_location)
+        # @Wilhelmsen: This could be an iglob
+        image_locations = utils.grab_image_paths_in_dir(self.data.dataset_location)
+        # print("*** image_locations:", image_locations)
+
+        reduced_data, paths, labels = loading.preliminary_dim_reduction_iii(
+            self.data.model, self.data.layer, image_locations
+        )
+
+        assert len(reduced_data) == len(paths) == len(labels)
+
+        # self.data.dataset_intermediary
+
+        plottable_data = loading.apply_tsne(reduced_data)
+
+        # @Wilhelmsen: This is where a data normalization would take place
+
+        # for p, L, d in zip(paths, labels, plottable_data):
+        #     self.data.plottables.append(Plottables(path=p, label=L, tsne=d))
+
+        self.data.labels = labels
+        self.data.paths = paths
+        self.data.two_dee = plottable_data
+
+        # print("".join(f"{i}, {d}\n" for i, d in enumerate(self.data.plottables)))
+
+        self.plot.the_plottables(self.data.labels, self.data.paths, self.data.two_dee)
 
     def start_cooking_brains(self):
         """
@@ -359,7 +383,6 @@ class PrimaryWindow(QMainWindow):
         # ----------------
         for label, files in pics_by_category.items():
             # @Wilhelmsen: Change the interface for old_plottables in the model. "self.data.whatever" is sucks
-            # Note that label is sent in and returns unchanged. Bad bad bad bad.
             paths, features = loading.preliminary_dim_reduction_2(
                 self.data.model, self.data.layer, label, files
             )

@@ -6,9 +6,11 @@ import torch
 
 @dataclasses.dataclass
 class Plottables:
+    """A mutable tuple of related elements for plotting."""
+
     path: str
     label: str
-    features: np.ndarray
+    features: np.ndarray = None
     tsne: list = None
 
 
@@ -18,6 +20,7 @@ class SavableData:
     layer: str = ""
     paths: list[str] = dataclasses.field(default_factory=list)
     dataset_location: str = ""
+    dataset_intermediary: torch.tensor = None
 
     # Map features and other relevant values to a label
     old_plottables: dict[str, list[Plottables]] = dataclasses.field(
@@ -26,6 +29,10 @@ class SavableData:
 
     # Map related features, paths, labels, &c together
     plottables: list[Plottables] = dataclasses.field(default_factory=list)
+
+    paths: list = dataclasses.field(default_factory=list)
+    labels: list = dataclasses.field(default_factory=list)
+    two_dee: list = dataclasses.field(default_factory=list)
 
     def __eq__(self, other):
         """

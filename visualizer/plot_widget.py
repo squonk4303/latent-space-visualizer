@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from collections import namedtuple
 import random
 
 from PyQt6.QtWidgets import (
@@ -61,6 +62,37 @@ class PlotWidget(QWidget):
             self.canvas.axes.scatter(x, y, z)
 
         self.canvas.draw()
+
+    def the_plottables(self, labels, paths, coords):
+        # @Wilhelmsen: Make it detect whether coords are 2d or 3d and act accordingly
+
+        # Map each label to a randomly-sampled color
+        unique_labels = list(set(labels))
+        color_map = {
+            label: color
+            for label, color in zip(
+                unique_labels,
+                random.sample(consts.COLORS, k=len(unique_labels)),
+            )
+        }
+
+        # Make a dict which maps paths and coords to unique labels
+        plottables = {key: {"paths": [], "coords": []} for key in unique_labels}
+
+        for L, p, c in zip(labels, paths, coords):
+            plottables[L]["paths"].append(p)
+            plottables[L]["coords"].append(c)
+
+        print("*** plottables:", plottables)
+
+        for L in plottables:
+            # x, y = zip(plottables[L]["coords"])
+            # print("*** x, y:", x, y)
+            x, y = zip(*plottables[L]["coords"])
+
+            self.canvas.axes.scatter(x, y, label=L, c=color_map[L])
+
+        self.canvas.axes.legend(loc="best")
 
     def with_tsne(self, old_plottables):
         # Put all features in a list, and all labels in a list with corresponding indices
