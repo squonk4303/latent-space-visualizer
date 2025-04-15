@@ -25,7 +25,7 @@ class MplCanvas(FigureCanvasQTAgg):
     """Hold a canvas for the plot to render onto."""
 
     def __init__(self, parent, width=5, height=4, dpi=100):
-        fig = Figure(figsize=(width, height), dpi=dpi)
+        fig = Figure(figsize=(width, height), dpi=dpi, layout="constrained")
         # contextlib.nullcontext being a context manager which does nothing
         cm = plt.xkcd() if consts.flags["xkcd"] else nullcontext()
         with cm:
@@ -44,6 +44,11 @@ class PlotWidget(QWidget):
         self.parent = parent
         layout = QVBoxLayout(self)
         self.canvas = MplCanvas(self)
+        self.canvas.input_display.set_title("Input Image")
+        self.canvas.output_display.set_title("Output Mask")
+        self.canvas.axes.set_title("Visualized Latent Space")
+        self.canvas.axes.set_xlabel("X = placeholder")
+        self.canvas.axes.set_ylabel("Y = placeholder")
 
         layout.addWidget(self.canvas)
 
