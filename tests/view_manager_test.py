@@ -174,6 +174,7 @@ def test_find_model_activates_goforit_button(primary_window):
         assert primary_window.go_for_it_button.isEnabled()
 
 
+@pytest.mark.stub
 def test_find_dataset_activates_goforit_button(primary_window, valid_model):
     # Mock to assure the function will set a valid dataset
     mocked_directory_dialog = patch.object(
