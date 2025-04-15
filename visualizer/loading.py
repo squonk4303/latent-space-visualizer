@@ -148,13 +148,15 @@ def preliminary_dim_reduction_iii(model, layer, files):
 
         # Save false-color mask
         false_color_img = PIL.Image.fromarray(false_color)
-        mask_dir = f"tsne_visualizations/mask"
+        mask_dir = "tsne_visualizations/mask"
         os.makedirs(mask_dir, exist_ok=True)
         filename = Path(image_location)
         filename = filename.stem
         mask_path = os.path.join(mask_dir, f"{filename}_mask.png")
         false_color_img.save(mask_path)
         # print(f"Saved false-color segmentation mask: {mask_path}")
+
+    hook_handle.remove()
 
     features = np.array(features).reshape(len(features), -1)
 

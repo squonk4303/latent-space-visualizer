@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-from collections import namedtuple
 import random
 
 from PyQt6.QtWidgets import (
@@ -166,8 +165,6 @@ def surprise_plot(layer):
 
     Really for use in development.
     """
-    from math import sqrt, ceil
-
     num_kernels = layer.shape[1]
     fig, axs = plt.subplots(nrows=16, ncols=16, layout="constrained")
 

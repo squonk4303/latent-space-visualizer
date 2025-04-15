@@ -16,8 +16,6 @@ See also: "cook one's goose"
 
 import os
 
-from torchvision.models import resnet101, ResNet101_Weights
-
 from visualizer import consts
 from visualizer.view_manager import PrimaryWindow
 from visualizer.models.segmentation import FCNResNet101
