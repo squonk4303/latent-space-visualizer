@@ -7,6 +7,7 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QFileDialog
 
 from visualizer import consts
+from visualizer.models.segmentation import FCNResNet101
 from visualizer.plottables import SavableData
 from visualizer.view_manager import PrimaryWindow
 
@@ -37,6 +38,13 @@ def data_object():
         ]
     )
     return data
+
+
+@pytest.fixture
+def valid_model():
+    model = FCNResNet101()
+    model.load(consts.MULTILABEL_MODEL)
+    return model
 
 
 mocked_trained_model_qfiledialog = patch.object(
@@ -124,20 +132,20 @@ def test_quicksave_n_quickload(primary_window, data_object):
     )
 
 
-def test_try_to_activate_goforit(primary_window):
+def test_try_to_activate_goforit(primary_window, valid_model):
     """
     Assert that button starts disabled, and then is enabled when all conditions are fulfilled.
     """
     primary_window.try_to_activate_goforit_button()
     assert not primary_window.go_for_it_button.isEnabled()
-    primary_window.data.model = "Bogus Model Mk II."
+    primary_window.data.model = valid_model
     primary_window.data.layer = "layer4"
-    primary_window.data.dataset_location = "a/b/c/"
+    primary_window.data.dataset_location = consts.MEDIUM_DATASET
     primary_window.try_to_activate_goforit_button()
     assert primary_window.go_for_it_button.isEnabled()
 
 
-def _test_find_layer_activates_goforit_button(primary_window):
+def _test_find_layer_activates_goforit_button(primary_window, valid_model):
     # @Linnea: Update this when we have a proper findlayer function
     # Mock to assure the function sets a valid layer
     mocked_findlayer = patch.object()
@@ -145,8 +153,8 @@ def _test_find_layer_activates_goforit_button(primary_window):
         # Assert the function doesn't enable the button erroneously
         primary_window.find_layer()
         assert not primary_window.go_for_it_button.isEnabled()
-        primary_window.data.model = "Bogus Model Mk II."
-        primary_window.data.dataset_location = "a/b/c/"
+        primary_window.data.model = valid_model
+        primary_window.data.dataset_location = consts.MEDIUM_DATASET
         # Assert the final function changes the button state
         primary_window.find_layer()
         assert primary_window.go_for_it_button.isEnabled()
@@ -160,13 +168,13 @@ def test_find_model_activates_goforit_button(primary_window):
         primary_window.load_model_file()
         assert not primary_window.go_for_it_button.isEnabled()
         primary_window.data.layer = "layer4"
-        primary_window.data.dataset_location = "a/b/c/"
+        primary_window.data.dataset_location = consts.MEDIUM_DATASET
         # Assert the final function changes the button state
         primary_window.load_model_file()
         assert primary_window.go_for_it_button.isEnabled()
 
 
-def test_find_dataset_activates_goforit_button(primary_window):
+def test_find_dataset_activates_goforit_button(primary_window, valid_model):
     # Mock to assure the function will set a valid dataset
     mocked_directory_dialog = patch.object(
         QFileDialog, "getExistingDirectory", return_value=consts.MEDIUM_DATASET
@@ -174,7 +182,7 @@ def test_find_dataset_activates_goforit_button(primary_window):
     with mocked_directory_dialog:
         # Assert the function doesn't enable the button erroneously
         assert not primary_window.go_for_it_button.isEnabled()
-        primary_window.data.model = "Bogus Model Mk II."
+        primary_window.data.model = valid_model
         primary_window.data.layer = "layer4"
         # Assert the final function changes the button state
         primary_window.find_dataset()

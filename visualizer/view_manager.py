@@ -249,9 +249,23 @@ class PrimaryWindow(QMainWindow):
         Meaning if dataset, layer and model are selected, the button is activated,
         and if any of these are found to be insufficient, the button is deactivated.
         """
-        should_be_disabled = bool(
-            not (self.data.model and self.data.layer and self.data.dataset_location)
+        model_alright = hasattr(self.data.model, "state_dict")
+        dataset_alright = os.path.isdir(self.data.dataset_location)
+        categories_alright = (
+            len(self.data.model.categories) > 0
+            if hasattr(self.data.model, "categories")
+            else False
         )
+
+        should_be_disabled = bool(
+            not (
+                model_alright
+                and categories_alright
+                and self.data.layer
+                and dataset_alright
+            )
+        )
+        # self.go_for_it_button.setDisabled(should_be_disabled)
         self.go_for_it_button.setDisabled(should_be_disabled)
 
     def find_dataset(self):
@@ -318,29 +332,17 @@ class PrimaryWindow(QMainWindow):
     def start_cooking_iii(self):
         # @Wilhelmsen: This could be an iglob
         image_locations = utils.grab_image_paths_in_dir(self.data.dataset_location)
-        # print("*** image_locations:", image_locations)
-
         reduced_data, paths, labels = loading.preliminary_dim_reduction_iii(
             self.data.model, self.data.layer, image_locations
         )
-
+        # @Wilhelmsen: Move this assertion to tests
         assert len(reduced_data) == len(paths) == len(labels)
 
-        # self.data.dataset_intermediary
-
         plottable_data = loading.apply_tsne(reduced_data)
-
         # @Wilhelmsen: This is where a data normalization would take place
-
-        # for p, L, d in zip(paths, labels, plottable_data):
-        #     self.data.plottables.append(Plottables(path=p, label=L, tsne=d))
-
         self.data.labels = labels
         self.data.paths = paths
         self.data.two_dee = plottable_data
-
-        # print("".join(f"{i}, {d}\n" for i, d in enumerate(self.data.plottables)))
-
         self.plot.the_plottables(self.data.labels, self.data.paths, self.data.two_dee)
 
     def start_cooking_brains(self):

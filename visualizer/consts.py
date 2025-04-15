@@ -56,11 +56,12 @@ FILE_FILTERS = OrderedDict([
 # fmt: off
 
 # Used for testing only; assumes there's a local dir/symlink with appropriate model
-TRAINED_MODEL = os.path.join(REPO_DIR, "models.ignore/RGB_no_augmentation.pth")
-IMAGE_DATASET = os.path.join(REPO_DIR, "pics/testing_dataset")
-SMALL_DATASET = os.path.join(REPO_DIR, "pics/small_dataset")
-MEDIUM_DATASET = os.path.join(REPO_DIR, "pics/medium_dataset")
 GRAPHICAL_IMAGE = os.path.join(REPO_DIR, "pics/crouton.png")
+IMAGE_DATASET = os.path.join(REPO_DIR, "pics/testing_dataset")
+MEDIUM_DATASET = os.path.join(REPO_DIR, "pics/medium_dataset")
+MULTILABEL_MODEL = os.path.join(REPO_DIR, "models.ignore/rgb-aug0/best_model.pth")
+SMALL_DATASET = os.path.join(REPO_DIR, "pics/small_dataset")
+TRAINED_MODEL = os.path.join(REPO_DIR, "models.ignore/RGB_no_augmentation.pth")
 
 DEFAULT_MODEL_CATEGORIES = ["skin"]
 
