@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from contextlib import nullcontext
 import random
 
 from PyQt6.QtWidgets import (
@@ -24,11 +25,8 @@ class MplCanvas(FigureCanvasQTAgg):
 
     def __init__(self, parent, width=5, height=4, dpi=100):
         fig = Figure(figsize=(width, height), dpi=dpi)
-
-        if consts.flags["xkcd"]:
-            with plt.xkcd():
-                self.axes = fig.add_subplot(1, 1, 1)
-        else:
+        cm = plt.xkcd() if consts.flags["xkcd"] else nullcontext()
+        with cm:
             self.axes = fig.add_subplot(1, 1, 1)
 
         super().__init__(fig)
@@ -64,7 +62,6 @@ class PlotWidget(QWidget):
 
     def the_plottables(self, labels, paths, coords):
         # @Wilhelmsen: Make it detect whether coords are 2d or 3d and act accordingly
-
         # Map each label to a randomly-sampled color
         unique_labels = list(set(labels))
         color_map = {
@@ -85,15 +82,13 @@ class PlotWidget(QWidget):
         print("*** plottables:", plottables)
 
         for L in plottables:
-            # x, y = zip(plottables[L]["coords"])
-            # print("*** x, y:", x, y)
             x, y = zip(*plottables[L]["coords"])
-
             self.canvas.axes.scatter(x, y, label=L, c=color_map[L])
 
         self.canvas.axes.legend(loc="best")
 
     def with_tsne(self, old_plottables):
+        """Sucks and is bad."""
         # Put all features in a list, and all labels in a list with corresponding indices
         # Python list comprehension is awesome; And the zip function; And tuple assignment
         labels, all_feats = tuple(
