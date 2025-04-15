@@ -76,7 +76,7 @@ def preliminary_dim_reduction_iii(model, layer, files):
     hook_location = getattr(model.model.backbone, layer)
     hook_handle = hook_location.register_forward_hook(hooker(features_list))
 
-    tqdm = lambda a, desc: a  # @Wilhelmsen: TEMP: Quick tqdm-disabler
+    # tqdm = lambda a, desc: a  # @Wilhelmsen: TEMP: Quick tqdm-disabler
     for image_location in tqdm(files[0:40], desc="prelim. dim. reduction"):
         image = PIL.Image.open(image_location).convert("RGB")
         image = preprocessing(image)
@@ -154,7 +154,7 @@ def preliminary_dim_reduction_iii(model, layer, files):
         filename = filename.stem
         mask_path = os.path.join(mask_dir, f"{filename}_mask.png")
         false_color_img.save(mask_path)
-        print(f"Saved false-color segmentation mask: {mask_path}")
+        # print(f"Saved false-color segmentation mask: {mask_path}")
 
     features = np.array(features).reshape(len(features), -1)
 
