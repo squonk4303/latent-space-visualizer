@@ -4,6 +4,7 @@ __pycache__
 
 # User Data
 save_data
+tsne_visualizations
 
 # Other
 *ignore*
