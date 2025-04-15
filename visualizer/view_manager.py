@@ -154,16 +154,22 @@ class PrimaryWindow(QMainWindow):
         # Cheats
         # ------
 
-        dev_button_1 = QPushButton("Cook 1")
-        dev_button_1.clicked.connect(self.start_cooking)
-        self.start_tab.addWidget(dev_button_1)
-
-        dev_button_2 = QPushButton("Cook 2")
-        dev_button_2.clicked.connect(self.start_cooking_brains)
-        self.start_tab.addWidget(dev_button_2)
-
         if consts.flags["dev"]:
-            self.start_cooking_brains()  # <-- Just goes ahead and starts cooking brains
+            quicklaunch_button = QPushButton("Cook I")
+            quicklaunch_button.clicked.connect(self.quick_launch)
+            self.start_tab.addWidget(quicklaunch_button)
+
+    def quick_launch(self):
+        self.data.model = os.path.join(
+            consts.REPO_DIR, "models.ignore/rgb-aug0/best_model.pth"
+        )
+        self.data.model = FCNResNet101()
+        self.data.model.load(consts.MULTILABEL_MODEL)
+        self.data.layer = "layer4"
+        self.data.dataset_location = os.path.join(
+            consts.REPO_DIR, "pics/dataset_w_json"
+        )
+        self.start_cooking_iii()
 
     def init_model_selection(self):
         self.model_feedback_label = QLabel("<-- File dialog for .pth")
