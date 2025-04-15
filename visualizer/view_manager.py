@@ -125,6 +125,7 @@ class PrimaryWindow(QMainWindow):
         row_layer_selection = QHBoxLayout()
         row_layer_selection.addWidget(layer_button)
         row_layer_selection.addWidget(self.layer_feedback_label)
+        layer_button.clicked.connect(open_dialog.LayerDialog(self))
 
         # Row For Dataset Selection
         # -------------------------
