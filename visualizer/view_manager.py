@@ -338,18 +338,21 @@ class PrimaryWindow(QMainWindow):
     def start_cooking_iii(self):
         # @Wilhelmsen: This could be an iglob
         image_locations = utils.grab_image_paths_in_dir(self.data.dataset_location)
-        reduced_data, paths, labels = loading.preliminary_dim_reduction_iii(
+        reduced_data, paths, labels, masks = loading.preliminary_dim_reduction_iii(
             self.data.model, self.data.layer, image_locations
         )
         # @Wilhelmsen: Move this assertion to tests
-        assert len(reduced_data) == len(paths) == len(labels)
+        assert len(reduced_data) == len(paths) == len(labels) == len(masks)
 
         plottable_data = loading.apply_tsne(reduced_data)
         # @Wilhelmsen: This is where a data normalization would take place
         self.data.labels = labels
+        self.data.masks = masks
         self.data.paths = paths
         self.data.two_dee = plottable_data
-        self.plot.the_plottables(self.data.labels, self.data.paths, self.data.two_dee)
+        self.plot.the_plottables(
+            self.data.labels, self.data.paths, self.data.two_dee, self.data.masks
+        )
 
     def start_cooking_brains(self):
         """

@@ -16,6 +16,7 @@ from matplotlib.figure import Figure
 from sklearn.manifold import TSNE
 import matplotlib.pyplot as plt
 import numpy as np
+import PIL
 
 from visualizer import consts
 
@@ -25,9 +26,12 @@ class MplCanvas(FigureCanvasQTAgg):
 
     def __init__(self, parent, width=5, height=4, dpi=100):
         fig = Figure(figsize=(width, height), dpi=dpi)
+        # contextlib.nullcontext being a context manager which does nothing
         cm = plt.xkcd() if consts.flags["xkcd"] else nullcontext()
         with cm:
-            self.axes = fig.add_subplot(1, 1, 1)
+            self.input_display, self.axes, self.output_display = fig.subplots(
+                nrows=1, ncols=3
+            )
 
         super().__init__(fig)
 
@@ -60,7 +64,7 @@ class PlotWidget(QWidget):
 
         self.canvas.draw()
 
-    def the_plottables(self, labels, paths, coords):
+    def the_plottables(self, labels, paths, coords, masks):
         # @Wilhelmsen: Make it detect whether coords are 2d or 3d and act accordingly
         # Map each label to a randomly-sampled color
         unique_labels = list(set(labels))
@@ -72,20 +76,27 @@ class PlotWidget(QWidget):
             )
         }
 
-        # Make a dict which maps paths and coords to unique labels
+        # Make a dict which maps paths and coords to related unique labels
         plottables = {key: {"paths": [], "coords": []} for key in unique_labels}
 
         for L, p, c in zip(labels, paths, coords):
             plottables[L]["paths"].append(p)
             plottables[L]["coords"].append(c)
 
-        print("*** plottables:", plottables)
-
         for L in plottables:
             x, y = zip(*plottables[L]["coords"])
             self.canvas.axes.scatter(x, y, label=L, c=color_map[L])
 
         self.canvas.axes.legend(loc="best")
+
+        NUMBER = 12
+        inpic = PIL.Image.open(paths[NUMBER])
+        self.canvas.input_display.imshow(inpic)
+        self.canvas.output_display.imshow(masks[NUMBER])
+
+        # self.canvas.axes.scatter(
+        #     coords[NUMBER][0], coords[NUMBER][1], s=2, marker="+", c="red"
+        # )
 
     def with_tsne(self, old_plottables):
         """Sucks and is bad."""
