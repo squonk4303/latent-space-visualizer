@@ -132,7 +132,8 @@ def test_quicksave_n_quickload(primary_window, data_object):
     )
 
 
-def test_try_to_activate_goforit(primary_window, valid_model):
+@pytest.mark.stub
+def test_try_to_activate_goforit_button(primary_window, valid_model):
     """
     Assert that button starts disabled, and then is enabled when all conditions are fulfilled.
     """
