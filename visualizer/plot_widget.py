@@ -94,9 +94,11 @@ class PlotWidget(QWidget):
         self.canvas.input_display.imshow(inpic)
         self.canvas.output_display.imshow(masks[NUMBER])
 
-        # self.canvas.axes.scatter(
-        #     coords[NUMBER][0], coords[NUMBER][1], s=2, marker="+", c="red"
-        # )
+        tx, ty = coords[NUMBER][0], coords[NUMBER][1]
+        print("*** tx, ty:", tx, ty)
+        self.canvas.axes.scatter(
+            tx, ty, s=1000, marker="+", c="red"
+        )
 
     def with_tsne(self, old_plottables):
         """Sucks and is bad."""
