@@ -287,8 +287,8 @@ class PrimaryWindow(QMainWindow):
             try:
                 self.data.model = FCNResNet101()
                 self.data.model.load(model_path)
-                self.model_feedback_label.setText("You chose: " + model_path)
-                self.feedback_label.setText("You chose: " + model_path)
+                self.model_feedback_label.setText("You chose: " + str(model_path))
+                self.feedback_label.setText("You chose: " + str(model_path))
             except RuntimeError as e:
                 print(f"something went wrong; {e}")
                 self.feedback_label.setText(e)
@@ -331,7 +331,7 @@ class PrimaryWindow(QMainWindow):
         self.data.dataset_location = open_dialog.for_directory(parent=self)
         if self.data.dataset_location:
             paths = utils.grab_image_paths_in_dir(self.data.dataset_location)
-            text = self.data.dataset_location + ", length: " + str(len(paths))
+            text = str(self.data.dataset_location) + ", length: " + str(len(paths))
             self.dataset_feedback_label.setText(text)
             self.feedback_label.setText(text)
             self.try_to_activate_goforit_button()

@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Contains values meant to be accessible from anywhere."""
-import os
 from collections import OrderedDict
 from enum import Enum, auto
+from pathlib import Path
+import os
 
 # Relevant Numbers
 seed = int()  # useful value allocated in 'arguments.py'
@@ -60,11 +61,9 @@ COLORS32 = [
 # File-paths &c.
 # @Wilhelmsen: We should consider changing the valid image file extensions
 # based on what is accepted by torch and matplotlib...
-BASE_MODULE_DIR = os.path.dirname(__file__)
-REPO_DIR = os.path.abspath(os.path.join(BASE_MODULE_DIR, os.pardir))
-
-SAVE_DIR = os.path.join(REPO_DIR, "save_data")
-QUICKSAVE_PATH = os.path.join(SAVE_DIR, "quicksave.pickle")
+REPO_DIR = Path(os.path.dirname(__file__)).parent
+SAVE_DIR = Path(REPO_DIR, "save_data")
+QUICKSAVE_PATH = Path(SAVE_DIR, "quicksave.pickle")
 
 # fmt: off
 FILE_FILTERS = OrderedDict([
@@ -76,12 +75,12 @@ FILE_FILTERS = OrderedDict([
 # fmt: off
 
 # Used for testing only; assumes there's a local dir/symlink with appropriate model
-GRAPHICAL_IMAGE = os.path.join(REPO_DIR, "pics/crouton.png")
-IMAGE_DATASET = os.path.join(REPO_DIR, "pics/testing_dataset")
-MEDIUM_DATASET = os.path.join(REPO_DIR, "pics/medium_dataset")
-MULTILABEL_MODEL = os.path.join(REPO_DIR, "models.ignore/rgb-aug0/best_model.pth")
-SMALL_DATASET = os.path.join(REPO_DIR, "pics/small_dataset")
-TRAINED_MODEL = os.path.join(REPO_DIR, "models.ignore/RGB_no_augmentation.pth")
+GRAPHICAL_IMAGE = Path(REPO_DIR, "pics/crouton.png")
+IMAGE_DATASET = Path(REPO_DIR, "pics/testing_dataset")
+MEDIUM_DATASET = Path(REPO_DIR, "pics/medium_dataset")
+MULTILABEL_MODEL = Path(REPO_DIR, "models.ignore/rgb-aug0/best_model.pth")
+SMALL_DATASET = Path(REPO_DIR, "pics/small_dataset")
+TRAINED_MODEL = Path(REPO_DIR, "models.ignore/RGB_no_augmentation.pth")
 
 DEFAULT_MODEL_CATEGORIES = ["skin"]
 
