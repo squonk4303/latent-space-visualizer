@@ -27,7 +27,7 @@ def dataset_to_tensors(image_paths: list):
 
     preprocessing = torchvision.transforms.Compose(
         [
-            torchvision.transforms.Resize(28),
+            torchvision.transforms.Resize(consts.STANDARD_IMG_SIZE),
             torchvision.transforms.ToTensor(),
         ]
     )
@@ -78,7 +78,7 @@ def preliminary_dim_reduction_iii(model, layer, files):
     hook_handle = hook_location.register_forward_hook(hooker(features_list))
 
     # tqdm = lambda a, desc: a  # @Wilhelmsen: TEMP: Quick tqdm-disabler
-    for image_location in tqdm(files[0:40], desc="prelim. dim. reduction"):
+    for image_location in tqdm(files[0:81], desc="prelim. dim. reduction"):
         image = PIL.Image.open(image_location).convert("RGB")
         image = preprocessing(image)
         features_list.clear()
