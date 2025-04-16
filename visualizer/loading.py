@@ -78,7 +78,7 @@ def preliminary_dim_reduction_iii(model, layer, files):
     hook_handle = hook_location.register_forward_hook(hooker(features_list))
 
     # tqdm = lambda a, desc: a  # @Wilhelmsen: TEMP: Quick tqdm-disabler
-    for image_location in tqdm(files[0:10], desc="processing imgs"):
+    for image_location in tqdm(files[0:81], desc="processing imgs"):
         image = PIL.Image.open(image_location).convert("RGB")
         image = preprocessing(image)
         features_list.clear()
