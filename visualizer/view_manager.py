@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import os
+import numpy as np
 
 # NOTE: Sucky capitalization on torchvision.models because one is a function and one is a class
 from torchvision.models import resnet101, ResNet101_Weights
@@ -389,8 +390,12 @@ class PrimaryWindow(QMainWindow):
         # @Wilhelmsen: Move this assertion to tests
         assert len(reduced_data) == len(paths) == len(labels) == len(masks)
 
-        plottable_data = loading.apply_tsne(reduced_data)
-        # @Wilhelmsen: This is where a data normalization would take place
+        # Normalize array
+        # @Wilhelmsen: This normalizes for the whole matrix at once,
+        #              As opposed to for each axis, which is what I want
+        arr = loading.apply_tsne(reduced_data)
+        plottable_data = (arr / np.min(arr) / (np.max(arr) / np.min(arr)))
+
         self.data.labels = labels
         self.data.masks = masks
         self.data.paths = paths
