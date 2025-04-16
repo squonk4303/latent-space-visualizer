@@ -35,6 +35,11 @@ class MplCanvas(FigureCanvasQTAgg):
                 nrows=1, ncols=3
             )
 
+        self.input_display.get_xaxis().set_visible(False)
+        self.input_display.get_yaxis().set_visible(False)
+        self.output_display.get_xaxis().set_visible(False)
+        self.output_display.get_yaxis().set_visible(False)
+
         super().__init__(fig)
 
     def redraw(self):
