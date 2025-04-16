@@ -164,10 +164,6 @@ class PrimaryWindow(QMainWindow):
         graph_tab.addWidget(self.plot)
         graph_tab.addWidget(self.toolbar)
         graph_tab.addWidget(self.slider)
-        graph_tab.addWidget(quickload_button)
-        graph_tab.addWidget(quicksave_button)
-        graph_tab.addWidget(save_as_button)
-        graph_tab.addWidget(load_file_button)
 
         # ---------------------
         # Menu Bar And Submenus
