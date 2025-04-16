@@ -35,21 +35,27 @@ class MplCanvas(FigureCanvasQTAgg):
 
         super().__init__(fig)
 
+    def redraw(self):
+        """Clear subplots and reapply titles."""
+        self.axes.clear()
+        self.input_display.clear()
+        self.output_display.clear()
+
+        self.axes.set_title("Visualized Latent Space")
+        self.axes.set_xlabel("X = placeholder")
+        self.axes.set_ylabel("Y = placeholder")
+        self.input_display.set_title("Input Image")
+        self.output_display.set_title("Output Mask")
+
 
 class PlotWidget(QWidget):
     def __init__(self, parent):
         """Define and draw a graphical plot."""
         super().__init__(parent)
-
         self.parent = parent
         layout = QVBoxLayout(self)
         self.canvas = MplCanvas(self)
-        self.canvas.input_display.set_title("Input Image")
-        self.canvas.output_display.set_title("Output Mask")
-        self.canvas.axes.set_title("Visualized Latent Space")
-        self.canvas.axes.set_xlabel("X = placeholder")
-        self.canvas.axes.set_ylabel("Y = placeholder")
-
+        self.canvas.redraw()
         layout.addWidget(self.canvas)
 
     def plot_from_2d(self, array_2d: np.ndarray):
@@ -88,11 +94,6 @@ class PlotWidget(QWidget):
             plottables[L]["paths"].append(p)
             plottables[L]["coords"].append(c)
 
-        self.canvas.axes.clear()
-        self.canvas.axes.set_title("Visualized Latent Space")
-        self.canvas.axes.set_xlabel("X = placeholder")
-        self.canvas.axes.set_ylabel("Y = placeholder")
-
         for L in plottables:
             x, y = zip(*plottables[L]["coords"])
             self.canvas.axes.scatter(x, y, label=L, c=color_map[L])
@@ -102,14 +103,11 @@ class PlotWidget(QWidget):
     def new_tuple(self, value, labels, paths, coords, masks):
         """Changes which input image and mask is displayed, and highlights the corresponding point."""
         inpic = PIL.Image.open(paths[value])
-        self.canvas.input_display.clear()
-        self.canvas.output_display.clear()
-        self.canvas.input_display.set_title("Input Image")
-        self.canvas.output_display.set_title("Output Mask")
         self.canvas.input_display.imshow(inpic)
         self.canvas.output_display.imshow(masks[value])
         self.canvas.draw()
         self.canvas.flush_events()
+        self.canvas.redraw()
         tx, ty = coords[value]
         self.the_plottables(labels, paths, coords, masks)
         self.canvas.axes.scatter(tx, ty, s=500, marker="+", c="black")
