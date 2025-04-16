@@ -108,7 +108,7 @@ def preliminary_dim_reduction_iii(model, layer, files):
         # Set values under threshold to 0
         # @Wilhelmsen: this gate is disabled because the values in our set are all blocked by it
         pred_mask[pred_mask < 0.2] = 0
-        print("*** pred_mask:", pred_mask)
+        # print("*** pred_mask:", pred_mask)
 
         if pred_mask.ndim == 3 and pred_mask.shape[0] == len(model.categories):
             # Expected shape: (H, W)

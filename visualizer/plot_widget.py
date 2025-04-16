@@ -14,7 +14,9 @@ from matplotlib.backends.backend_qtagg import (
 )
 from matplotlib.figure import Figure
 from sklearn.manifold import TSNE
+from pathlib import Path
 import matplotlib.pyplot as plt
+import matplotlib.colors as col
 import numpy as np
 import PIL
 
@@ -33,6 +35,11 @@ class MplCanvas(FigureCanvasQTAgg):
                 nrows=1, ncols=3
             )
 
+        self.input_display.get_xaxis().set_visible(False)
+        self.input_display.get_yaxis().set_visible(False)
+        self.output_display.get_xaxis().set_visible(False)
+        self.output_display.get_yaxis().set_visible(False)
+
         super().__init__(fig)
 
     def redraw(self):
@@ -42,10 +49,10 @@ class MplCanvas(FigureCanvasQTAgg):
         self.output_display.clear()
 
         self.axes.set_title("Visualized Latent Space")
-        self.axes.set_xlabel("X = placeholder")
-        self.axes.set_ylabel("Y = placeholder")
+        self.axes.set_xlabel("X = Dimesion 1")
+        self.axes.set_ylabel("Y = Dimension 2")
         self.input_display.set_title("Input Image")
-        self.output_display.set_title("Output Mask")
+        self.output_display.set_title("Output Image")
 
 
 class PlotWidget(QWidget):
@@ -53,6 +60,7 @@ class PlotWidget(QWidget):
         """Define and draw a graphical plot."""
         super().__init__(parent)
         self.parent = parent
+        self.color_map = None
         layout = QVBoxLayout(self)
         self.canvas = MplCanvas(self)
         self.canvas.redraw()
@@ -79,13 +87,16 @@ class PlotWidget(QWidget):
         # @Wilhelmsen: Make it detect whether coords are 2d or 3d and act accordingly
         # Map each label to a randomly-sampled color
         unique_labels = list(set(labels))
-        color_map = {
-            label: color
-            for label, color in zip(
-                unique_labels,
-                random.sample(consts.COLORS, k=len(unique_labels)),
-            )
-        }
+        colors = consts.COLORS32
+
+        if not self.color_map:
+            self.color_map = {
+                label: color
+                for label, color in zip(
+                    unique_labels,
+                    random.sample(colors, k=len(unique_labels)),
+                )
+            }
 
         # Make a dict which maps paths and coords to related unique labels
         plottables = {key: {"paths": [], "coords": []} for key in unique_labels}
@@ -94,11 +105,13 @@ class PlotWidget(QWidget):
             plottables[L]["paths"].append(p)
             plottables[L]["coords"].append(c)
 
-        for L in plottables:
+        for L in sorted(plottables.keys()):
             x, y = zip(*plottables[L]["coords"])
-            self.canvas.axes.scatter(x, y, label=L, c=color_map[L])
+            self.canvas.axes.scatter(x, y, label=L, c=self.color_map[L])
 
-        self.canvas.axes.legend(loc="best")
+        self.canvas.axes.axvline(x=0, linestyle='--', linewidth=0.4, color='0.5')
+        self.canvas.axes.axhline(y=0, linestyle='--', linewidth=0.4, color='0.5')
+        self.canvas.axes.legend(loc="upper left", bbox_to_anchor=(1,1))
 
     def new_tuple(self, value, labels, paths, coords, masks):
         """Changes which input image and mask is displayed, and highlights the corresponding point."""
@@ -108,6 +121,8 @@ class PlotWidget(QWidget):
         self.canvas.draw()
         self.canvas.flush_events()
         self.canvas.redraw()
+        filename = Path(paths[value]).name
+        self.canvas.input_display.set_xlabel(filename)
         tx, ty = coords[value]
         self.the_plottables(labels, paths, coords, masks)
         self.canvas.axes.scatter(tx, ty, s=500, marker="+", c="black")
@@ -159,7 +174,7 @@ class PlotWidget(QWidget):
             label: color
             for label, color in zip(
                 (category for category in old_plottables.keys()),
-                random.sample(consts.COLORS, k=len(old_plottables)),
+                random.sample(consts.COLORS32, k=len(old_plottables)),
             )
         }
 
@@ -167,7 +182,7 @@ class PlotWidget(QWidget):
             tsne = [obj.tsne for obj in data]
             x, y = [list(t) for t in zip(*tsne)]
 
-            self.canvas.axes.scatter(x, y, label=label, c=color_map[label])
+            self.canvas.axes.scatter(x, y, label=label, c=self.color_map[label])
             self.canvas.axes.legend()
 
     def make_toolbar(self):
