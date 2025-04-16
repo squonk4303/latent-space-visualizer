@@ -42,7 +42,7 @@ class MplCanvas(FigureCanvasQTAgg):
 
         super().__init__(fig)
 
-    def redraw(self):
+    def redraw(self, imgdesc=""):
         """Clear subplots and reapply titles."""
         self.axes.clear()
         self.input_display.clear()
@@ -53,6 +53,11 @@ class MplCanvas(FigureCanvasQTAgg):
         self.axes.set_ylabel("Y = Dimension 2")
         self.input_display.set_title("Input Image")
         self.output_display.set_title("Output Image")
+        self.input_display.text(
+            0.5, -0.01, imgdesc, ha="center", va="top", 
+            transform=self.input_display.transAxes
+            )
+        
 
 
 class PlotWidget(QWidget):
@@ -111,21 +116,24 @@ class PlotWidget(QWidget):
 
         self.canvas.axes.axvline(x=0, linestyle='--', linewidth=0.4, color='0.5')
         self.canvas.axes.axhline(y=0, linestyle='--', linewidth=0.4, color='0.5')
+        self.canvas.axes.set_xlim(-2,2)
+        self.canvas.axes.set_ylim(-2,2)
+
         self.canvas.axes.legend(loc="upper left", bbox_to_anchor=(1,1))
 
     def new_tuple(self, value, labels, paths, coords, masks):
         """Changes which input image and mask is displayed, and highlights the corresponding point."""
-        inpic = PIL.Image.open(paths[value])
-        self.canvas.input_display.imshow(inpic)
-        self.canvas.output_display.imshow(masks[value])
-        self.canvas.draw()
-        self.canvas.flush_events()
-        self.canvas.redraw()
         filename = Path(paths[value]).name
-        self.canvas.input_display.set_xlabel(filename)
+        inpic = PIL.Image.open(paths[value])
+        self.canvas.redraw(filename) # Only displays filename on 2nd image for some reason?
         tx, ty = coords[value]
         self.the_plottables(labels, paths, coords, masks)
+        self.canvas.input_display.imshow(inpic)
+        self.canvas.output_display.imshow(masks[value])
         self.canvas.axes.scatter(tx, ty, s=500, marker="+", c="black")
+        # Update functionality to display correctly !Important
+        self.canvas.draw()
+        self.canvas.flush_events()
 
     def with_tsne(self, old_plottables):
         """Sucks and is bad."""

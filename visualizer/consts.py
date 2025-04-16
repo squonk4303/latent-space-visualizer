@@ -79,6 +79,7 @@ GRAPHICAL_IMAGE = Path(REPO_DIR, "pics/crouton.png")
 IMAGE_DATASET = Path(REPO_DIR, "pics/testing_dataset")
 MEDIUM_DATASET = Path(REPO_DIR, "pics/medium_dataset")
 MULTILABEL_MODEL = Path(REPO_DIR, "models.ignore/rgb-aug0/best_model.pth")
+S_DATASET = Path(REPO_DIR, "models.ignore/dataset_w_json")
 SMALL_DATASET = Path(REPO_DIR, "pics/small_dataset")
 TRAINED_MODEL = Path(REPO_DIR, "models.ignore/RGB_no_augmentation.pth")
 
