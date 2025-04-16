@@ -400,6 +400,9 @@ class PrimaryWindow(QMainWindow):
         self.data.masks = masks
         self.data.paths = paths
         self.data.two_dee = plottable_data
+        self.utilize_data()
+
+    def utilize_data(self):
         self.plot.the_plottables(
             self.data.labels, self.data.paths, self.data.two_dee, self.data.masks
         )
@@ -518,11 +521,13 @@ class PrimaryWindow(QMainWindow):
 
     def save_to_certain_file_wrapper(self):
         """Open dialog for a file for which to save .data"""
-        _ = loading.save_to_user_selected_file(self.data, parent=self)
+        save_location = loading.save_to_user_selected_file(self.data, parent=self)
+        if save_location:
+            self.feedback_label.setText("Saved to " + save_location)
 
     def load_file_wrapper(self):
         """Open dialog for file from which to load into .data"""
         self.data = loading.load_by_dialog(parent=self)
 
         if self.data is not None:
-            self.plot.plot_from_2d(self.data.dataset_plottable)
+            self.utilize_data()
