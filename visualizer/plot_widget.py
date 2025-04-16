@@ -116,6 +116,9 @@ class PlotWidget(QWidget):
 
         self.canvas.axes.axvline(x=0, linestyle='--', linewidth=0.4, color='0.5')
         self.canvas.axes.axhline(y=0, linestyle='--', linewidth=0.4, color='0.5')
+        self.canvas.axes.set_xlim(-2,2)
+        self.canvas.axes.set_ylim(-2,2)
+
         self.canvas.axes.legend(loc="upper left", bbox_to_anchor=(1,1))
 
     def new_tuple(self, value, labels, paths, coords, masks):
