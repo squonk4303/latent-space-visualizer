@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from contextlib import nullcontext
 import random
 
 from PyQt6.QtWidgets import (
@@ -15,6 +16,7 @@ from matplotlib.figure import Figure
 from sklearn.manifold import TSNE
 import matplotlib.pyplot as plt
 import numpy as np
+import PIL
 
 from visualizer import consts
 
@@ -24,12 +26,12 @@ class MplCanvas(FigureCanvasQTAgg):
 
     def __init__(self, parent, width=5, height=4, dpi=100):
         fig = Figure(figsize=(width, height), dpi=dpi)
-
-        if consts.flags["xkcd"]:
-            with plt.xkcd():
-                self.axes = fig.add_subplot(1, 1, 1)
-        else:
-            self.axes = fig.add_subplot(1, 1, 1)
+        # contextlib.nullcontext being a context manager which does nothing
+        cm = plt.xkcd() if consts.flags["xkcd"] else nullcontext()
+        with cm:
+            self.input_display, self.axes, self.output_display = fig.subplots(
+                nrows=1, ncols=3
+            )
 
         super().__init__(fig)
 
@@ -62,9 +64,8 @@ class PlotWidget(QWidget):
 
         self.canvas.draw()
 
-    def the_plottables(self, labels, paths, coords):
+    def the_plottables(self, labels, paths, coords, masks):
         # @Wilhelmsen: Make it detect whether coords are 2d or 3d and act accordingly
-
         # Map each label to a randomly-sampled color
         unique_labels = list(set(labels))
         color_map = {
@@ -75,25 +76,36 @@ class PlotWidget(QWidget):
             )
         }
 
-        # Make a dict which maps paths and coords to unique labels
+        # Make a dict which maps paths and coords to related unique labels
         plottables = {key: {"paths": [], "coords": []} for key in unique_labels}
 
         for L, p, c in zip(labels, paths, coords):
             plottables[L]["paths"].append(p)
             plottables[L]["coords"].append(c)
 
-        print("*** plottables:", plottables)
+        self.canvas.axes.clear()
 
         for L in plottables:
-            # x, y = zip(plottables[L]["coords"])
-            # print("*** x, y:", x, y)
             x, y = zip(*plottables[L]["coords"])
-
             self.canvas.axes.scatter(x, y, label=L, c=color_map[L])
 
         self.canvas.axes.legend(loc="best")
 
+    def new_tuple(self, value, labels, paths, coords, masks):
+        """Changes which input image and mask is displayed, and highlights the corresponding point."""
+        inpic = PIL.Image.open(paths[value])
+        self.canvas.input_display.clear()
+        self.canvas.output_display.clear()
+        self.canvas.input_display.imshow(inpic)
+        self.canvas.output_display.imshow(masks[value])
+        self.canvas.draw()
+        self.canvas.flush_events()
+        tx, ty = coords[value]
+        self.the_plottables(labels, paths, coords, masks)
+        self.canvas.axes.scatter(tx, ty, s=500, marker="+", c="black")
+
     def with_tsne(self, old_plottables):
+        """Sucks and is bad."""
         # Put all features in a list, and all labels in a list with corresponding indices
         # Python list comprehension is awesome; And the zip function; And tuple assignment
         labels, all_feats = tuple(

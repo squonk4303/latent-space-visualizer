@@ -67,9 +67,10 @@ def preliminary_dim_reduction_iii(model, layer, files):
 
     dominant_categories = []
     features = []
-    valid_paths = []
     filtered_filenames = []
+    masks = []
     predicted_labels = []
+    valid_paths = []
 
     # Register hook; hooked_feature is a list for its pointer-like qualities
     features_list = []  # @Wilhelmsen: change this to a dict or something; for elegance
@@ -154,13 +155,12 @@ def preliminary_dim_reduction_iii(model, layer, files):
         filename = filename.stem
         mask_path = os.path.join(mask_dir, f"{filename}_mask.png")
         false_color_img.save(mask_path)
+        masks.append(false_color_img)
         # print(f"Saved false-color segmentation mask: {mask_path}")
 
     hook_handle.remove()
-
     features = np.array(features).reshape(len(features), -1)
-
-    return features, valid_paths, dominant_categories
+    return features, valid_paths, dominant_categories, masks
 
 
 def preliminary_dim_reduction_2(model, layer, label, files):

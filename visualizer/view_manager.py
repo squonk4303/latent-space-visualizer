@@ -4,18 +4,21 @@ import os
 # NOTE: Sucky capitalization on torchvision.models because one is a function and one is a class
 from torchvision.models import resnet101, ResNet101_Weights
 
+from PyQt6.QtCore import Qt
 from PyQt6.QtGui import (
     QAction,
     QKeySequence,
     QPixmap,
+    QWheelEvent,
 )
 
 from PyQt6.QtWidgets import (
+    QSlider,
     QHBoxLayout,
     QLabel,
     QMainWindow,
-    QStatusBar,
     QPushButton,
+    QStatusBar,
     QVBoxLayout,
     QWidget,
 )
@@ -35,6 +38,31 @@ class PrimaryWindow(QMainWindow):
 
     This is where all the action happens...
     """
+
+    # =========
+    # Callbacks
+    # =========
+
+    def wheelEvent(self, ev: QWheelEvent):
+        """
+        Refers to this event handler:
+        https://doc.qt.io/qt-6/qwidget.html#wheelEvent
+        """
+        # When on the scatter tab
+        # (Though it seems matplotlib captures the mouse event)
+        if self.tab_layout.currentIndex() == 1:
+            # Note that this will trigger slider.valueChanged
+            if ev.angleDelta().y() > 0:
+                new_value = min(self.slider.maximum(), self.slider.value() + 1)
+                self.slider.setValue(new_value)
+
+            elif ev.angleDelta().y() < 0:
+                new_value = max(self.slider.minimum(), self.slider.value() - 1)
+                self.slider.setValue(new_value)
+
+    # =====
+    # Inits
+    # =====
 
     def __init__(self):
         """Constructor for the primary window"""
@@ -117,18 +145,25 @@ class PrimaryWindow(QMainWindow):
         self.plot = PlotWidget(parent=self)
         self.toolbar = self.plot.make_toolbar()
 
+        # Save/Load Buttons
         quicksave_button = QPushButton("Quicksave Plot")
         quickload_button = QPushButton("Quickload Plot")
         quicksave_button.clicked.connect(self.quicksave_wrapper)
         quickload_button.clicked.connect(self.quickload_wrapper)
-
         save_as_button = QPushButton("Save As...")
         load_file_button = QPushButton("Load File...")
         save_as_button.clicked.connect(self.save_to_certain_file_wrapper)
         load_file_button.clicked.connect(self.load_file_wrapper)
 
+        # Slider
+        self.slider = QSlider(parent=self)
+        self.slider.setOrientation(Qt.Orientation.Horizontal)
+        self.slider.valueChanged.connect(self.set_new_elements_to_display)
+
+        # Organize Widgets
         graph_tab.addWidget(self.plot)
         graph_tab.addWidget(self.toolbar)
+        graph_tab.addWidget(self.slider)
         graph_tab.addWidget(quickload_button)
         graph_tab.addWidget(quicksave_button)
         graph_tab.addWidget(save_as_button)
@@ -154,16 +189,26 @@ class PrimaryWindow(QMainWindow):
         # Cheats
         # ------
 
-        dev_button_1 = QPushButton("Cook 1")
-        dev_button_1.clicked.connect(self.start_cooking)
-        self.start_tab.addWidget(dev_button_1)
-
-        dev_button_2 = QPushButton("Cook 2")
-        dev_button_2.clicked.connect(self.start_cooking_brains)
-        self.start_tab.addWidget(dev_button_2)
-
         if consts.flags["dev"]:
-            self.start_cooking_brains()  # <-- Just goes ahead and starts cooking brains
+            quicklaunch_button = QPushButton("Cook I")
+            quicklaunch_button.clicked.connect(self.quick_launch)
+            self.start_tab.addWidget(quicklaunch_button)
+
+    # =======
+    # Methods
+    # =======
+
+    def quick_launch(self):
+        self.data.model = os.path.join(
+            consts.REPO_DIR, "models.ignore/rgb-aug0/best_model.pth"
+        )
+        self.data.model = FCNResNet101()
+        self.data.model.load(consts.MULTILABEL_MODEL)
+        self.data.layer = "layer4"
+        self.data.dataset_location = os.path.join(
+            consts.REPO_DIR, "pics/dataset_w_json"
+        )
+        self.start_cooking_iii()
 
     def init_model_selection(self):
         self.model_feedback_label = QLabel("<-- File dialog for .pth")
@@ -219,6 +264,17 @@ class PrimaryWindow(QMainWindow):
         navigate_menu = menubar.addMenu("&Tab")
         navigate_menu.addAction(self.next_tab)
         navigate_menu.addAction(self.prev_tab)
+
+    def set_new_elements_to_display(self, value):
+        """
+        Change the tuple(picture, coordinate, mask, &c) selected in the scatter tab.
+
+        Called whenever the slider changes, by user or other means.
+        """
+        print("value:", value)
+        self.plot.new_tuple(
+            value, self.data.labels, self.data.paths, self.data.two_dee, self.data.masks
+        )
 
     def load_model_file(self):
         """
@@ -332,18 +388,24 @@ class PrimaryWindow(QMainWindow):
     def start_cooking_iii(self):
         # @Wilhelmsen: This could be an iglob
         image_locations = utils.grab_image_paths_in_dir(self.data.dataset_location)
-        reduced_data, paths, labels = loading.preliminary_dim_reduction_iii(
+        reduced_data, paths, labels, masks = loading.preliminary_dim_reduction_iii(
             self.data.model, self.data.layer, image_locations
         )
         # @Wilhelmsen: Move this assertion to tests
-        assert len(reduced_data) == len(paths) == len(labels)
+        assert len(reduced_data) == len(paths) == len(labels) == len(masks)
 
         plottable_data = loading.apply_tsne(reduced_data)
         # @Wilhelmsen: This is where a data normalization would take place
         self.data.labels = labels
+        self.data.masks = masks
         self.data.paths = paths
         self.data.two_dee = plottable_data
-        self.plot.the_plottables(self.data.labels, self.data.paths, self.data.two_dee)
+        self.plot.the_plottables(
+            self.data.labels, self.data.paths, self.data.two_dee, self.data.masks
+        )
+        # Set slider limits
+        self.slider.setMinimum(0)
+        self.slider.setMaximum(len(self.data.paths) - 1)
 
     def start_cooking_brains(self):
         """
