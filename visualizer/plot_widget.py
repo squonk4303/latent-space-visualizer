@@ -42,7 +42,7 @@ class MplCanvas(FigureCanvasQTAgg):
 
         super().__init__(fig)
 
-    def redraw(self):
+    def redraw(self, imgdesc=""):
         """Clear subplots and reapply titles."""
         self.axes.clear()
         self.input_display.clear()
@@ -53,6 +53,11 @@ class MplCanvas(FigureCanvasQTAgg):
         self.axes.set_ylabel("Y = Dimension 2")
         self.input_display.set_title("Input Image")
         self.output_display.set_title("Output Image")
+        self.input_display.text(
+            0.5, -0.01, imgdesc, ha="center", va="top", 
+            transform=self.input_display.transAxes
+            )
+        
 
 
 class PlotWidget(QWidget):
@@ -118,11 +123,10 @@ class PlotWidget(QWidget):
         inpic = PIL.Image.open(paths[value])
         self.canvas.input_display.imshow(inpic)
         self.canvas.output_display.imshow(masks[value])
+        filename = Path(paths[value]).name
         self.canvas.draw()
         self.canvas.flush_events()
-        self.canvas.redraw()
-        filename = Path(paths[value]).name
-        self.canvas.input_display.set_xlabel(filename)
+        self.canvas.redraw(filename) # Only displays filename on 2nd image for some reason?
         tx, ty = coords[value]
         self.the_plottables(labels, paths, coords, masks)
         self.canvas.axes.scatter(tx, ty, s=500, marker="+", c="black")
