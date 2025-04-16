@@ -197,12 +197,10 @@ class PrimaryWindow(QMainWindow):
 
     def quick_launch(self):
         print(consts.S_DATASET)
-        self.data.model = consts.S_DATASET
         self.data.model = FCNResNet101()
         self.data.model.load(consts.MULTILABEL_MODEL)
         self.data.layer = "layer4"
-        self.data.dataset_location = os.path.join(
-            consts.REPO_DIR, "pics/dataset_w_json"
+        self.data.dataset_location = consts.S_DATASET
         )
         self.start_cooking_iii()
 
