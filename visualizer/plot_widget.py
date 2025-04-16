@@ -89,6 +89,9 @@ class PlotWidget(QWidget):
             plottables[L]["coords"].append(c)
 
         self.canvas.axes.clear()
+        self.canvas.axes.set_title("Visualized Latent Space")
+        self.canvas.axes.set_xlabel("X = placeholder")
+        self.canvas.axes.set_ylabel("Y = placeholder")
 
         for L in plottables:
             x, y = zip(*plottables[L]["coords"])
@@ -101,6 +104,8 @@ class PlotWidget(QWidget):
         inpic = PIL.Image.open(paths[value])
         self.canvas.input_display.clear()
         self.canvas.output_display.clear()
+        self.canvas.input_display.set_title("Input Image")
+        self.canvas.output_display.set_title("Output Mask")
         self.canvas.input_display.imshow(inpic)
         self.canvas.output_display.imshow(masks[value])
         self.canvas.draw()
