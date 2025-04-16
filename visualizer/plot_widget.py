@@ -88,14 +88,18 @@ class PlotWidget(QWidget):
             self.canvas.axes.scatter(x, y, label=L, c=color_map[L])
 
         self.canvas.axes.legend(loc="best")
+        self.canvas.draw()
+        self.canvas.flush_events()
 
     def new_tuple(self, value, labels, paths, coords, masks):
         """Changes which input image and mask is displayed, and highlights the corresponding point."""
         inpic = PIL.Image.open(paths[value])
         self.canvas.input_display.imshow(inpic)
         self.canvas.output_display.imshow(masks[value])
-        tx, ty = coords[value][0], coords[value][1]
+        tx, ty = coords[value]
         self.canvas.axes.scatter(tx, ty, s=1000, marker="+", c="red")
+        self.canvas.draw()
+        self.canvas.flush_events()
 
     def with_tsne(self, old_plottables):
         """Sucks and is bad."""
