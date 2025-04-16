@@ -3,7 +3,15 @@
 Module with functions tohandle file dialogs.
 """
 import datetime
-from PyQt6.QtWidgets import QFileDialog
+from PyQt6.QtWidgets import (
+    QFileDialog,
+    QDialog,
+    QVBoxLayout,
+    QHBoxLayout,
+    QLabel,
+    QComboBox,
+    QPushButton
+    )
 from visualizer import consts
 
 
@@ -106,3 +114,37 @@ def for_directory(caption="", *, parent):
         caption=caption,
     )
     return dirpath
+
+class LayerDialog(QDialog):
+    def __init__(self, parent):
+        super().__init__(parent)
+
+        self.setWindowTitle("Select layer(s)")
+
+        self.startButton = QComboBox(self)
+        self.startButton.addItem("...")
+
+        self.endButton = QComboBox(self)
+        self.endButton.addItem("...")
+
+        submitButton = QPushButton("Submit")
+
+        layout = QVBoxLayout()
+        label = QLabel("Layers go here")
+        subLayout = QHBoxLayout()
+
+        subLayout.addWidget(self.startButton)
+        subLayout.addWidget(self.endButton)
+
+        layout.addWidget(label)
+        layout.addLayout(subLayout)
+        layout.addWidget(submitButton)
+    
+    def expand_buttons(self, layers):
+
+        for layer in layers:
+            self.startButton.addItem(layer)
+            self.endButton.addItem(layer)
+        
+def for_layer_select(parent):
+    return None
