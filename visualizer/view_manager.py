@@ -4,18 +4,21 @@ import os
 # NOTE: Sucky capitalization on torchvision.models because one is a function and one is a class
 from torchvision.models import resnet101, ResNet101_Weights
 
+from PyQt6.QtCore import Qt
 from PyQt6.QtGui import (
     QAction,
     QKeySequence,
     QPixmap,
+    QWheelEvent,
 )
 
 from PyQt6.QtWidgets import (
+    QSlider,
     QHBoxLayout,
     QLabel,
     QMainWindow,
-    QStatusBar,
     QPushButton,
+    QStatusBar,
     QVBoxLayout,
     QWidget,
 )
@@ -35,6 +38,27 @@ class PrimaryWindow(QMainWindow):
 
     This is where all the action happens...
     """
+
+    # =========
+    # Callbacks
+    # =========
+
+    def wheelEvent(self, ev: QWheelEvent):
+        """
+        Refers to this event handler:
+        https://doc.qt.io/qt-6/qwidget.html#wheelEvent
+        """
+        # When on the scatter tab
+        # (Though it seems matplotlib captures the mouse event)
+        if self.tab_layout.currentIndex() == 1:
+            if ev.angleDelta().y() > 0:
+                self.slider.setValue(self.slider.value() + 1)
+            elif ev.angleDelta().y() < 0:
+                self.slider.setValue(self.slider.value() - 1)
+
+    # =====
+    # Inits
+    # =====
 
     def __init__(self):
         """Constructor for the primary window"""
@@ -117,18 +141,25 @@ class PrimaryWindow(QMainWindow):
         self.plot = PlotWidget(parent=self)
         self.toolbar = self.plot.make_toolbar()
 
+        # Save/Load Buttons
         quicksave_button = QPushButton("Quicksave Plot")
         quickload_button = QPushButton("Quickload Plot")
         quicksave_button.clicked.connect(self.quicksave_wrapper)
         quickload_button.clicked.connect(self.quickload_wrapper)
-
         save_as_button = QPushButton("Save As...")
         load_file_button = QPushButton("Load File...")
         save_as_button.clicked.connect(self.save_to_certain_file_wrapper)
         load_file_button.clicked.connect(self.load_file_wrapper)
 
+        # Slider
+        self.slider = QSlider(parent=self)
+        self.slider.setOrientation(Qt.Orientation.Horizontal)
+        self.slider.valueChanged.connect(self.set_new_elements_to_display)
+
+        # Organize Widgets
         graph_tab.addWidget(self.plot)
         graph_tab.addWidget(self.toolbar)
+        graph_tab.addWidget(self.slider)
         graph_tab.addWidget(quickload_button)
         graph_tab.addWidget(quicksave_button)
         graph_tab.addWidget(save_as_button)
@@ -158,6 +189,10 @@ class PrimaryWindow(QMainWindow):
             quicklaunch_button = QPushButton("Cook I")
             quicklaunch_button.clicked.connect(self.quick_launch)
             self.start_tab.addWidget(quicklaunch_button)
+
+    # =======
+    # Methods
+    # =======
 
     def quick_launch(self):
         self.data.model = os.path.join(
@@ -225,6 +260,17 @@ class PrimaryWindow(QMainWindow):
         navigate_menu = menubar.addMenu("&Tab")
         navigate_menu.addAction(self.next_tab)
         navigate_menu.addAction(self.prev_tab)
+
+    def set_new_elements_to_display(self, value):
+        """
+        Change the tuple(picture, coordinate, mask, &c) selected in the scatter tab.
+
+        Called whenever the slider changes, by user or other means.
+        """
+        print("value:", value)
+        self.plot.new_tuple(
+            value, self.data.labels, self.data.paths, self.data.two_dee, self.data.masks
+        )
 
     def load_model_file(self):
         """
