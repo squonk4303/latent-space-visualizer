@@ -116,20 +116,24 @@ class PlotWidget(QWidget):
 
         self.canvas.axes.axvline(x=0, linestyle='--', linewidth=0.4, color='0.5')
         self.canvas.axes.axhline(y=0, linestyle='--', linewidth=0.4, color='0.5')
+        self.canvas.axes.set_xlim(-2,2)
+        self.canvas.axes.set_ylim(-2,2)
+
         self.canvas.axes.legend(loc="upper left", bbox_to_anchor=(1,1))
 
     def new_tuple(self, value, labels, paths, coords, masks):
         """Changes which input image and mask is displayed, and highlights the corresponding point."""
-        inpic = PIL.Image.open(paths[value])
-        self.canvas.input_display.imshow(inpic)
-        self.canvas.output_display.imshow(masks[value])
         filename = Path(paths[value]).name
-        self.canvas.draw()
-        self.canvas.flush_events()
+        inpic = PIL.Image.open(paths[value])
         self.canvas.redraw(filename) # Only displays filename on 2nd image for some reason?
         tx, ty = coords[value]
         self.the_plottables(labels, paths, coords, masks)
+        self.canvas.input_display.imshow(inpic)
+        self.canvas.output_display.imshow(masks[value])
         self.canvas.axes.scatter(tx, ty, s=500, marker="+", c="black")
+        # Update functionality to display correctly !Important
+        self.canvas.draw()
+        self.canvas.flush_events()
 
     def with_tsne(self, old_plottables):
         """Sucks and is bad."""

@@ -201,7 +201,6 @@ class PrimaryWindow(QMainWindow):
         self.data.model.load(consts.MULTILABEL_MODEL)
         self.data.layer = "layer4"
         self.data.dataset_location = consts.S_DATASET
-        )
         self.start_cooking_iii()
 
     def init_model_selection(self):
