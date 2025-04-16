@@ -78,7 +78,7 @@ def preliminary_dim_reduction_iii(model, layer, files):
     hook_handle = hook_location.register_forward_hook(hooker(features_list))
 
     # tqdm = lambda a, desc: a  # @Wilhelmsen: TEMP: Quick tqdm-disabler
-    for image_location in tqdm(files[0:4], desc="processing imgs"):
+    for image_location in tqdm(files[0:81], desc="processing imgs"):
         image = PIL.Image.open(image_location).convert("RGB")
         image = preprocessing(image)
         features_list.clear()
@@ -107,8 +107,8 @@ def preliminary_dim_reduction_iii(model, layer, files):
         pred_mask = torch.sigmoid(logits).squeeze()
         # Set values under threshold to 0
         # @Wilhelmsen: this gate is disabled because the values in our set are all blocked by it
-        # pred_mask[pred_mask < 0.2] = 0
-        # print("*** pred_mask:", pred_mask)
+        pred_mask[pred_mask < 0.2] = 0
+        print("*** pred_mask:", pred_mask)
 
         if pred_mask.ndim == 3 and pred_mask.shape[0] == len(model.categories):
             # Expected shape: (H, W)
