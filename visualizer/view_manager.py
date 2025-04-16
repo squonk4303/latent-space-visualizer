@@ -196,7 +196,7 @@ class PrimaryWindow(QMainWindow):
 
     def quick_launch(self):
         self.data.model = os.path.join(
-            consts.REPO_DIR, "models.ignore/rgb-aug0/best_model.pth"
+            consts.REPO_DIR, consts.S_DATASET
         )
         self.data.model = FCNResNet101()
         self.data.model.load(consts.MULTILABEL_MODEL)

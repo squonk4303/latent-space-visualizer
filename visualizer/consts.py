@@ -82,6 +82,7 @@ MEDIUM_DATASET = os.path.join(REPO_DIR, "pics/medium_dataset")
 MULTILABEL_MODEL = os.path.join(REPO_DIR, "models.ignore/rgb-aug0/best_model.pth")
 SMALL_DATASET = os.path.join(REPO_DIR, "pics/small_dataset")
 TRAINED_MODEL = os.path.join(REPO_DIR, "models.ignore/RGB_no_augmentation.pth")
+S_DATASET = os.path.join(REPO_DIR, "models.ignore/dataset_w_json")
 
 DEFAULT_MODEL_CATEGORIES = ["skin"]
 
