@@ -51,10 +51,14 @@ class PrimaryWindow(QMainWindow):
         # When on the scatter tab
         # (Though it seems matplotlib captures the mouse event)
         if self.tab_layout.currentIndex() == 1:
+            # Note that this will trigger slider.valueChanged
             if ev.angleDelta().y() > 0:
-                self.slider.setValue(self.slider.value() + 1)
+                new_value = min(self.slider.maximum(), self.slider.value() + 1)
+                self.slider.setValue(new_value)
+
             elif ev.angleDelta().y() < 0:
-                self.slider.setValue(self.slider.value() - 1)
+                new_value = max(self.slider.minimum(), self.slider.value() - 1)
+                self.slider.setValue(new_value)
 
     # =====
     # Inits
@@ -399,6 +403,9 @@ class PrimaryWindow(QMainWindow):
         self.plot.the_plottables(
             self.data.labels, self.data.paths, self.data.two_dee, self.data.masks
         )
+        # Set slider limits
+        self.slider.setMinimum(0)
+        self.slider.setMaximum(len(self.data.paths) - 1)
 
     def start_cooking_brains(self):
         """
