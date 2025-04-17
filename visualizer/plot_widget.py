@@ -131,7 +131,7 @@ class PlotWidget(QWidget):
         self.canvas.input_display.imshow(inpic)
         self.canvas.output_display.imshow(masks[value])
         self.canvas.axes.scatter(tx, ty, s=500, marker="+", c="black")
-        # Update functionality to display correctly !Important
+        # Update functionality to display correctly 
         self.canvas.draw()
         self.canvas.flush_events()
 
