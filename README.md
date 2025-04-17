@@ -5,7 +5,7 @@ Developed by Olivia Linnea Kopsland Tjore & William Westye Mikal Wilhelmsen
 
 ## Build Instructions (Style 1)
 
-A simple command-by-command guide to installing and running the program from a unix system with git and python already installed.
+A simple command-by-command guide to installing and running the program from a unix system with [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) and [Python](https://www.python.org/downloads/) already installed.
 
 ```sh
 $ # Clone repository and navigate inside
@@ -27,6 +27,8 @@ $ python -m visualizer.main
 
 ## Build Instructions (Style 2)
 
+A simple command-by-command guide to installing and running the program from a unix system with [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) and [Python](https://www.python.org/downloads/) already installed.
+
 Clone repository and navigate inside
 ```sh
 git clone https://github.com/squonk4303/latent-space-visualizer
@@ -39,7 +41,9 @@ python -m venv .venv
 source .venv/bin/activate
 ```
 
-Install dependencies. (`torch` and `torchvision` have to be installed separately; see instructions at [https://pytorch.org/get-started/locally/](https://pytorch.org/get-started/locally/))
+Install dependencies.
+
+Note that `torch` and `torchvision` have to be installed separately; see [their official instructions](https://pytorch.org/get-started/locally/)
 ```sh
 pip install -r requirements.txt
 ```
