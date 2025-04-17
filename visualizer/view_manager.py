@@ -32,6 +32,7 @@ from visualizer.models.segmentation import FCNResNet101
 from visualizer.plottables import Plottables, SavableData
 from visualizer.plot_widget import PlotWidget
 from visualizer.stacked_layout_manager import StackedLayoutManager
+import visualizer.models
 
 
 class PrimaryWindow(QMainWindow):
@@ -192,7 +193,7 @@ class PrimaryWindow(QMainWindow):
         # ------
 
         if consts.flags["dev"]:
-            quicklaunch_button = QPushButton("Cook I")
+            quicklaunch_button = QPushButton("Cook")
             quicklaunch_button.clicked.connect(self.quick_launch)
             self.stage_tab.addWidget(quicklaunch_button)
 
@@ -340,6 +341,21 @@ class PrimaryWindow(QMainWindow):
                 self.feedback_label.setText(e)
 
             self.try_to_activate_goforit_button()
+
+    def select_model_type(self, model_type: str):
+        """Check modules for model-type, then loads an instance of it into self.model"""
+        if hasattr(visualizer.models.segmentation, model_type):
+            self.feedback_label.setText(f"You chose model type {model_type}!")
+            the_class = getattr(visualizer.models.segmentation, model_type)
+            self.model = the_class()
+            print(f"Successfully did model {model_type}, {the_class}")
+
+        # elif hasattr(models.whatever, model_type):
+        #     self.feedback_label.setText("You sure chose " + model_type)
+        #     self.model = getattr(models.whatever, model_type)()
+
+        else:
+            raise ValueError(f"Woah. Model type {model_type} wasn't supposed to be selectable.")
 
     def try_to_activate_goforit_button(self):
         """

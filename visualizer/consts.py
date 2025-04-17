@@ -77,6 +77,11 @@ class DR_technique(Enum):
     PACMAP = auto()
 
 
+# These are used in "getattr", so they're case sensitive, and it's
+# important to keep them updated. Always run tests when refactoring models.
+MODEL_TYPES = ["FCNResNet101"]
+
+
 # Flags. If anyone asks why this is in consts, tell them to <class 'zip'> it
 # Then consider whether to rename this file to "values.py" or something and
 # make a class with consts instead or something , as well as store other

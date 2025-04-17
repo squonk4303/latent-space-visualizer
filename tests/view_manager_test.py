@@ -12,6 +12,7 @@ from visualizer import consts, utils
 from visualizer.models.segmentation import FCNResNet101
 from visualizer.plottables import SavableData
 from visualizer.view_manager import PrimaryWindow
+import visualizer.models.segmentation
 
 
 # --- Fixtures and Sort-of-Fixtures ---
@@ -132,6 +133,7 @@ def test_quicksave_n_quickload(primary_window, data_object):
     )
 
 
+@pytest.mark.slow
 @pytest.mark.stub
 def test_try_to_activate_goforit_button(primary_window, valid_model):
     """
@@ -161,6 +163,7 @@ def _test_find_layer_activates_goforit_button(primary_window, valid_model):
         assert primary_window.go_for_it_button.isEnabled()
 
 
+@pytest.mark.slow
 @pytest.mark.stub
 def test_find_model_activates_goforit_button(primary_window):
     # Mock to assure the function will set a valid trained model
@@ -175,6 +178,7 @@ def test_find_model_activates_goforit_button(primary_window):
         assert primary_window.go_for_it_button.isEnabled()
 
 
+@pytest.mark.slow
 @pytest.mark.stub
 def test_find_dataset_activates_goforit_button(primary_window, valid_model):
     # Mock to assure the function will set a valid dataset
@@ -189,3 +193,15 @@ def test_find_dataset_activates_goforit_button(primary_window, valid_model):
         # Assert the final function changes the button state
         primary_window.find_dataset()
         assert primary_window.go_for_it_button.isEnabled()
+
+
+def test_automatic_getting_of_model_types(primary_window):
+    """Assert that all model types in the const are valid."""
+    for model in consts.MODEL_TYPES:
+        primary_window.select_model_type(model)
+
+
+def test_select_model_type_dont_take_no_shit(primary_window):
+    """Make sure that the function does raise an error on bad model type."""
+    with pytest.raises(ValueError):
+        primary_window.select_model_type("Bogus model for fools and knaves")
