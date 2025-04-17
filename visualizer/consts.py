@@ -23,45 +23,22 @@ Launch a GUI which helps manipulate the latent space of a trained neural-network
 And that kind of thing.
 """
 
+
 # Colors
 class COLOR(Enum):
     BACKGROUND = auto()
     TEXT = auto()
 
+
 COLORS32 = [
-    "#00008b",
-    "#0000ff",
-    "#006400",
-    "#008b8b",
-    "#00ff00",
-    "#00fa9a",
-    "#1e90ff",
-    "#32cd32",
-    "#4682b4",
-    "#483d8b",
-    "#696969",
-    "#7b68ee",
-    "#7f0000",
-    "#7fffd4",
-    "#800080",
-    "#808000",
-    "#8a2be2",
-    "#8fbc8f",
-    "#adff2f",
-    "#afeeee",
-    "#b03060",
-    "#d8bfd8",
-    "#da70d6",
-    "#dc143c",
-    "#f08080",
-    "#f0e68c",
-    "#f4a460",
-    "#ff0000",
-    "#ff0080",
-    "#ff00ff",
-    "#ff1493",
-    "#ff8c00",
-    "#ffd700",
+    # fmt: off
+    "#00008b", "#00008b", "#0000ff", "#0000ff", "#006400", "#006400", "#008b8b",
+    "#008b8b", "#00fa9a", "#00fa9a", "#00ff00", "#00ff00", "#1e90ff", "#1e90ff",
+    "#32cd32", "#4682b4", "#483d8b", "#696969", "#7b68ee", "#7f0000", "#7fffd4",
+    "#800080", "#808000", "#8a2be2", "#8fbc8f", "#adff2f", "#afeeee", "#b03060",
+    "#d8bfd8", "#da70d6", "#dc143c", "#f08080", "#f0e68c", "#f4a460", "#ff0000",
+    "#ff0080", "#ff00ff", "#ff1493", "#ff8c00", "#ffd700",
+    # fmt: on
 ]
 
 
@@ -89,8 +66,6 @@ MULTILABEL_MODEL = Path(REPO_DIR, "models.ignore/rgb-aug0/best_model.pth")
 S_DATASET = Path(REPO_DIR, "models.ignore/dataset_w_json")
 SMALL_DATASET = Path(REPO_DIR, "pics/small_dataset")
 TRAINED_MODEL = Path(REPO_DIR, "models.ignore/RGB_no_augmentation.pth")
-
-DEFAULT_MODEL_CATEGORIES = ["skin"]
 
 
 # Enums for dimensionality reduction techniques

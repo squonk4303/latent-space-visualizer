@@ -16,8 +16,9 @@ from visualizer.plottables import SavableData
 # --- Fixtures ---
 @pytest.fixture
 def data_object():
+    # @Wilhelmsen: Reconsider this fixture
     data = SavableData()
-    # data.model = FCNResNet101(["skin"])
+    # data.model = FCNResNet101()
     # data.model.load(consts.TRAINED_MODEL)
     data.dataset_plottable = np.array(
         [
@@ -43,7 +44,7 @@ def temp_pickle(data_object) -> str:
 def test_load_model():
     """Just runs this to see if it crashes."""
     # @Wilhelmsen: Is there anything more useful to test here?
-    model = FCNResNet101(["skin"])
+    model = FCNResNet101()
     model.load(consts.TRAINED_MODEL)
     assert model is not None
 
@@ -55,22 +56,6 @@ def check_tensor_shape(tensor):
     assert tensor.shape[1] == 3
     std_size = consts.STANDARD_IMG_SIZE
     assert tensor.shape[2] == std_size or tensor.shape[3] == std_size
-
-
-def test_dataset_to_tensor():
-    # Test for a list of paths
-    list_of_paths = utils.grab_image_paths_in_dir(consts.MEDIUM_DATASET)
-    list_of_paths = utils.grab_image_paths_in_dir(consts.S_DATASET)
-    tensors = loading.dataset_to_tensors(list_of_paths)
-    # assert length of output is same as len of input
-    assert len(tensors) == len(list_of_paths)
-    for t in tensors:
-        check_tensor_shape(t)
-
-    # Test for a single path
-    # Test for several paths given as several arguments
-
-    # print("".join(f"{t.shape}\n" for t in tensors))
 
 
 def test_apply_tsne():

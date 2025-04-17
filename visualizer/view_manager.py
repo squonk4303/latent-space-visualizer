@@ -134,8 +134,8 @@ class PrimaryWindow(QMainWindow):
         self.goto_graph_tab.setShortcut(QKeySequence.StandardKey.MoveToNextPage)
         self.goto_stage_tab.setShortcut(QKeySequence.StandardKey.MoveToPreviousPage)
         # Trigger buttons
-        self.goto_graph_tab.triggered.connect(self.goto_tab(1,consts.GRAPH_TITLE))
-        self.goto_stage_tab.triggered.connect(self.goto_tab(0,consts.STAGE_TITLE))
+        self.goto_graph_tab.triggered.connect(self.goto_tab(1, consts.GRAPH_TITLE))
+        self.goto_stage_tab.triggered.connect(self.goto_tab(0, consts.STAGE_TITLE))
 
         # Initialize Selection Menu in load_tab
         # -----------------------
@@ -227,7 +227,9 @@ class PrimaryWindow(QMainWindow):
         self.stage_tab.addLayout(row_model_selection)
 
     def init_layer_selection(self):
-        self.layer_feedback_label = QLabel("<-- Select the layer in your model for the latent space")
+        self.layer_feedback_label = QLabel(
+            "<-- Select the layer in your model for the latent space"
+        )
         layer_button = QPushButton("Select layer")
         layer_button.clicked.connect(self.find_layer)
         row_layer_selection = QHBoxLayout()
@@ -237,7 +239,9 @@ class PrimaryWindow(QMainWindow):
 
     def init_dataset_selection(self):
         dataset_selection_button = QPushButton("Select Dataset")
-        self.dataset_feedback_label = QLabel("<-- Select the folder for the dataset you wish to use")
+        self.dataset_feedback_label = QLabel(
+            "<-- Select the folder for the dataset you wish to use"
+        )
         dataset_selection_button.clicked.connect(self.find_dataset)
         row_dataset_selection = QHBoxLayout()
         row_dataset_selection.addWidget(dataset_selection_button)
@@ -289,7 +293,9 @@ class PrimaryWindow(QMainWindow):
         self.stage_tab.addLayout(type_select_menu)
 
     def init_reduction_selector(self):
-        self.reduction_select_label = QLabel("<-- Select the desired reduction technique")
+        self.reduction_select_label = QLabel(
+            "<-- Select the desired reduction technique"
+        )
 
         # Dropdown Menu
         reduction_dropdown = QComboBox(self)
@@ -312,7 +318,12 @@ class PrimaryWindow(QMainWindow):
         """
         print("value:", value)
         self.plot.new_tuple(
-            value, self.data.labels, self.data.paths, self.data.two_dee, self.data.masks, self.data.model.colormap
+            value,
+            self.data.labels,
+            self.data.paths,
+            self.data.two_dee,
+            self.data.masks,
+            self.data.model.colormap,
         )
 
     def load_model_file(self):
@@ -436,8 +447,9 @@ class PrimaryWindow(QMainWindow):
         # Normalize array
         # @Wilhelmsen: This normalizes for the whole matrix at once,
         #              As opposed to for each axis, which is what I want
+        #              And it also doesn't at all work
         arr = loading.apply_tsne(reduced_data)
-        plottable_data = (arr / np.min(arr) / (np.max(arr) / np.min(arr)))
+        plottable_data = arr / np.min(arr) / (np.max(arr) / np.min(arr))
 
         self.data.labels = labels
         self.data.masks = masks
@@ -446,100 +458,18 @@ class PrimaryWindow(QMainWindow):
         self.utilize_data()
 
     def utilize_data(self):
+        # @Wilhelmsen: Refer to these by keywords
         self.plot.the_plottables(
-            self.data.labels, self.data.paths, self.data.two_dee, self.data.masks, self.data.model.colormap
+            self.data.labels,
+            self.data.paths,
+            self.data.two_dee,
+            self.data.masks,
+            self.data.model.colormap,
         )
         # Set slider limits
         self.slider.setMinimum(0)
         self.slider.setMaximum(len(self.data.paths) - 1)
         self.slider.setDisabled(False)
-
-    def start_cooking_brains(self):
-        """
-        Walk through the dim-reduction process with the brain dataset.
-
-        For use in testing/development. Deletion pending.
-        """
-        # -----------------
-        # Loading the Model
-        # -----------------
-
-        # @Wilhelmsen: Easiest way to import a pretrained model but that's not what's up
-        weights = ResNet101_Weights.DEFAULT
-        self.data.model = resnet101(weights=weights)
-        self.data.model.eval()
-
-        # ------------------------------------
-        # Ordering image paths with categories
-        # ------------------------------------
-
-        # Prepare data
-        dirs = [
-            os.path.join(consts.REPO_DIR, "pics/brains/category0/PNG/"),
-            os.path.join(consts.REPO_DIR, "pics/brains/category1/PNG/"),
-            os.path.join(consts.REPO_DIR, "pics/brains/category2/PNG/"),
-            os.path.join(consts.REPO_DIR, "pics/brains/category3/PNG/"),
-        ]
-        self.data.layer = "layer4"
-
-        # NOTE that categories and dirs have to be lined up to correspond in their discrete lists
-        categories = ["category0", "category1", "category2", "category3"]
-        pics_by_category = {
-            category: utils.grab_image_paths_in_dir(pics)
-            for category, pics in zip(categories, dirs)
-        }
-
-        # ----------------
-        # Extract Features
-        # ----------------
-        for label, files in pics_by_category.items():
-            # @Wilhelmsen: Change the interface for old_plottables in the model. "self.data.whatever" is sucks
-            paths, features = loading.preliminary_dim_reduction_2(
-                self.data.model, self.data.layer, label, files
-            )
-
-            # Such as this, where the lists are numpy.ndarrays:
-            # self.data.old_plottables["category0"] = [
-            #     Plottables("/file/path_0", [1, 2, 3, 4]),
-            #     Plottables("/file/path_5", [6, 7, 8, 9]),
-            #     ... ,
-            # ]
-            self.data.old_plottables[label] = [
-                Plottables(p, f) for p, f in zip(paths, features)
-            ]
-
-        # ---------------------------------------------------------------------------
-        # t-SNE & Plot
-        # ---------------------------------------------------------------------------
-        self.plot.with_tsne(self.data.old_plottables)
-
-    def start_cooking(self):
-        """
-        Walk through the dim-reduction process with pre-determined parameters.
-
-        Mostly for use in testing/development.
-        """
-        self.data.layer = "layer4"
-        self.data.model = FCNResNet101()
-
-        self.data.model.load("models.ignore/rgb-aug0/best_model.pth")
-        # self.data.model.load("models.ignore/rgb-aug0/checkpoint.pth")
-        # self.data.model.load("models.ignore/rgb-aug1/best_model.pth")
-        # self.data.model.load("models.ignore/rgb-aug1/checkpoint.pth")
-        # self.data.model.load("models.ignore/rgb-aug2/best_model.pth")
-        # self.data.model.load("models.ignore/rgb-aug2/checkpoint.pth")
-
-        print("--- self.data.model:", self.data.model)
-        dataset = os.path.join(consts.REPO_DIR, "pics/dataset_w_json")
-        dataset_paths = utils.grab_image_paths_in_dir(dataset)
-        image_tensors = loading.dataset_to_tensors(dataset_paths)
-
-        self.data.dataset_intermediary = loading.preliminary_dim_reduction(
-            self.data.model, image_tensors, self.data.layer
-        )
-        self.data.dataset_plottable = loading.apply_tsne(self.data.dataset_intermediary)
-        self.plot.plot_from_2d(self.data.dataset_plottable)
-        self.quicksave_wrapper()
 
     def goto_tab(self, n, titleupdate="Missing Title"):
         """
@@ -548,6 +478,7 @@ class PrimaryWindow(QMainWindow):
         The returned function is a callback function used as a parameter in
         f.ex. buttons and actions.
         """
+
         def func():
             self.title_update(titleupdate)
             self.tab_layout.setCurrentIndex(n)
@@ -559,7 +490,7 @@ class PrimaryWindow(QMainWindow):
         self.data = loading.quickload()
 
         if self.data.dataset_plottable is not None:
-            self.plot.plot_from_2d(self.data.dataset_plottable)
+            self.utilize_data()
         else:
             print("There's nothing here! TODO")
 

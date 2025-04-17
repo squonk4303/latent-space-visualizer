@@ -11,7 +11,7 @@ FILE = os.path.join(consts.SAVE_DIR, "fcn.pth")
 
 def _test_write_object_to_file():
     """Note that this isn't run when pytest is called."""
-    model = FCNResNet101(consts.DEFAULT_MODEL_CATEGORIES)
+    model = FCNResNet101()
     model.load(consts.TRAINED_MODEL)
 
     parent_dir = os.path.abspath(os.path.join(FILE, os.pardir))
@@ -31,7 +31,7 @@ def test_loaded_model_equal_to_stub():
     Does this by comparing it to an earlier iteration of which.
     Useful when refactoring the class without intending to actually change its effects.
     """
-    fresh_model = FCNResNet101(consts.DEFAULT_MODEL_CATEGORIES)
+    fresh_model = FCNResNet101()
     fresh_model.load(consts.TRAINED_MODEL)
 
     with open(FILE, "rb") as f:

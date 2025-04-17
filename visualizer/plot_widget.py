@@ -65,7 +65,6 @@ class MplCanvas(FigureCanvasQTAgg):
             )
         
 
-
 class PlotWidget(QWidget):
     def __init__(self, parent):
         """Define and draw a graphical plot."""
@@ -90,23 +89,6 @@ class PlotWidget(QWidget):
                 return text_color.name()
 
 
-    def plot_from_2d(self, array_2d: np.ndarray):
-        """
-        Plot a scatterplot from the given array.
-
-        Does not clear previously plotted data.
-        """
-        x = array_2d[:, 0]
-        y = array_2d[:, 1]
-
-        if array_2d.shape[1] == 2:
-            self.canvas.axes.scatter(x, y)
-        elif array_2d.shape[1] == 3:
-            z = array_2d[:, 2]
-            self.canvas.axes.scatter(x, y, z)
-
-        self.canvas.draw()
-
     def the_plottables(self, labels, paths, coords, masks, colormap):
         # @Wilhelmsen: Make it detect whether coords are 2d or 3d and act accordingly
         # Map each label to a randomly-sampled color
@@ -125,6 +107,7 @@ class PlotWidget(QWidget):
             self.canvas.axes.scatter(x, y, label=L, c=colormap[L])
 
         # Styling
+        # @Linnea: Move this to MplCanvas
         self.canvas.axes.set_facecolor('1')
         self.canvas.axes.axvline(x=0, linestyle='--', linewidth=0.4, color='0.4')
         self.canvas.axes.axhline(y=0, linestyle='--', linewidth=0.4, color='0.4')
@@ -146,64 +129,6 @@ class PlotWidget(QWidget):
         self.canvas.draw()
         self.canvas.flush_events()
 
-    def with_tsne(self, old_plottables):
-        """Sucks and is bad."""
-        # Put all features in a list, and all labels in a list with corresponding indices
-        # Python list comprehension is awesome; And the zip function; And tuple assignment
-        labels, all_feats = tuple(
-            zip(
-                *tuple(
-                    (key, element.features)
-                    for key, value in old_plottables.items()
-                    for element in value
-                )
-            )
-        )
-
-        # Make sure the feats are represented as a numpy.ndarray
-        all_feats = np.array(all_feats).reshape(len(all_feats), -1)
-
-        # t-SNE the features
-        perplexity_value = min(30, len(all_feats) - 1)
-        tsne_conf = TSNE(
-            n_components=2,
-            perplexity=perplexity_value,
-            random_state=consts.seed,
-        )
-        coords = tsne_conf.fit_transform(all_feats)
-        # print("".join([f"{x}\t{y}\n" for x, y in coords]))
-
-        # Coords is now an iter
-        # So it should be possible to loop over all the values in dict SavableData
-        # And assign coords to the .tsne values there
-
-        # @Wilhelmsen: Consider again whether old_plottables.values() always returns in the expected order
-        for coord, pathandfeature in zip(
-            coords, (p for obj in old_plottables.values() for p in obj)
-        ):
-            pathandfeature.tsne = coord
-
-        # print("".join(f"{w.tsne}\n" for obj in old_plottables.values() for w in obj))
-
-        # @Wilhelmsen: Move this assertion to tests
-        # assert len(all_feats) == len(coords) == len(labels)
-
-        # Map each label to a randomly-sampled color
-        color_map = {
-            label: color
-            for label, color in zip(
-                (category for category in old_plottables.keys()),
-                random.sample(consts.COLORS32, k=len(old_plottables)),
-            )
-        }
-
-        for label, data in old_plottables.items():
-            tsne = [obj.tsne for obj in data]
-            x, y = [list(t) for t in zip(*tsne)]
-
-            self.canvas.axes.scatter(x, y, label=label, c=self.color_map[label])
-            self.canvas.axes.legend()
-
     def make_toolbar(self):
         """Generate a toolbar object for the matplotlib plot."""
         # @Wilhelmsen: Consider making this so it only generates a toolbar
@@ -211,24 +136,3 @@ class PlotWidget(QWidget):
         # the one that is.
         toolbar = NavigationToolbar(self.canvas, self.parent)
         return toolbar
-
-
-def surprise_plot(layer):
-    """
-    An independent plot that can appear from almost anywhere. Watch out!
-
-    Really for use in development.
-    """
-    num_kernels = layer.shape[1]
-    fig, axs = plt.subplots(nrows=16, ncols=16, layout="constrained")
-
-    # print("*** layer[1]:", "".join(f"*  {i}\n" for i in layer))
-    print("layer", layer)
-
-    # for ax, image in zip(axs.flat, images):
-    for i, ax in enumerate(axs.flat):
-        if i < num_kernels:
-            ax.imshow(layer[0, i].cpu().numpy())
-            ax.axis("off")
-
-    plt.show()

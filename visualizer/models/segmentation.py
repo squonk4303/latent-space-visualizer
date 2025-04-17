@@ -28,12 +28,12 @@ class SegmentationInterface(nn.Module):
 class FCNResNet101(SegmentationInterface):
     """House a FCN_ResNet101 model from pytorch, adjusted for Mekides' interface."""
 
-    def __init__(self, categories=None):
+    def __init__(self):
         super().__init__()
         self.model = models.segmentation.fcn_resnet101(
             weights=models.segmentation.fcn.FCN_ResNet101_Weights.COCO_WITH_VOC_LABELS_V1
         )
-        self.categories = categories
+        self.categories = None
         self.colormap = {}
 
     def forward(self, image: torch.Tensor):
@@ -52,12 +52,16 @@ class FCNResNet101(SegmentationInterface):
         }
 
         # Get all expected categories and apply them
+        # NOTE that this only sets categories that were
+        # originally prefixed with "_categogies."
         categories = [
             i.removeprefix("_categories.")
             for i in checkpoint["state_dict"]
             if i.startswith("_categories.")
         ]
         self.categories = categories
+
+        # Make a dict which maps all categories to a unique color
         self.colormap = {
             label: color
             for label, color in zip(
@@ -66,7 +70,7 @@ class FCNResNet101(SegmentationInterface):
             )
         }
 
-        # Set certain submodules based on the categories
+        # Set certain submodules based on amount of categories
         num_categories = len(self._categories)
         self.model.classifier[4] = nn.Conv2d(512, num_categories, 1)
         self.model.aux_classifier[4] = nn.Conv2d(256, num_categories, 1)

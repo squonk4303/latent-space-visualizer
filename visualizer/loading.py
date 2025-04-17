@@ -3,7 +3,6 @@ from pathlib import Path
 import mmap
 import os
 import pickle
-import random
 import tempfile
 
 from sklearn.manifold import TSNE
@@ -15,34 +14,6 @@ import torchvision
 
 from visualizer import consts, open_dialog
 from visualizer.plottables import SavableData
-
-
-def dataset_to_tensors(image_paths: list):
-    """
-    Take a list of image files and return them as converted to tensors.
-
-    Returned tensors are of shape [1, 3(rgb), height, width]
-    """
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    # Open images for processing with PIL.Image.open
-    dataset = [PIL.Image.open(image).convert("RGB") for image in image_paths]
-
-    print("*** consts.flags:", consts.flags)
-    if consts.flags["truncate"]:
-        size_to_fit = 256
-    else:
-        size_to_fit = consts.STANDARD_IMG_SIZE
-
-    preprocessing = torchvision.transforms.Compose(
-        [
-            torchvision.transforms.Resize(size_to_fit),
-            torchvision.transforms.ToTensor(),
-        ]
-    )
-
-    tensors = [preprocessing(img).unsqueeze(0).to(device) for img in dataset]
-
-    return tensors
 
 
 def preliminary_dim_reduction_iii(model, layer, files):
@@ -132,7 +103,9 @@ def preliminary_dim_reduction_iii(model, layer, files):
         for class_idx, category in enumerate(model.categories):
             mask = pred_class == class_idx
             if category in model.colormap:
-                false_color[mask] = PIL.ImageColor.getcolor(model.colormap[category], "RGB")
+                false_color[mask] = PIL.ImageColor.getcolor(
+                    model.colormap[category], "RGB"
+                )
 
         # Set background pixels to black
         false_color[pred_class == -1] = (0, 0, 0)
@@ -153,145 +126,12 @@ def preliminary_dim_reduction_iii(model, layer, files):
     return features, valid_paths, dominant_categories, masks
 
 
-def preliminary_dim_reduction_2(model, layer, label, files):
-    """
-    Reduce the dimensionality of vectors in certain layer of nn-model
-
-    to something t-SNE can more easily digest.
-    """
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-    # @Wilhelmsen: Be parat for adding hooks in the arguments here.
-    #       Possible implementaiton: dict of hooks as parameter;
-    #       a for loop sets up hooks and which attributes they connect to
-    #       then a dictionary is returned based on something to identify
-    #       the hooks and a list of what they've hooked. Possibly
-    #           Actually, maybe you can just plant the hook outside the function...
-
-    # Register hook; hooked_feature is a list for its pointer-like qualities
-    hooked_feature = []
-    labels, paths, features = [], [], []
-
-    # Keep in mind that what attribute to hook may be different per model type
-    hook_handle = getattr(model, layer).register_forward_hook(hooker(hooked_feature))
-
-    preprocessing = torchvision.transforms.Compose(
-        [
-            # @Wilhelmsen: NOTE: Image size is reduced for testing
-            torchvision.transforms.Resize(28),
-            torchvision.transforms.ToTensor(),
-        ]
-    )
-
-    # @Wilhelmsen: NOTE input temporarily truncated /!/!\!\
-    for path in tqdm(files[0:4], desc=f"Extracting from {label}"):
-        hooked_feature.clear()
-        # Load image as tensor
-        try:
-            image = PIL.Image.open(path).convert("RGB")
-        except OSError:
-            # @Wilhelmsen: Improve this error message; happens when binary is messed up in file
-            # Such as when you open the bin in a text editor and remove a random segment
-            # Not that I would know anything about that
-            # @Wilhelmsen: Also find the error message at empty file
-            # @Wilhelmsen: Also find the error message at non-binary file
-            # (not that being non-binary is an error, just if you're a png)
-            print(f"Truncated file read; continuing without image in {path}")
-            continue
-
-        if image is None:
-            print(f"Couldn't convert {path}")
-            # features.append(path, None)
-            continue
-
-        # Apply preprocessing on image and send to device
-        image = preprocessing(image).unsqueeze(0).to(device)
-
-        # Pass model through image; this triggers the hook
-        # Calling the model takes quite a bit of time, it does
-        with torch.no_grad():
-            _ = model(image)
-            feature_map = hooked_feature[0]
-
-        # Transform hooked feature to a PyTorch tensor
-        if not isinstance(feature_map, torch.Tensor):
-            feature_map = torch.tensor(feature_map, dtype=torch.float32, device=device)
-        # Reduce dimensionality using Global Average Pooling (GAP)
-        # https://pytorch.org/docs/stable/generated/torch.nn.functional.adaptive_avg_pool2d.html#torch.nn.functional.adaptive_avg_pool2d
-        # @Wilhelmsen: Opiton for different dim.reduction techniques.
-        # Do it when in the encapsulation process
-        feature_vector = (
-            torch.nn.functional.adaptive_avg_pool2d(feature_map, (1, 1))
-            .squeeze()
-            .cpu()
-            .numpy()
-        )
-
-        labels.append(label)
-        paths.append(path)
-        features.append(feature_vector)
-
-    features = np.asarray(features).reshape(len(features), -1)
-
-    hook_handle.remove()
-
-    return paths, features
-
-
-def preliminary_dim_reduction(model, image_tensors, layer):
-    """Reduce the dimensionality of tensors to something t-SNE can more easily digest."""
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    # Register hook and yadda yadda
-    # Otherwise use function find_layer to let user choose layer
-    # Then use gitattr() to dynamically select the layer based on user choice...!
-    hooked_feature = []
-    features = []
-    # A list so    ~~^^ that we can use it as pointer and with isinstance
-    # Plant the hook   in   layer4  ~~~~vvv
-    hook_handle = model.model.backbone.layer4.register_forward_hook(
-        hooker(hooked_feature)
-    )
-
-    # Preliminary dim. reduction per tensor
-    with torch.no_grad():
-        for img in tqdm(image_tensors):
-            hooked_feature.clear()
-            _ = model(img)  # Forward the model to let the hook do its thang
-
-            feature_map = hooked_feature[0]
-
-            # Ensure hooked feature is a PyTorch tensor
-            if not isinstance(feature_map, torch.Tensor):
-                feature_map = torch.tensor(
-                    feature_map, dtype=torch.float32, device=device
-                )
-            # Reduce dimensionality using Global Average Pooling (GAP)
-            # https://pytorch.org/docs/stable/generated/torch.nn.functional.adaptive_avg_pool2d.html#torch.nn.functional.adaptive_avg_pool2d
-            # @Wilhelmsen: Opiton for different dim.reduction techniques.
-            # Do it when in the encapsulation process
-            feature_vector = (
-                torch.nn.functional.adaptive_avg_pool2d(feature_map, (1, 1))
-                .squeeze()
-                .cpu()
-                .numpy()
-            )
-            features.append(feature_vector)
-
-    # Ensure features have correct 2D shape; (num_samples, num_features)
-    # @Wilhelmsen: Just find out what the point is. Do it in encapsulation process.
-    features = np.array(features).reshape(len(features), -1)
-
-    # Remove hook
-    hook_handle.remove()
-
-    return features
-
-
 def apply_tsne(features, target_dimensions=2):
     """Reduce features' dimensionality by t-SNE and return the 2d/3d coordinates."""
     # Ensure a reasonable/legal perplexity value
     perplexity_value = min(30, len(features) - 1)
 
+    # @Wilhelmsen: Include option to use mutlithreaded tsne
     tsne_conf = TSNE(
         n_components=target_dimensions,
         perplexity=perplexity_value,
