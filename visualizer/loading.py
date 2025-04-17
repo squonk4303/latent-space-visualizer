@@ -21,15 +21,21 @@ def dataset_to_tensors(image_paths: list):
     """
     Take a list of image files and return them as converted to tensors.
 
-    Returned tensors are of shape `height * width * RGB`.
+    Returned tensors are of shape [1, 3(rgb), height, width]
     """
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     # Open images for processing with PIL.Image.open
     dataset = [PIL.Image.open(image).convert("RGB") for image in image_paths]
 
+    print("*** consts.flags:", consts.flags)
+    if consts.flags["truncate"]:
+        size_to_fit = 256
+    else:
+        size_to_fit = consts.STANDARD_IMG_SIZE
+
     preprocessing = torchvision.transforms.Compose(
         [
-            torchvision.transforms.Resize(consts.STANDARD_IMG_SIZE),
+            torchvision.transforms.Resize(size_to_fit),
             torchvision.transforms.ToTensor(),
         ]
     )

@@ -48,10 +48,29 @@ def test_load_model():
     assert model is not None
 
 
+def check_tensor_shape(tensor):
+    """Expect shape [1, 3, h, w] where h or w have to be of size specified in consts"""
+    assert len(tensor.shape) == 4
+    assert tensor.shape[0] == 1
+    assert tensor.shape[1] == 3
+    std_size = consts.STANDARD_IMG_SIZE
+    assert tensor.shape[2] == std_size or tensor.shape[3] == std_size
+
+
 def test_dataset_to_tensor():
-    dataset = utils.grab_image_paths_in_dir(consts.SMALL_DATASET)
-    tensors = loading.dataset_to_tensors(dataset)
-    assert tensors is not None
+    # Test for a list of paths
+    list_of_paths = utils.grab_image_paths_in_dir(consts.MEDIUM_DATASET)
+    list_of_paths = utils.grab_image_paths_in_dir(consts.S_DATASET)
+    tensors = loading.dataset_to_tensors(list_of_paths)
+    # assert length of output is same as len of input
+    assert len(tensors) == len(list_of_paths)
+    for t in tensors:
+        check_tensor_shape(t)
+
+    # Test for a single path
+    # Test for several paths given as several arguments
+
+    # print("".join(f"{t.shape}\n" for t in tensors))
 
 
 def test_apply_tsne():

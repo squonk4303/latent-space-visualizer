@@ -107,6 +107,7 @@ class DR_technique(Enum):
 # make a class with consts instead or something , as well as store other
 # values like flags, seeds, stubs, &c.
 flags = {
-    "xkcd": False,
     "dev": False,
+    "truncate": False,
+    "xkcd": False,
 }
