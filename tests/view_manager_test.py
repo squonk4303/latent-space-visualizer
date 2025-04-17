@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 from unittest.mock import patch
+
 import numpy as np
 import pytest
+import torch
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QFileDialog
 
-from visualizer import consts
+from visualizer import consts, utils
 from visualizer.models.segmentation import FCNResNet101
 from visualizer.plottables import SavableData
 from visualizer.view_manager import PrimaryWindow
@@ -27,16 +29,12 @@ def primary_window(qtbot):
 @pytest.fixture
 def data_object():
     data = SavableData()
-    # data.model = FCNResNet101(["skin"])
-    # data.model.load(consts.TRAINED_MODEL)
-    data.dataset_plottable = np.array(
-        [
-            [0.18295779, 0.42863305],
-            [0.71485087, 0.04020805],
-            [0.88153443, 0.34253962],
-            [0.79842691, 0.02809093],
-        ]
-    )
+    data.model = FCNResNet101()
+    data.model.load(consts.MULTILABEL_MODEL)
+    data.layer = "layer4"
+    data.paths = utils.grab_image_paths_in_dir(consts.S_DATASET)
+    data.dataset_location = consts.S_DATASET
+    data.dataset_intermediary = torch.rand(1, 3, 640, 640)
     return data
 
 
@@ -124,13 +122,13 @@ def test_quicksave_n_quickload(primary_window, data_object):
     primary_window.quicksave_action.trigger()
     primary_window.quickload_action.trigger()
     assert np.array_equal(
-        primary_window.data.dataset_plottable, data_object.dataset_plottable
+        primary_window.data.dataset_intermediary, data_object.dataset_intermediary
     )
     # Assert that .data and data_object don't point to the same object
     assert primary_window.data is not data_object
-    primary_window.data.dataset_plottable = None
+    primary_window.data.dataset_intermediary = torch.rand(1, 3, 640, 640)
     assert not np.array_equal(
-        primary_window.data.dataset_plottable, data_object.dataset_plottable
+        primary_window.data.dataset_intermediary, data_object.dataset_intermediary
     )
 
 

@@ -489,7 +489,7 @@ class PrimaryWindow(QMainWindow):
         """Load from default save file directly to .data"""
         self.data = loading.quickload()
 
-        if self.data.dataset_plottable is not None:
+        if self.data.model is not None:
             self.utilize_data()
         else:
             print("There's nothing here! TODO")
