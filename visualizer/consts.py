@@ -12,7 +12,9 @@ STANDARD_IMG_SIZE = 640
 
 # GUI Text
 OPEN_FILE_LABEL = "&Open File"
-WINDOW_TITLE = "Latent Space Visualizer"
+APPLICATION_TITLE = "Latent Space Visualizer"
+STAGE_TITLE = "Select Data"
+GRAPH_TITLE = "Visualize Data"
 
 
 # Plaintext with other uses

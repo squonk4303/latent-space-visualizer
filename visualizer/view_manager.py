@@ -21,6 +21,7 @@ from PyQt6.QtWidgets import (
     QPushButton,
     QStatusBar,
     QVBoxLayout,
+    QComboBox,
     QWidget,
 )
 
@@ -78,26 +79,26 @@ class PrimaryWindow(QMainWindow):
         self.data = SavableData()
 
         # Set up the tabs in the window
-        self.start_tab = QVBoxLayout()
+        self.stage_tab = QVBoxLayout()
         graph_tab = QVBoxLayout()
 
         self.tab_layout = StackedLayoutManager()
-        self.tab_layout.add_layout(self.start_tab)
+        self.tab_layout.add_layout(self.stage_tab)
         self.tab_layout.add_layout(graph_tab)
 
         # Add buttons to navigate to each tab
-        self.start_tab_button = QPushButton("0")
-        self.graph_tab_button = QPushButton("1")
-        self.start_tab_button.clicked.connect(self.goto_tab(0))
-        self.graph_tab_button.clicked.connect(self.goto_tab(1))
+        # self.stage_tab_button = QPushButton("Select Data Files")
+        # self.graph_tab_button = QPushButton("Visualized Data")
+        # self.stage_tab_button.clicked.connect(self.goto_tab(0))
+        # self.graph_tab_button.clicked.connect(self.goto_tab(1))
 
-        tab_buttons_layout = QHBoxLayout()
-        tab_buttons_layout.addWidget(self.start_tab_button)
-        tab_buttons_layout.addWidget(self.graph_tab_button)
+        # tab_buttons_layout = QHBoxLayout()
+        # tab_buttons_layout.addWidget(self.stage_tab_button)
+        # tab_buttons_layout.addWidget(self.graph_tab_button)
 
         # And put them in order
         greater_layout = QVBoxLayout()
-        greater_layout.addLayout(tab_buttons_layout)
+        # greater_layout.addLayout(tab_buttons_layout)
         greater_layout.addLayout(self.tab_layout)
 
         # -------
@@ -121,20 +122,24 @@ class PrimaryWindow(QMainWindow):
         self.action_to_open_file.triggered.connect(self.load_model_file)
 
         # Scroll to next/previous tabs
-        self.next_tab = QAction("&Next tab", self)
-        self.prev_tab = QAction("&Previous tab", self)
+        self.goto_graph_tab = QAction("&Visualized Data", self)
+        self.goto_stage_tab = QAction("&Select Data Files", self)
         # https://doc.qt.io/qt-6/qkeysequence.html#StandardKey-enum
-        self.next_tab.setShortcut(QKeySequence.StandardKey.MoveToNextPage)
-        self.prev_tab.setShortcut(QKeySequence.StandardKey.MoveToPreviousPage)
-        self.next_tab.triggered.connect(self.tab_layout.scroll_forth)
-        self.prev_tab.triggered.connect(self.tab_layout.scroll_back)
+        # PgUp / PgDwn Shortcuts
+        self.goto_graph_tab.setShortcut(QKeySequence.StandardKey.MoveToNextPage)
+        self.goto_stage_tab.setShortcut(QKeySequence.StandardKey.MoveToPreviousPage)
+        # Trigger buttons
+        self.goto_graph_tab.triggered.connect(self.goto_tab(1,consts.GRAPH_TITLE))
+        self.goto_stage_tab.triggered.connect(self.goto_tab(0,consts.STAGE_TITLE))
 
-        # Initialize start screen
+        # Initialize Selection Menu in load_tab
         # -----------------------
 
+        self.init_type_selector()
+        self.init_reduction_selector()
+        self.init_dataset_selection()
         self.init_model_selection()
         self.init_layer_selection()
-        self.init_dataset_selection()
         self.init_feedback_label()
         self.init_go_for_it_button()
 
@@ -164,7 +169,7 @@ class PrimaryWindow(QMainWindow):
         self.slider.setMaximum(0)
         self.slider.setDisabled(True)
 
-        # Organize Widgets
+        # Organize Widgets for Graph tab
         graph_tab.addWidget(self.plot)
         graph_tab.addWidget(self.toolbar)
         graph_tab.addWidget(self.slider)
@@ -180,7 +185,7 @@ class PrimaryWindow(QMainWindow):
         # --------------------
 
         self.resize(1080, 640)
-        self.setWindowTitle(consts.WINDOW_TITLE)
+        self.setWindowTitle(consts.STAGE_TITLE)
         self.setStatusBar(QStatusBar(self))
         widget = QWidget()
         widget.setLayout(greater_layout)
@@ -192,11 +197,13 @@ class PrimaryWindow(QMainWindow):
         if consts.flags["dev"]:
             quicklaunch_button = QPushButton("Cook I")
             quicklaunch_button.clicked.connect(self.quick_launch)
-            self.start_tab.addWidget(quicklaunch_button)
+            self.stage_tab.addWidget(quicklaunch_button)
 
     # =======
     # Methods
     # =======
+    def title_update(self, new_title):
+        self.setWindowTitle(new_title)
 
     def quick_launch(self):
         print(consts.S_DATASET)
@@ -207,41 +214,41 @@ class PrimaryWindow(QMainWindow):
         self.start_cooking_iii()
 
     def init_model_selection(self):
-        self.model_feedback_label = QLabel("<-- File dialog for .pth")
+        self.model_feedback_label = QLabel("<-- Select your trained model's .pth file")
         openfile_button = QPushButton("Select Trained NN Model")
         openfile_button.clicked.connect(self.load_model_file)
         row_model_selection = QHBoxLayout()
         row_model_selection.addWidget(openfile_button)
         row_model_selection.addWidget(self.model_feedback_label)
-        self.start_tab.addLayout(row_model_selection)
+        self.stage_tab.addLayout(row_model_selection)
 
     def init_layer_selection(self):
-        self.layer_feedback_label = QLabel("<-- You know-- something to select layers")
+        self.layer_feedback_label = QLabel("<-- Select the layer in your model for the latent space")
         layer_button = QPushButton("Select layer")
         layer_button.clicked.connect(self.find_layer)
         row_layer_selection = QHBoxLayout()
         row_layer_selection.addWidget(layer_button)
         row_layer_selection.addWidget(self.layer_feedback_label)
-        self.start_tab.addLayout(row_layer_selection)
+        self.stage_tab.addLayout(row_layer_selection)
 
     def init_dataset_selection(self):
         dataset_selection_button = QPushButton("Select Dataset")
-        self.dataset_feedback_label = QLabel("<-- Just a file dialog for directories")
+        self.dataset_feedback_label = QLabel("<-- Select the folder for the dataset you wish to use")
         dataset_selection_button.clicked.connect(self.find_dataset)
         row_dataset_selection = QHBoxLayout()
         row_dataset_selection.addWidget(dataset_selection_button)
         row_dataset_selection.addWidget(self.dataset_feedback_label)
-        self.start_tab.addLayout(row_dataset_selection)
+        self.stage_tab.addLayout(row_dataset_selection)
 
     def init_go_for_it_button(self):
-        self.go_for_it_button = QPushButton("Go for it~!")
+        self.go_for_it_button = QPushButton("LAUNCH")
         self.go_for_it_button.setDisabled(True)
         self.go_for_it_button.clicked.connect(self.start_cooking_iii)
-        self.start_tab.addWidget(self.go_for_it_button)
+        self.stage_tab.addWidget(self.go_for_it_button)
 
     def init_feedback_label(self):
         self.feedback_label = QLabel("")
-        self.start_tab.addWidget(self.feedback_label)
+        self.stage_tab.addWidget(self.feedback_label)
 
     def init_menu_bar(self):
         """Set up the menu bar, including sub-menus."""
@@ -258,8 +265,40 @@ class PrimaryWindow(QMainWindow):
 
         # The Greater Navigation Menu
         navigate_menu = menubar.addMenu("&Tab")
-        navigate_menu.addAction(self.next_tab)
-        navigate_menu.addAction(self.prev_tab)
+        navigate_menu.addAction(self.goto_graph_tab)
+        navigate_menu.addAction(self.goto_stage_tab)
+
+    def init_type_selector(self):
+        self.type_select_label = QLabel("<-- Select the desired type of NN model")
+
+        # Dropdown Menu
+        type_dropdown = QComboBox(self)
+        type_dropdown.addItem("...")
+        type_dropdown.addItem("Segmentation")
+
+        # Layout
+        type_select_menu = QHBoxLayout()
+        type_select_menu.addWidget(type_dropdown)
+        type_select_menu.addWidget(self.type_select_label)
+
+        # Add to stage
+        self.stage_tab.addLayout(type_select_menu)
+
+    def init_reduction_selector(self):
+        self.reduction_select_label = QLabel("<-- Select the desired reduction technique")
+
+        # Dropdown Menu
+        reduction_dropdown = QComboBox(self)
+        reduction_dropdown.addItem("...")
+        reduction_dropdown.addItem("t-SNE")
+
+        # Layout
+        reduction_select_menu = QHBoxLayout()
+        reduction_select_menu.addWidget(reduction_dropdown)
+        reduction_select_menu.addWidget(self.reduction_select_label)
+
+        # Add to stage
+        self.stage_tab.addLayout(reduction_select_menu)
 
     def set_new_elements_to_display(self, value):
         """
@@ -498,14 +537,18 @@ class PrimaryWindow(QMainWindow):
         self.plot.plot_from_2d(self.data.dataset_plottable)
         self.quicksave_wrapper()
 
-    def goto_tab(self, n):
+    def goto_tab(self, n, titleupdate="Missing Title"):
         """
         Return a function which changes to tab specified by argument.
 
         The returned function is a callback function used as a parameter in
         f.ex. buttons and actions.
         """
-        return lambda: self.tab_layout.setCurrentIndex(n)
+        def func():
+            self.title_update(titleupdate)
+            self.tab_layout.setCurrentIndex(n)
+
+        return func
 
     def quickload_wrapper(self):
         """Load from default save file directly to .data"""
