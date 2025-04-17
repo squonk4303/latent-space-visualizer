@@ -27,14 +27,14 @@ class MplCanvas(FigureCanvasQTAgg):
     """Hold a canvas for the plot to render onto."""
 
     def __init__(self, parent, width=5, height=4, dpi=100):
-        fig = Figure(figsize=(width, height), dpi=dpi, layout="constrained")
+        fig = Figure(figsize=(width, height), dpi=dpi, layout="constrained", facecolor="0.85")
         # contextlib.nullcontext being a context manager which does nothing
         cm = plt.xkcd() if consts.flags["xkcd"] else nullcontext()
         with cm:
             self.input_display, self.axes, self.output_display = fig.subplots(
                 nrows=1, ncols=3
             )
-
+        
         self.input_display.get_xaxis().set_visible(False)
         self.input_display.get_yaxis().set_visible(False)
         self.output_display.get_xaxis().set_visible(False)
