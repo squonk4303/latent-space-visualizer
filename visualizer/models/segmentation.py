@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 import torch
+import random
 from torch import nn
 from torchvision import models
+from visualizer import consts
 
 
 class SegmentationInterface(nn.Module):
@@ -32,6 +34,7 @@ class FCNResNet101(SegmentationInterface):
             weights=models.segmentation.fcn.FCN_ResNet101_Weights.COCO_WITH_VOC_LABELS_V1
         )
         self.categories = categories
+        self.colormap = {}
 
     def forward(self, image: torch.Tensor):
         return self.model(image)
@@ -55,6 +58,13 @@ class FCNResNet101(SegmentationInterface):
             if i.startswith("_categories.")
         ]
         self.categories = categories
+        self.colormap = {
+            label: color
+            for label, color in zip(
+                self.categories,
+                random.sample(consts.COLORS32, k=len(self.categories)),
+            )
+        }
 
         # Set certain submodules based on the categories
         num_categories = len(self._categories)

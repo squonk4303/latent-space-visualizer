@@ -308,7 +308,7 @@ class PrimaryWindow(QMainWindow):
         """
         print("value:", value)
         self.plot.new_tuple(
-            value, self.data.labels, self.data.paths, self.data.two_dee, self.data.masks
+            value, self.data.labels, self.data.paths, self.data.two_dee, self.data.masks, self.data.model.colormap
         )
 
     def load_model_file(self):
@@ -443,7 +443,7 @@ class PrimaryWindow(QMainWindow):
 
     def utilize_data(self):
         self.plot.the_plottables(
-            self.data.labels, self.data.paths, self.data.two_dee, self.data.masks
+            self.data.labels, self.data.paths, self.data.two_dee, self.data.masks, self.data.model.colormap
         )
         # Set slider limits
         self.slider.setMinimum(0)

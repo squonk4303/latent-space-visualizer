@@ -65,7 +65,6 @@ class PlotWidget(QWidget):
         """Define and draw a graphical plot."""
         super().__init__(parent)
         self.parent = parent
-        self.color_map = None
         layout = QVBoxLayout(self)
         self.canvas = MplCanvas(self)
         self.canvas.redraw()
@@ -88,20 +87,11 @@ class PlotWidget(QWidget):
 
         self.canvas.draw()
 
-    def the_plottables(self, labels, paths, coords, masks):
+    def the_plottables(self, labels, paths, coords, masks, colormap):
         # @Wilhelmsen: Make it detect whether coords are 2d or 3d and act accordingly
         # Map each label to a randomly-sampled color
         unique_labels = list(set(labels))
         colors = consts.COLORS32
-
-        if not self.color_map:
-            self.color_map = {
-                label: color
-                for label, color in zip(
-                    unique_labels,
-                    random.sample(colors, k=len(unique_labels)),
-                )
-            }
 
         # Make a dict which maps paths and coords to related unique labels
         plottables = {key: {"paths": [], "coords": []} for key in unique_labels}
@@ -112,7 +102,7 @@ class PlotWidget(QWidget):
 
         for L in sorted(plottables.keys()):
             x, y = zip(*plottables[L]["coords"])
-            self.canvas.axes.scatter(x, y, label=L, c=self.color_map[L])
+            self.canvas.axes.scatter(x, y, label=L, c=colormap[L])
 
         self.canvas.axes.axvline(x=0, linestyle='--', linewidth=0.4, color='0.5')
         self.canvas.axes.axhline(y=0, linestyle='--', linewidth=0.4, color='0.5')
@@ -121,13 +111,13 @@ class PlotWidget(QWidget):
 
         self.canvas.axes.legend(loc="upper left", bbox_to_anchor=(1,1))
 
-    def new_tuple(self, value, labels, paths, coords, masks):
+    def new_tuple(self, value, labels, paths, coords, masks, colormap):
         """Changes which input image and mask is displayed, and highlights the corresponding point."""
         filename = Path(paths[value]).name
         inpic = PIL.Image.open(paths[value])
         self.canvas.redraw(filename) # Only displays filename on 2nd image for some reason?
         tx, ty = coords[value]
-        self.the_plottables(labels, paths, coords, masks)
+        self.the_plottables(labels, paths, coords, masks, colormap)
         self.canvas.input_display.imshow(inpic)
         self.canvas.output_display.imshow(masks[value])
         self.canvas.axes.scatter(tx, ty, s=500, marker="+", c="black")
