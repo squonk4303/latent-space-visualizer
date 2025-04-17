@@ -16,14 +16,22 @@ def parse_them():
 
     # Flags
     parser.add_argument(
-        "--xkcd",
-        help="display the plot in a different style",
-        action="store_true",
-    )
-    parser.add_argument(
         "-d",
         "--dev",
         help="add a cheating-button for quick testing",
+        action="store_true",
+    )
+
+    parser.add_argument(
+        "-t",
+        "--truncate",
+        help="reduce size of dataset and images before processing",
+        action="store_true",
+    )
+
+    parser.add_argument(
+        "--xkcd",
+        help="display the plot in a different style",
         action="store_true",
     )
 
@@ -35,8 +43,9 @@ def parse_them():
     args = parser.parse_args()
 
     # Handle arguments
-    consts.flags["xkcd"] = args.xkcd
     consts.flags["dev"] = args.dev
+    consts.flags["truncate"] = args.truncate
+    consts.flags["xkcd"] = args.xkcd
 
     if args.seed is not None:
         utils.superseed(int(args.seed))
