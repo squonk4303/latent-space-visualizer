@@ -11,7 +11,6 @@ from PyQt6.QtGui import (
     QKeySequence,
     QPixmap,
     QWheelEvent,
-    QPalette,
 )
 
 from PyQt6.QtWidgets import (
@@ -45,11 +44,6 @@ class PrimaryWindow(QMainWindow):
     # =========
     # Callbacks
     # =========
-    def get_color(self):
-        widget = QWidget()
-        default_bg_color = widget.palette().color(QPalette.ColorRole.Window)
-        return default_bg_color
-
     def wheelEvent(self, ev: QWheelEvent):
         """
         Refers to this event handler:
@@ -146,7 +140,6 @@ class PrimaryWindow(QMainWindow):
         self.init_layer_selection()
         self.init_feedback_label()
         self.init_go_for_it_button()
-        print(self.get_color())
         # ========
         # Plot Tab
         # ========
