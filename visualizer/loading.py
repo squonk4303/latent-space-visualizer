@@ -28,9 +28,7 @@ def preliminary_dim_reduction_iii(model, layer, files):
 
     dominant_categories = []
     features = []
-    filtered_filenames = []
     masks = []
-    predicted_labels = []
     valid_paths = []
 
     # Register hook; hooked_feature is a list for its pointer-like qualities
@@ -41,18 +39,17 @@ def preliminary_dim_reduction_iii(model, layer, files):
     files = files[:5] if consts.flags["truncate"] else files
     for image_location in tqdm(files, desc="processing imgs"):
         image = PIL.Image.open(image_location).convert("RGB")
-        image = preprocessing(image)
+        image = preprocessing(image).unsqueeze(0).to(device)
         features_list.clear()
 
+        # Forward pass to get output and trip hook
         with torch.no_grad():
-            # Forward pass to get output and trigger hook
-            output = model(image.unsqueeze(0).to(device))
+            output = model(image)
 
-        # --- Handle Hook ---
-        feature_map = features_list[0]
-        # Ensure array type and array element type
-        feature_vector = torch.tensor(feature_map, dtype=torch.float32).to(device)
-        # Apply GAP
+        # --- Handle Data From Hook ---
+        # Convert feature to tensor of type float32
+        # And apply GAP
+        feature_vector = torch.tensor(features_list[0], dtype=torch.float32).to(device)
         feature_vector = (
             torch.nn.functional.adaptive_avg_pool2d(feature_vector, (1, 1))
             .squeeze()
@@ -60,36 +57,31 @@ def preliminary_dim_reduction_iii(model, layer, files):
             .numpy()
         )
 
-        # --- Handle Output ---
-        # Process prediction logits (assume output["out"] shape: [1, C, H, W])
-        logits = output["out"]
-        # Sigmoid transforms within the same dimensionality
+        # --- Handle Model Output ---
+        # Process prediction logits (assume output["out"] list of logits, shape: [1, C, H, W])
         # Here gets shape (C, H, W)
+        logits = output["out"]
         pred_mask = torch.sigmoid(logits).squeeze()
         # Set values under threshold to 0
-        # @Wilhelmsen: this gate is disabled because the values in our set are all blocked by it
+        # @Wilhelmsen: Make the threshold based on a factor of the average
         pred_mask[pred_mask < 0.2] = 0
-        # print("*** pred_mask:", pred_mask)
 
+        # Identify background pixels, and denote with -1
         if pred_mask.ndim == 3 and pred_mask.shape[0] == len(model.categories):
-            # Expected shape: (H, W)
+            # Expected shape: (H, W) which is a binary mask
             pred_class = torch.argmax(pred_mask, dim=0).cpu().numpy()
-
-            # Identify background pixels
             background_mask = (pred_mask.sum(dim=0) == 0).cpu().numpy()
             pred_class[background_mask] = -1
         else:
             raise ValueError("Unexpected prediction shape.")
 
-        # Determine dominant class, excluding background
+        # Determine dominant class; ignore background
         valid_classes = pred_class[pred_class != -1]
         if valid_classes.size > 0:
             unique, counts = np.unique(valid_classes, return_counts=True)
             dominant_class_idx = int(unique[np.argmax(counts)])
             dominant_category = model.categories[dominant_class_idx]
             dominant_categories.append(dominant_category)
-            predicted_labels.append(dominant_class_idx)
-            filtered_filenames.append(image_location)
             features.append(feature_vector)
             valid_paths.append(image_location)
         else:
@@ -139,7 +131,6 @@ def apply_tsne(features, target_dimensions=2):
     )
 
     reduced_features = tsne_conf.fit_transform(features)
-
     return reduced_features
 
 
@@ -153,7 +144,6 @@ def hooker(t: list):
 
     def f(module, args, output):
         t.append(output.detach().cpu().numpy())
-        # print("From hook, latest append:", t[-1].shape)
 
     return f
 
