@@ -15,7 +15,6 @@ from visualizer import consts, open_dialog
 from visualizer.plottables import SavableData
 
 from pathlib import Path
-import plotly.express as px
 import random
 
 
