@@ -23,6 +23,11 @@ Launch a GUI which helps manipulate the latent space of a trained neural-network
 And that kind of thing.
 """
 
+# Colors
+class COLOR(Enum):
+    BACKGROUND = auto()
+    TEXT = auto()
+
 COLORS32 = [
     "#00008b",
     "#0000ff",

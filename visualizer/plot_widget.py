@@ -6,6 +6,7 @@ from PyQt6.QtWidgets import (
     QWidget,
     QVBoxLayout,
 )
+from PyQt6.QtGui import QPalette
 
 # matplotlib necessarily imported after PyQt6
 from matplotlib.backends.backend_qtagg import (
@@ -26,8 +27,13 @@ from visualizer import consts
 class MplCanvas(FigureCanvasQTAgg):
     """Hold a canvas for the plot to render onto."""
 
-    def __init__(self, parent, width=5, height=4, dpi=100):
-        fig = Figure(figsize=(width, height), dpi=dpi, layout="constrained", facecolor="0.85")
+    def __init__(self, parent, width=5, height=4, dpi=100, background="0.85", forecolor="1"):
+        fig = Figure(figsize=(width, height), dpi=dpi, layout="constrained", facecolor=background)
+        # Setting Foreground Colors
+        plt.rcParams['text.color'] = forecolor            # All text (titles, annotations)
+        plt.rcParams['axes.labelcolor'] = forecolor      # Axis labels
+        plt.rcParams['xtick.color'] = forecolor           # X tick labels
+        plt.rcParams['ytick.color'] = forecolor           # Y tick labels
         # contextlib.nullcontext being a context manager which does nothing
         cm = plt.xkcd() if consts.flags["xkcd"] else nullcontext()
         with cm:
@@ -66,9 +72,23 @@ class PlotWidget(QWidget):
         super().__init__(parent)
         self.parent = parent
         layout = QVBoxLayout(self)
-        self.canvas = MplCanvas(self)
+        self.bgcolor = self.get_color()
+        self.fgcolor = self.get_color(consts.COLOR.TEXT)
+        self.canvas = MplCanvas(self, background=self.bgcolor, forecolor=self.fgcolor)
         self.canvas.redraw()
+        self.canvas.draw()
+        self.canvas.flush_events()
         layout.addWidget(self.canvas)
+
+    def get_color(self, color=consts.COLOR.BACKGROUND):
+        match color:
+            case consts.COLOR.BACKGROUND:
+                background_color = self.palette().color(QPalette.ColorRole.Window)
+                return background_color.name()
+            case consts.COLOR.TEXT:
+                text_color = self.palette().color(QPalette.ColorRole.WindowText)
+                return text_color.name()
+
 
     def plot_from_2d(self, array_2d: np.ndarray):
         """
@@ -104,12 +124,13 @@ class PlotWidget(QWidget):
             x, y = zip(*plottables[L]["coords"])
             self.canvas.axes.scatter(x, y, label=L, c=colormap[L])
 
-        self.canvas.axes.axvline(x=0, linestyle='--', linewidth=0.4, color='0.5')
-        self.canvas.axes.axhline(y=0, linestyle='--', linewidth=0.4, color='0.5')
+        # Styling
+        self.canvas.axes.set_facecolor('1')
+        self.canvas.axes.axvline(x=0, linestyle='--', linewidth=0.4, color='0.4')
+        self.canvas.axes.axhline(y=0, linestyle='--', linewidth=0.4, color='0.4')
         self.canvas.axes.set_xlim(-2,2)
         self.canvas.axes.set_ylim(-2,2)
-
-        self.canvas.axes.legend(loc="upper left", bbox_to_anchor=(1,1))
+        self.canvas.axes.legend(loc="upper left", bbox_to_anchor=(1,1), framealpha=0)
 
     def new_tuple(self, value, labels, paths, coords, masks, colormap):
         """Changes which input image and mask is displayed, and highlights the corresponding point."""

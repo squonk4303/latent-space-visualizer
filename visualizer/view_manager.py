@@ -11,6 +11,7 @@ from PyQt6.QtGui import (
     QKeySequence,
     QPixmap,
     QWheelEvent,
+    QPalette,
 )
 
 from PyQt6.QtWidgets import (
@@ -44,6 +45,10 @@ class PrimaryWindow(QMainWindow):
     # =========
     # Callbacks
     # =========
+    def get_color(self):
+        widget = QWidget()
+        default_bg_color = widget.palette().color(QPalette.ColorRole.Window)
+        return default_bg_color
 
     def wheelEvent(self, ev: QWheelEvent):
         """
@@ -134,7 +139,6 @@ class PrimaryWindow(QMainWindow):
 
         # Initialize Selection Menu in load_tab
         # -----------------------
-
         self.init_type_selector()
         self.init_reduction_selector()
         self.init_dataset_selection()
@@ -142,7 +146,7 @@ class PrimaryWindow(QMainWindow):
         self.init_layer_selection()
         self.init_feedback_label()
         self.init_go_for_it_button()
-
+        print(self.get_color())
         # ========
         # Plot Tab
         # ========
