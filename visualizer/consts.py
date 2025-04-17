@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Contains values meant to be accessible from anywhere."""
 from collections import OrderedDict
-from enum import Enum, StrEnum, auto
+from enum import Enum, auto
 from pathlib import Path
 import os
 
@@ -66,20 +66,6 @@ MULTILABEL_MODEL = Path(REPO_DIR, "models.ignore/rgb-aug0/best_model.pth")
 S_DATASET = Path(REPO_DIR, "models.ignore/dataset_w_json")
 SMALL_DATASET = Path(REPO_DIR, "pics/small_dataset")
 TRAINED_MODEL = Path(REPO_DIR, "models.ignore/RGB_no_augmentation.pth")
-
-
-# Enums for dimensionality reduction techniques
-class DR_technique(StrEnum):
-    TSNE = auto()
-    PCA = auto()
-    UMAP = auto()
-    TRIMAP = auto()
-    PACMAP = auto()
-
-# Enums used for selecting model type
-class MODEL_type(StrEnum):
-    SEGMENTATION = auto()
-    CLASSIFICATION = auto()
 
 # Disct for function selection 
 # Add your desired function with the matched string here
