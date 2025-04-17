@@ -160,6 +160,9 @@ class PrimaryWindow(QMainWindow):
         self.slider = QSlider(parent=self)
         self.slider.setOrientation(Qt.Orientation.Horizontal)
         self.slider.valueChanged.connect(self.set_new_elements_to_display)
+        self.slider.setMinimum(0)
+        self.slider.setMaximum(0)
+        self.slider.setDisabled(True)
 
         # Organize Widgets
         graph_tab.addWidget(self.plot)
@@ -406,6 +409,7 @@ class PrimaryWindow(QMainWindow):
         # Set slider limits
         self.slider.setMinimum(0)
         self.slider.setMaximum(len(self.data.paths) - 1)
+        self.slider.setDisabled(False)
 
     def start_cooking_brains(self):
         """
