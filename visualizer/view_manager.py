@@ -26,14 +26,13 @@ from PyQt6.QtWidgets import (
 )
 
 from visualizer import consts, loading, open_dialog, utils
-from visualizer.consts import DR_technique as Technique
+from visualizer.consts import DR_technique, MODEL_type
 from visualizer.loading import apply_tsne as t_sne
 from visualizer.models.segmentation import FCNResNet101
 from visualizer.plottables import Plottables, SavableData
 from visualizer.plot_widget import PlotWidget
 from visualizer.stacked_layout_manager import StackedLayoutManager
 import visualizer.models
-
 
 class PrimaryWindow(QMainWindow):
     """
@@ -278,6 +277,9 @@ class PrimaryWindow(QMainWindow):
         type_dropdown.addItem("...")
         type_dropdown.addItem("Segmentation")
 
+        # Functionality
+        type_dropdown.currentTextChanged.connect(self.dropdown_select)
+
         # Layout
         type_select_menu = QHBoxLayout()
         type_select_menu.addWidget(type_dropdown)
@@ -296,6 +298,9 @@ class PrimaryWindow(QMainWindow):
         reduction_dropdown.addItem("...")
         reduction_dropdown.addItem("t-SNE")
 
+        # Functionality
+        reduction_dropdown.currentTextChanged.connect(self.dropdown_select)
+
         # Layout
         reduction_select_menu = QHBoxLayout()
         reduction_select_menu.addWidget(reduction_dropdown)
@@ -303,6 +308,16 @@ class PrimaryWindow(QMainWindow):
 
         # Add to stage
         self.stage_tab.addLayout(reduction_select_menu)
+
+    def dropdown_select(self, string):
+        # Reformatting string without special characters like - _ * 
+        comparator = (''.join(filter(str.isalpha, string))).upper()
+        
+        # Checking if the chosen function exists in list of functions and then call it
+        if comparator in consts.functions:
+            print("success")
+        elif comparator != "":
+            raise RuntimeError(f"Selected function not found in {consts.functions}")
 
     def set_new_elements_to_display(self, value):
         """
@@ -422,23 +437,23 @@ class PrimaryWindow(QMainWindow):
             self.layer_feedback_label = "You chose " + selected_layer
             self.try_to_activate_goforit_button()
 
-    def technique_loader(features, target_dimensionality=2, reduction=Technique.T_SNE):
+    def technique_loader(features, target_dimensionality=2, reduction=DR_technique.TSNE):
         """
         @Linnea: Write a docstring for this method.
         """
 
         # Added a switch for later implementation of more reduction methods
         match reduction:
-            case Technique.T_SNE:
+            case DR_technique.TSNE:
                 # @Linnea: Better to rename the function in its definition and also refer to it by namespace
                 return t_sne(features, target_dimensionality)
-            case Technique.PCA:
+            case DR_technique.PCA:
                 return None  # TBI (TO BE IMPLEMENTED)
-            case Technique.UMAP:
+            case DR_technique.UMAP:
                 return None  # TBI
-            case Technique.TRIMAP:
+            case DR_technique.TRIMAP:
                 return None  # TBI
-            case Technique.PACMAP:
+            case DR_technique.PACMAP:
                 return None  # TBI
             case _:  # Default case
                 return None
