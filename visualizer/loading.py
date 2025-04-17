@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
+from pathlib import Path
 import mmap
 import os
 import pickle
+import random
 import tempfile
 
 from sklearn.manifold import TSNE
@@ -13,9 +15,6 @@ import torchvision
 
 from visualizer import consts, open_dialog
 from visualizer.plottables import SavableData
-
-from pathlib import Path
-import random
 
 
 def dataset_to_tensors(image_paths: list):
@@ -41,19 +40,6 @@ def dataset_to_tensors(image_paths: list):
 
 
 def preliminary_dim_reduction_iii(model, layer, files):
-
-    # Shuffle and assign unique colors
-    base_colors = px.colors.qualitative.Alphabet + px.colors.qualitative.Dark24
-    random.shuffle(base_colors)
-
-
-    # # Construct the full color map with hex and RGB
-    # color_map = {}
-    # for i, cat in enumerate(model.categories):
-    #     hex_color = base_colors[i % len(base_colors)]
-    #     hex_color = hex_color.lstrip("#")
-    #     rgb = tuple(int(hex_color[j : j + 2], 16) for j in (0, 2, 4))
-    #     color_map[cat] = {"hex": "#" + hex_color, "rgb": rgb}
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
