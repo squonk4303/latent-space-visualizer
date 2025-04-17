@@ -21,6 +21,7 @@ from PyQt6.QtWidgets import (
     QPushButton,
     QStatusBar,
     QVBoxLayout,
+    QComboBox,
     QWidget,
 )
 
@@ -134,6 +135,8 @@ class PrimaryWindow(QMainWindow):
         # Initialize Selection Menu in load_tab
         # -----------------------
 
+        self.init_type_selector()
+        self.init_reduction_selector()
         self.init_dataset_selection()
         self.init_model_selection()
         self.init_layer_selection()
@@ -261,6 +264,38 @@ class PrimaryWindow(QMainWindow):
         navigate_menu = menubar.addMenu("&Tab")
         navigate_menu.addAction(self.goto_graph_tab)
         navigate_menu.addAction(self.goto_stage_tab)
+
+    def init_type_selector(self):
+        self.type_select_label = QLabel("<-- Select the desired type of NN model")
+
+        # Dropdown Menu
+        type_dropdown = QComboBox(self)
+        type_dropdown.addItem("...")
+        type_dropdown.addItem("Segmentation")
+
+        # Layout
+        type_select_menu = QHBoxLayout()
+        type_select_menu.addWidget(type_dropdown)
+        type_select_menu.addWidget(self.type_select_label)
+
+        # Add to stage
+        self.stage_tab.addLayout(type_select_menu)
+
+    def init_reduction_selector(self):
+        self.reduction_select_label = QLabel("<-- Select the desired reduction technique")
+
+        # Dropdown Menu
+        reduction_dropdown = QComboBox(self)
+        reduction_dropdown.addItem("...")
+        reduction_dropdown.addItem("t-SNE")
+
+        # Layout
+        reduction_select_menu = QHBoxLayout()
+        reduction_select_menu.addWidget(reduction_dropdown)
+        reduction_select_menu.addWidget(self.reduction_select_label)
+
+        # Add to stage
+        self.stage_tab.addLayout(reduction_select_menu)
 
     def set_new_elements_to_display(self, value):
         """
