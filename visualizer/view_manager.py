@@ -437,28 +437,6 @@ class PrimaryWindow(QMainWindow):
             self.layer_feedback_label = "You chose " + selected_layer
             self.try_to_activate_goforit_button()
 
-    def technique_loader(features, target_dimensionality=2, reduction=DR_technique.TSNE):
-        """
-        @Linnea: Write a docstring for this method.
-        """
-
-        # Added a switch for later implementation of more reduction methods
-        match reduction:
-            case DR_technique.TSNE:
-                # @Linnea: Better to rename the function in its definition and also refer to it by namespace
-                return t_sne(features, target_dimensionality)
-            case DR_technique.PCA:
-                return None  # TBI (TO BE IMPLEMENTED)
-            case DR_technique.UMAP:
-                return None  # TBI
-            case DR_technique.TRIMAP:
-                return None  # TBI
-            case DR_technique.PACMAP:
-                return None  # TBI
-            case _:  # Default case
-                return None
-                raise RuntimeError("No reduction technique selected!")
-
     def start_cooking_iii(self):
         # @Wilhelmsen: This could be an iglob
         image_locations = utils.grab_image_paths_in_dir(self.data.dataset_location)
