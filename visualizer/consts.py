@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Contains values meant to be accessible from anywhere."""
 from collections import OrderedDict
-from enum import Enum, auto
+from enum import Enum, StrEnum, auto
 from pathlib import Path
 import os
 
@@ -69,13 +69,29 @@ TRAINED_MODEL = Path(REPO_DIR, "models.ignore/RGB_no_augmentation.pth")
 
 
 # Enums for dimensionality reduction techniques
-class DR_technique(Enum):
-    T_SNE = auto()
+class DR_technique(StrEnum):
+    TSNE = auto()
     PCA = auto()
     UMAP = auto()
     TRIMAP = auto()
     PACMAP = auto()
 
+# Enums used for selecting model type
+class MODEL_type(StrEnum):
+    SEGMENTATION = auto()
+    CLASSIFICATION = auto()
+
+# Disct for function selection 
+# Add your desired function with the matched string here
+functions = {
+     "TSNE" : print,
+     "PCA" : print,
+     "UMAP" : print,
+     "TRIMAP" : print,
+     "PACMAP" : print,
+     "SEGMENTATION" : print,
+     "CLASSIFICATION" : print
+}
 
 # Flags. If anyone asks why this is in consts, tell them to <class 'zip'> it
 # Then consider whether to rename this file to "values.py" or something and
