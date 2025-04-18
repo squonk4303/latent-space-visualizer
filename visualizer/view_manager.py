@@ -32,7 +32,7 @@ from visualizer.plot_widget import PlotWidget
 from visualizer.stacked_layout_manager import StackedLayoutManager
 import visualizer.models
 
-# Disct for function selection 
+# Dict for function selection 
 # Add your desired function with the matched string here
 functions = {
      "TSNE" : print,
@@ -213,6 +213,7 @@ class PrimaryWindow(QMainWindow):
         self.setWindowTitle(new_title)
 
     def quick_launch(self):
+        # @Wilhelmsen: see about moving this into the "if flags.dev" namespace
         print(consts.S_DATASET)
         self.data.model = FCNResNet101()
         self.data.model.load(consts.MULTILABEL_MODEL)
@@ -280,15 +281,17 @@ class PrimaryWindow(QMainWindow):
         navigate_menu.addAction(self.goto_stage_tab)
 
     def init_type_selector(self):
+
         self.type_select_label = QLabel("<-- Select the desired type of NN model")
 
         # Dropdown Menu
-        type_dropdown = QComboBox(self)
+        type_dropdown = QComboBox(parent=self)
         type_dropdown.addItem("...")
-        type_dropdown.addItem("Segmentation")
+        for model_type in consts.MODEL_TYPES:
+            type_dropdown.addItem(model_type)
 
         # Functionality
-        type_dropdown.currentTextChanged.connect(self.dropdown_select)
+        type_dropdown.currentTextChanged.connect(self.suggest_model_type)
 
         # Layout
         type_select_menu = QHBoxLayout()
@@ -297,6 +300,24 @@ class PrimaryWindow(QMainWindow):
 
         # Add to stage
         self.stage_tab.addLayout(type_select_menu)
+
+    def suggest_model_type(self, model_type: str):
+        """Check modules for model-type, then loads an instance of it into self.model"""
+        if hasattr(visualizer.models.segmentation, model_type):
+            self.feedback_label.setText(f"You chose model type {model_type}!")
+            the_class = getattr(visualizer.models.segmentation, model_type)
+            self.model = the_class()
+            print(f"Successfully did model {model_type}, {the_class}")
+
+        # elif hasattr(models.whatever, model_type):
+        #     self.feedback_label.setText("You sure chose " + model_type)
+        #     self.model = getattr(models.whatever, model_type)()
+
+        elif model_type == "...":
+            print(f"Model is {model_type}? Whatever. I don't care.")
+
+        else:
+            raise ValueError(f"Woah. Model type {model_type} wasn't supposed to be selectable.")
 
     def init_reduction_selector(self):
         self.reduction_select_label = QLabel(
@@ -367,21 +388,6 @@ class PrimaryWindow(QMainWindow):
                 self.feedback_label.setText(e)
 
             self.try_to_activate_goforit_button()
-
-    def select_model_type(self, model_type: str):
-        """Check modules for model-type, then loads an instance of it into self.model"""
-        if hasattr(visualizer.models.segmentation, model_type):
-            self.feedback_label.setText(f"You chose model type {model_type}!")
-            the_class = getattr(visualizer.models.segmentation, model_type)
-            self.model = the_class()
-            print(f"Successfully did model {model_type}, {the_class}")
-
-        # elif hasattr(models.whatever, model_type):
-        #     self.feedback_label.setText("You sure chose " + model_type)
-        #     self.model = getattr(models.whatever, model_type)()
-
-        else:
-            raise ValueError(f"Woah. Model type {model_type} wasn't supposed to be selectable.")
 
     def try_to_activate_goforit_button(self):
         """
