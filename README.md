@@ -43,7 +43,7 @@ source .venv/bin/activate
 
 Install dependencies.
 
-Note that `torch` and `torchvision` have to be installed separately; see [their official instructions](https://pytorch.org/get-started/locally/)
+Note that [torch and torchvision](https://pytorch.org/get-started/locally/) have to be installed separately.
 ```sh
 pip install -r requirements.txt
 ```
