@@ -57,7 +57,7 @@ QUICKSAVE_PATH = Path(SAVE_DIR, "quicksave.pickle")
 # fmt: off
 FILE_FILTERS = OrderedDict([
     ("whatever", "All Files (*)"),
-    ("pickle", "Pickle Files (*.pickle *.pck *pcl)"),
+    ("pickle", "Pickle Files (*.pickle *.pck *.pcl)"),
     ("pictures", "Image Files (*.png *.jpg *.jpeg *.webp *.bmp *.gif *.tif *.tiff *.svg)"),
     ("pytorch", "PyTorch Files (*.pt *.pth)"),
 ])
