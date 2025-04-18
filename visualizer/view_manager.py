@@ -32,16 +32,16 @@ from visualizer.plot_widget import PlotWidget
 from visualizer.stacked_layout_manager import StackedLayoutManager
 import visualizer.models
 
-# Dict for function selection 
+# Dict for function selection
 # Add your desired function with the matched string here
-functions = {
+dim_reduction_techs = {
      "TSNE" : print,
      "PCA" : print,
      "UMAP" : print,
      "TRIMAP" : print,
      "PACMAP" : print,
      "SEGMENTATION" : print,
-     "CLASSIFICATION" : print
+     "CLASSIFICATION" : print,
 }
 
 class PrimaryWindow(QMainWindow):
@@ -325,12 +325,21 @@ class PrimaryWindow(QMainWindow):
         )
 
         # Dropdown Menu
-        reduction_dropdown = QComboBox(self)
+        reduction_dropdown = QComboBox(parent=self)
         reduction_dropdown.addItem("...")
+        for technique in dim_reduction_techs.keys():
+            reduction_dropdown.addItem(technique)
         reduction_dropdown.addItem("t-SNE")
+        reduction_dropdown.addItem("P.C.A.")
+        reduction_dropdown.addItem("~UMAP")
+        reduction_dropdown.addItem("TRI-MAP")
+        reduction_dropdown.addItem("PA¢CMAP")
+        reduction_dropdown.addItem("SE.GMEN.TAT.ION")
+        reduction_dropdown.addItem("CLASS!IFICATION_24")
+        reduction_dropdown.addItem("bogus")
 
         # Functionality
-        reduction_dropdown.currentTextChanged.connect(self.dropdown_select)
+        reduction_dropdown.currentTextChanged.connect(self.suggest_dim_reduction)
 
         # Layout
         reduction_select_menu = QHBoxLayout()
@@ -340,16 +349,18 @@ class PrimaryWindow(QMainWindow):
         # Add to stage
         self.stage_tab.addLayout(reduction_select_menu)
 
-    def dropdown_select(self, string):
-        # Reformatting string without special characters like - _ * 
-        comparator = (''.join(filter(str.isalpha, string))).upper()
-        
+    def suggest_dim_reduction(self, text: str):
+        # Reformatting text without special characters like - _ *
+        standardized_input = (''.join(filter(str.isalpha, text))).upper()
+
         # Checking if the chosen function exists in list of functions and then call it
-        if comparator in functions:
+        if standardized_input in dim_reduction_techs:
             # Update self.data.technique to be the matching function in the dict
-            print("success")
-        elif comparator != "":
-            raise RuntimeError(f"Selected function not found in {functions}")
+            print(f"success {standardized_input}")
+            self.data.dim_reduction = standardized_input
+            self.feedback_label.setText(f"You chose dim reduction technique {standardized_input}")
+        elif standardized_input != "":
+            raise RuntimeError(f"Selected function not found in {dim_reduction_techs}")
 
     def set_new_elements_to_display(self, value):
         """

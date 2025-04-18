@@ -18,6 +18,7 @@ class Plottables:
 class SavableData:
     model: torch.nn.Module = None
     layer: str = ""
+    dim_reduction: str = ""
     paths: list[str] = dataclasses.field(default_factory=list)
     dataset_location: str = ""
     dataset_intermediary: torch.tensor = None
