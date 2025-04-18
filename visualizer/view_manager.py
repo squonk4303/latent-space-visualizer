@@ -395,11 +395,13 @@ class PrimaryWindow(QMainWindow):
 
     def try_to_load_model(self):
         """Automatically load the model if model and pth-file are both selected."""
-        if self.data.model is not None and self.data.model_location != "":
+        # if self.data.model is not None and self.data.model_location != "":
+        if True:
             # @Wilhelmsen: Better error handling please!
             # Try to prevent the program from crashing on bad file
             # Maybe just by ensuring .pth as file extension...
             try:
+                self.data.model = FCNResNet101()
                 self.data.model.load(self.data.model_location)
                 self.try_to_activate_goforit_button()
             except RuntimeError as e:
