@@ -4,6 +4,7 @@ from collections import OrderedDict
 from enum import Enum, auto
 from pathlib import Path
 import os
+from visualizer.models import segmentation
 
 # Relevant Numbers
 seed = int()  # useful value allocated in 'arguments.py'
@@ -74,7 +75,9 @@ TRAINED_MODEL = Path(REPO_DIR, "models.ignore/RGB_no_augmentation.pth")
 
 # These are used in "getattr", so they're case sensitive, and it's
 # important to keep them updated. Always run tests when refactoring models.
-MODEL_TYPES = ["FCNResNet101"]
+# Uses list comprehension to get all attributes of the module which are probably classes
+# This is evil Python. Don't tell the cops
+MODEL_TYPES = [c for c in dir(segmentation) if c[0].isupper()]
 
 
 # Flags. If anyone asks why this is in consts, tell them to <class 'zip'> it
