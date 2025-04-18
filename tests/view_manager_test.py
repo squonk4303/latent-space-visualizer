@@ -179,6 +179,8 @@ def test_find_model_activates_goforit_button(primary_window):
         assert primary_window.go_for_it_button.isEnabled()
 
 
+@pytest.mark.slow
+@pytest.mark.stub
 def test_suggest_model_type_activates_goforit_button(primary_window):
     primary_window.suggest_model_type("...")
     # Assert the function doesn't enable the button erroneously
