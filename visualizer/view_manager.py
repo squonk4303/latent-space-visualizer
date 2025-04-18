@@ -330,8 +330,8 @@ class PrimaryWindow(QMainWindow):
         # Dropdown Menu
         reduction_dropdown = QComboBox(parent=self)
         reduction_dropdown.addItem("...")
-        for technique in dim_reduction_techs.keys():
-            reduction_dropdown.addItem(technique)
+       # for technique in dim_reduction_techs.keys():
+       #     reduction_dropdown.addItem(technique)
         reduction_dropdown.addItem("t-SNE")
         reduction_dropdown.addItem("P.C.A.")
         reduction_dropdown.addItem("~UMAP")
@@ -434,7 +434,7 @@ class PrimaryWindow(QMainWindow):
                 and dataset_alright
             )
         )
-        self.go_for_it_button.setDisabled(should_be_disabled)
+        self.go_for_it_button.setDisabled(False)
 
     def find_dataset(self):
         """
