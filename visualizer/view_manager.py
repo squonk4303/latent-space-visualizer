@@ -326,16 +326,14 @@ class PrimaryWindow(QMainWindow):
         # Dropdown Menu
         reduction_dropdown = QComboBox(parent=self)
         reduction_dropdown.addItem("...")
-        for technique in dim_reduction_techs.keys():
-            reduction_dropdown.addItem(technique)
+        #for technique in dim_reduction_techs.keys():
+        #    reduction_dropdown.addItem(technique)
         reduction_dropdown.addItem("t-SNE")
         reduction_dropdown.addItem("P.C.A.")
-        reduction_dropdown.addItem("~UMAP")
+        reduction_dropdown.addItem("UMAP")
         reduction_dropdown.addItem("TRI-MAP")
-        reduction_dropdown.addItem("PA¢CMAP")
-        reduction_dropdown.addItem("SE.GMEN.TAT.ION")
-        reduction_dropdown.addItem("CLASS!IFICATION_24")
-        reduction_dropdown.addItem("bogus")
+        reduction_dropdown.addItem("PACMAP")
+      
 
         # Functionality
         reduction_dropdown.currentTextChanged.connect(self.suggest_dim_reduction)
@@ -422,8 +420,16 @@ class PrimaryWindow(QMainWindow):
                 and dataset_alright
             )
         )
+
+        user_test_disabled = bool(
+            not (
+                categories_alright
+                and self.data.layer
+                and dataset_alright
+            )
+        )
         # self.go_for_it_button.setDisabled(should_be_disabled)
-        self.go_for_it_button.setDisabled(False)
+        self.go_for_it_button.setDisabled(user_test_disabled)
 
     def find_dataset(self):
         """
