@@ -277,7 +277,7 @@ def load_by_dialog(parent) -> object:
 
     For use in actions and buttons.
     """
-    load_location = open_dialog.for_some_file(parent=parent)
+    load_location = open_dialog.for_some_file(parent=parent, caption=consts.LOAD_FILE_DIALOG_CAPTION)
 
     if load_location:
         with open(load_location, "rb") as f:

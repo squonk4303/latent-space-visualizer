@@ -443,7 +443,9 @@ class PrimaryWindow(QMainWindow):
         Is intended to be used to be used for directories containing the datasets.
         For use in buttons and actions.
         """
-        self.data.dataset_location = open_dialog.for_directory(parent=self)
+        self.data.dataset_location = open_dialog.for_directory(
+            parent=self, caption=consts.DATASET_DIALOG_CAPTION
+        )
         if self.data.dataset_location:
             paths = utils.grab_image_paths_in_dir(self.data.dataset_location)
             text = str(self.data.dataset_location) + ", length: " + str(len(paths))
