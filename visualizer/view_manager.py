@@ -32,6 +32,18 @@ from visualizer.plot_widget import PlotWidget
 from visualizer.stacked_layout_manager import StackedLayoutManager
 import visualizer.models
 
+# Disct for function selection 
+# Add your desired function with the matched string here
+functions = {
+     "TSNE" : print,
+     "PCA" : print,
+     "UMAP" : print,
+     "TRIMAP" : print,
+     "PACMAP" : print,
+     "SEGMENTATION" : print,
+     "CLASSIFICATION" : print
+}
+
 class PrimaryWindow(QMainWindow):
     """
     Primary window of the program.
@@ -312,10 +324,10 @@ class PrimaryWindow(QMainWindow):
         comparator = (''.join(filter(str.isalpha, string))).upper()
         
         # Checking if the chosen function exists in list of functions and then call it
-        if comparator in consts.functions:
+        if comparator in functions:
             print("success")
         elif comparator != "":
-            raise RuntimeError(f"Selected function not found in {consts.functions}")
+            raise RuntimeError(f"Selected function not found in {functions}")
 
     def set_new_elements_to_display(self, value):
         """

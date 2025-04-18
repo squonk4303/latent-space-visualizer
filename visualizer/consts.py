@@ -67,18 +67,6 @@ S_DATASET = Path(REPO_DIR, "models.ignore/dataset_w_json")
 SMALL_DATASET = Path(REPO_DIR, "pics/small_dataset")
 TRAINED_MODEL = Path(REPO_DIR, "models.ignore/RGB_no_augmentation.pth")
 
-# Disct for function selection 
-# Add your desired function with the matched string here
-functions = {
-     "TSNE" : print,
-     "PCA" : print,
-     "UMAP" : print,
-     "TRIMAP" : print,
-     "PACMAP" : print,
-     "SEGMENTATION" : print,
-     "CLASSIFICATION" : print
-}
-
 # These are used in "getattr", so they're case sensitive, and it's
 # important to keep them updated. Always run tests when refactoring models.
 MODEL_TYPES = ["FCNResNet101"]
