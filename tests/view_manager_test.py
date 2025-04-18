@@ -179,16 +179,20 @@ def test_find_model_activates_goforit_button(primary_window):
         assert primary_window.go_for_it_button.isEnabled()
 
 
-def test_select_dim_reduction_activates_goforit_button(primary_window):
-    return
+def test_suggest_model_type_activates_goforit_button(primary_window):
     primary_window.suggest_model_type("...")
+    # Assert the function doesn't enable the button erroneously
+    primary_window.data.model = FCNResNet101()
+    primary_window.suggest_model_type(consts.MODEL_TYPES[0])
     assert not primary_window.go_for_it_button.isEnabled()
-    primary_window.data.layer = "layer4"
+
     primary_window.data.dataset_location = consts.MEDIUM_DATASET
-
+    primary_window.data.layer = "layer4"
+    primary_window.data.model = FCNResNet101()
+    primary_window.data.model_location = consts.MULTILABEL_MODEL
     # Assert the final function changes the button state
-    primary_window.suggest_model_type(const.MODEL_TYPES[0])
-
+    primary_window.suggest_model_type(consts.MODEL_TYPES[0])
+    assert primary_window.go_for_it_button.isEnabled()
 
 @pytest.mark.slow
 @pytest.mark.stub

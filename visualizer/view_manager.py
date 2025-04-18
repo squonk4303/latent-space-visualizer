@@ -215,7 +215,6 @@ class PrimaryWindow(QMainWindow):
 
     def quick_launch(self):
         # @Wilhelmsen: see about moving this into the "if flags.dev" namespace
-        print(consts.S_DATASET)
         self.data.model = FCNResNet101()
         self.data.model.load(consts.MULTILABEL_MODEL)
         self.data.layer = "layer4"
@@ -309,11 +308,13 @@ class PrimaryWindow(QMainWindow):
             self.feedback_label.setText(f"You chose model type {model_type}!")
             the_class = getattr(visualizer.models.segmentation, model_type)
             self.model = the_class()
-            print(f"Successfully did model {model_type}, {the_class}")
+            print(f"Successfully found model {model_type}, {the_class}")
+            self.try_to_load_model()
 
         # elif hasattr(models.whatever, model_type):
         #     self.feedback_label.setText("You sure chose " + model_type)
         #     self.model = getattr(models.whatever, model_type)()
+        #     self.try_to_load_model()
 
         elif model_type == "...":
             print(f"Model is {model_type}? Whatever. I don't care.")
@@ -370,7 +371,6 @@ class PrimaryWindow(QMainWindow):
 
         Called whenever the slider changes, by user or other means.
         """
-        print("value:", value)
         self.plot.new_tuple(
             value,
             self.data.labels,
@@ -387,36 +387,35 @@ class PrimaryWindow(QMainWindow):
         For use in buttons and actions.
         """
         model_path = open_dialog.for_trained_model_file(parent=self)
-        print("*** model_path:", model_path)
         if model_path:
-            print("*** model_path:", model_path)
             self.data.model_location = model_path
             self.model_feedback_label.setText("You chose: " + str(model_path))
             self.feedback_label.setText("You chose: " + str(model_path))
             self.try_to_load_model()
 
     def try_to_load_model(self):
-        """
-        Automatically load the model if model and pth-file are both selected.
-        """
-        print("*** self.data.model, self.data.model_location:", self.data.model, self.data.model_location)
-        if self.data.model is not None and self.data.model_location is not None:
+        """Automatically load the model if model and pth-file are both selected."""
+        if self.data.model is not None and self.data.model_location != "":
             # @Wilhelmsen: Better error handling please!
             # Try to prevent the program from crashing on bad file
             # Maybe just by ensuring .pth as file extension...
             try:
-                print("*** FROM TRY_TO_LOAD_MODEL self.data.model:", self.data.model)
                 self.data.model.load(self.data.model_location)
                 self.try_to_activate_goforit_button()
             except RuntimeError as e:
-                print(f"something went wrong; {e}")
+                print(
+                    f"Tried and failed to load model! "
+                    f"type: {type(self.data.model)}, "
+                    f"location: {self.data.model.location}, "
+                    f"error message: {e}"
+                )
                 self.feedback_label.setText(e)
 
     def try_to_activate_goforit_button(self):
         """
         Evaluate and enact whether the go-for-it-button should be enabled.
 
-        Meaning if dataset, layer and model are selected, the button is activated,
+        Meaning if dataset, layer, model, and model type are selected, the button is activated,
         and if any of these are found to be insufficient, the button is deactivated.
         """
         model_alright = hasattr(self.data.model, "state_dict")
@@ -435,7 +434,6 @@ class PrimaryWindow(QMainWindow):
                 and dataset_alright
             )
         )
-        # self.go_for_it_button.setDisabled(should_be_disabled)
         self.go_for_it_button.setDisabled(should_be_disabled)
 
     def find_dataset(self):
