@@ -309,7 +309,7 @@ class PrimaryWindow(QMainWindow):
             the_class = getattr(visualizer.models.segmentation, model_type)
             self.model = the_class()
             print(f"Successfully found model {model_type}, {the_class}")
-            self.try_to_load_model()
+            # self.try_to_load_model()
 
         # elif hasattr(models.whatever, model_type):
         #     self.feedback_label.setText("You sure chose " + model_type)
@@ -391,7 +391,7 @@ class PrimaryWindow(QMainWindow):
             self.data.model_location = model_path
             self.model_feedback_label.setText("You chose: " + str(model_path))
             self.feedback_label.setText("You chose: " + str(model_path))
-            self.try_to_load_model()
+            # self.try_to_load_model()
 
     def try_to_load_model(self):
         """Automatically load the model if model and pth-file are both selected."""
@@ -481,6 +481,8 @@ class PrimaryWindow(QMainWindow):
 
     def start_cooking_iii(self):
         # @Wilhelmsen: This could be an iglob
+        self.data.model = FCNResNet101()
+        self.data.model.load(self.data.model_location)
         image_locations = utils.grab_image_paths_in_dir(self.data.dataset_location)
         reduced_data, paths, labels, masks = loading.preliminary_dim_reduction_iii(
             self.data.model, self.data.layer, image_locations
