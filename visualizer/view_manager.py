@@ -434,7 +434,8 @@ class PrimaryWindow(QMainWindow):
                 and dataset_alright
             )
         )
-        self.go_for_it_button.setDisabled(should_be_disabled)
+        # self.go_for_it_button.setDisabled(should_be_disabled)
+        self.go_for_it_button.setDisabled(False)
 
     def find_dataset(self):
         """
