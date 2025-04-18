@@ -49,7 +49,7 @@ def valid_model():
 mocked_trained_model_qfiledialog = patch.object(
     QFileDialog,
     "getOpenFileName",
-    return_value=(consts.TRAINED_MODEL, consts.FILE_FILTERS["whatever"]),
+    return_value=(consts.MULTILABEL_MODEL, consts.FILE_FILTERS["whatever"]),
 )
 
 
@@ -173,9 +173,21 @@ def test_find_model_activates_goforit_button(primary_window):
         assert not primary_window.go_for_it_button.isEnabled()
         primary_window.data.layer = "layer4"
         primary_window.data.dataset_location = consts.MEDIUM_DATASET
+        primary_window.data.model = FCNResNet101()
         # Assert the final function changes the button state
         primary_window.load_model_file()
         assert primary_window.go_for_it_button.isEnabled()
+
+
+def test_select_dim_reduction_activates_goforit_button(primary_window):
+    return
+    primary_window.suggest_model_type("...")
+    assert not primary_window.go_for_it_button.isEnabled()
+    primary_window.data.layer = "layer4"
+    primary_window.data.dataset_location = consts.MEDIUM_DATASET
+
+    # Assert the final function changes the button state
+    primary_window.suggest_model_type(const.MODEL_TYPES[0])
 
 
 @pytest.mark.slow
@@ -233,6 +245,7 @@ def _test_dim_techniques_from_dict(primary_window):
     """@Wilhelmsen: doesn't work right now. Try agains later."""
     from visualizer.view_manager import dim_reduction_techs
     from visualizer.loading import tsne
+
     mocked_tsne = patch(
         "loading.tsne", side_effect=SystemExit("mocked_tsne called; stopping program")
     )

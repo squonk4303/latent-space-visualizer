@@ -141,6 +141,7 @@ class PrimaryWindow(QMainWindow):
 
         # Initialize Selection Menu in load_tab
         # -----------------------
+
         self.init_type_selector()
         self.init_reduction_selector()
         self.init_dataset_selection()
@@ -148,6 +149,7 @@ class PrimaryWindow(QMainWindow):
         self.init_layer_selection()
         self.init_feedback_label()
         self.init_go_for_it_button()
+
         # ========
         # Plot Tab
         # ========
@@ -207,6 +209,7 @@ class PrimaryWindow(QMainWindow):
     # =======
     # Methods
     # =======
+
     def title_update(self, new_title):
         self.setWindowTitle(new_title)
 
@@ -384,20 +387,30 @@ class PrimaryWindow(QMainWindow):
         For use in buttons and actions.
         """
         model_path = open_dialog.for_trained_model_file(parent=self)
+        print("*** model_path:", model_path)
         if model_path:
+            print("*** model_path:", model_path)
+            self.data.model_location = model_path
+            self.model_feedback_label.setText("You chose: " + str(model_path))
+            self.feedback_label.setText("You chose: " + str(model_path))
+            self.try_to_load_model()
+
+    def try_to_load_model(self):
+        """
+        Automatically load the model if model and pth-file are both selected.
+        """
+        print("*** self.data.model, self.data.model_location:", self.data.model, self.data.model_location)
+        if self.data.model is not None and self.data.model_location is not None:
             # @Wilhelmsen: Better error handling please!
             # Try to prevent the program from crashing on bad file
             # Maybe just by ensuring .pth as file extension...
             try:
-                self.data.model = FCNResNet101()
-                self.data.model.load(model_path)
-                self.model_feedback_label.setText("You chose: " + str(model_path))
-                self.feedback_label.setText("You chose: " + str(model_path))
+                print("*** FROM TRY_TO_LOAD_MODEL self.data.model:", self.data.model)
+                self.data.model.load(self.data.model_location)
+                self.try_to_activate_goforit_button()
             except RuntimeError as e:
                 print(f"something went wrong; {e}")
                 self.feedback_label.setText(e)
-
-            self.try_to_activate_goforit_button()
 
     def try_to_activate_goforit_button(self):
         """
