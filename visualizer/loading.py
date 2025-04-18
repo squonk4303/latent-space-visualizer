@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from collections.abc import Callable
 from pathlib import Path
 import mmap
 import os
@@ -118,7 +119,7 @@ def preliminary_dim_reduction_iii(model, layer, files):
     return features, valid_paths, dominant_categories, masks
 
 
-def apply_tsne(features, target_dimensions=2):
+def tsne(features, target_dimensions=2):
     """Reduce features' dimensionality by t-SNE and return the 2d/3d coordinates."""
     # Ensure a reasonable/legal perplexity value
     perplexity_value = min(30, len(features) - 1)
@@ -132,6 +133,28 @@ def apply_tsne(features, target_dimensions=2):
 
     reduced_features = tsne_conf.fit_transform(features)
     return reduced_features
+
+
+def pca():
+    undefined_dim_reduction_technique(pca)
+
+
+def umap():
+    undefined_dim_reduction_technique(umap)
+
+
+def trimap():
+    undefined_dim_reduction_technique(trimap)
+
+
+def pacmap():
+    undefined_dim_reduction_technique(pacmap)
+
+
+def undefined_dim_reduction_technique(f: Callable):
+    raise NotImplementedError(
+        f"Dim. reduction function {f} not implemented yet!"
+    )
 
 
 def hooker(t: list):

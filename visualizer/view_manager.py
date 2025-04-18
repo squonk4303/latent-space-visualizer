@@ -35,13 +35,11 @@ import visualizer.models
 # Dict for function selection
 # Add your desired function with the matched string here
 dim_reduction_techs = {
-     "TSNE" : print,
-     "PCA" : print,
-     "UMAP" : print,
-     "TRIMAP" : print,
-     "PACMAP" : print,
-     "SEGMENTATION" : print,
-     "CLASSIFICATION" : print,
+    "TSNE" : loading.tsne,
+    "PCA" : loading.pca,
+    "UMAP" : loading.umap,
+    "TRIMAP" : loading.trimap,
+    "PACMAP" : loading.pacmap,
 }
 
 class PrimaryWindow(QMainWindow):
@@ -360,7 +358,7 @@ class PrimaryWindow(QMainWindow):
             self.data.dim_reduction = standardized_input
             self.feedback_label.setText(f"You chose dim reduction technique {standardized_input}")
         elif standardized_input != "":
-            raise RuntimeError(f"Selected function not found in {dim_reduction_techs}")
+            raise RuntimeError(f"Selected technique {standardized_input} not found in {dim_reduction_techs}")
 
     def set_new_elements_to_display(self, value):
         """
@@ -478,7 +476,7 @@ class PrimaryWindow(QMainWindow):
         # @Wilhelmsen: This normalizes for the whole matrix at once,
         #              As opposed to for each axis, which is what I want
         #              And it also doesn't at all work
-        arr = loading.apply_tsne(reduced_data)
+        arr = loading.tsne(reduced_data)
         plottable_data = arr / np.min(arr) / (np.max(arr) / np.min(arr))
 
         self.data.labels = labels

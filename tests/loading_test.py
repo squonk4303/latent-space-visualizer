@@ -62,9 +62,9 @@ def test_apply_tsne():
     """Test features are reduced to desired dimensions and also it doesn't creash."""
     array = np.random.rand(8, 512)
     features = torch.Tensor(array)
-    reduced = loading.apply_tsne(features, target_dimensions=2)
+    reduced = loading.tsne(features, target_dimensions=2)
     assert reduced.shape[1] == 2
-    reduced = loading.apply_tsne(features, target_dimensions=3)
+    reduced = loading.tsne(features, target_dimensions=3)
     assert reduced.shape[1] == 3
 
 

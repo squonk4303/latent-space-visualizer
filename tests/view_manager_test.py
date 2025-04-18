@@ -217,8 +217,6 @@ def test_automatic_getting_of_dim_reductions(primary_window):
          "UMAP" : print,
          "TRIMAP" : print,
          "PACMAP" : print,
-         "SEGMENTATION" : print,
-         "CLASSIFICATION" : print,
     }
     for technique in dim_reduction_techs:
         primary_window.suggest_dim_reduction(technique)
