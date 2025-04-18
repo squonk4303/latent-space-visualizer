@@ -8,7 +8,7 @@ import torch
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QFileDialog
 
-from visualizer import consts, utils
+from visualizer import consts, utils, loading
 from visualizer.models.segmentation import FCNResNet101
 from visualizer.plottables import SavableData
 from visualizer.view_manager import PrimaryWindow
@@ -206,22 +206,37 @@ def test_suggest_model_type_dont_take_no_shit(primary_window):
     with pytest.raises(ValueError):
         primary_window.suggest_model_type("Bogus model for fools and knaves")
 
+
 def test_automatic_getting_of_dim_reductions(primary_window):
     """
     Assert that all model types in the const are valid.
     NOTE: Doesn't actyally use a const yet. @Wilhelmsen.
     """
     dim_reduction_techs = {
-         "TSNE" : print,
-         "PCA" : print,
-         "UMAP" : print,
-         "TRIMAP" : print,
-         "PACMAP" : print,
+        "TSNE": print,
+        "PCA": print,
+        "UMAP": print,
+        "TRIMAP": print,
+        "PACMAP": print,
     }
     for technique in dim_reduction_techs:
         primary_window.suggest_dim_reduction(technique)
+
 
 def test_suggest_dim_reduction_dont_take_no_shit(primary_window):
     """Make sure that the function *does* raise an error on bad technique."""
     with pytest.raises(ValueError):
         primary_window.suggest_model_type("Bogus technique for fools and knaves")
+
+
+def _test_dim_techniques_from_dict(primary_window):
+    """@Wilhelmsen: doesn't work right now. Try agains later."""
+    from visualizer.view_manager import dim_reduction_techs
+    from visualizer.loading import tsne
+    mocked_tsne = patch(
+        "loading.tsne", side_effect=SystemExit("mocked_tsne called; stopping program")
+    )
+    primary_window.data.dim_reduction = "TSNE"
+    arr = torch.rand(3, 28, 28)
+    with mocked_tsne:
+        dim_reduction_techs[primary_window.data.dim_reduction](arr)

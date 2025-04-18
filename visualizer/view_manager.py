@@ -217,6 +217,7 @@ class PrimaryWindow(QMainWindow):
         self.data.model.load(consts.MULTILABEL_MODEL)
         self.data.layer = "layer4"
         self.data.dataset_location = consts.S_DATASET
+        self.data.dim_reduction = "TSNE"
         self.start_cooking_iii()
 
     def init_model_selection(self):
@@ -476,7 +477,7 @@ class PrimaryWindow(QMainWindow):
         # @Wilhelmsen: This normalizes for the whole matrix at once,
         #              As opposed to for each axis, which is what I want
         #              And it also doesn't at all work
-        arr = loading.tsne(reduced_data)
+        arr = dim_reduction_techs[self.data.dim_reduction](reduced_data)
         plottable_data = arr / np.min(arr) / (np.max(arr) / np.min(arr))
 
         self.data.labels = labels
