@@ -202,6 +202,28 @@ def test_automatic_getting_of_model_types(primary_window):
 
 
 def test_suggest_model_type_dont_take_no_shit(primary_window):
-    """Make sure that the function does raise an error on bad model type."""
+    """Make sure that the function *does* raise an error on bad model type."""
     with pytest.raises(ValueError):
         primary_window.suggest_model_type("Bogus model for fools and knaves")
+
+def test_automatic_getting_of_dim_reductions(primary_window):
+    """
+    Assert that all model types in the const are valid.
+    NOTE: Doesn't actyally use a const yet. @Wilhelmsen.
+    """
+    dim_reduction_techs = {
+         "TSNE" : print,
+         "PCA" : print,
+         "UMAP" : print,
+         "TRIMAP" : print,
+         "PACMAP" : print,
+         "SEGMENTATION" : print,
+         "CLASSIFICATION" : print,
+    }
+    for technique in dim_reduction_techs:
+        primary_window.suggest_dim_reduction(technique)
+
+def test_suggest_dim_reduction_dont_take_no_shit(primary_window):
+    """Make sure that the function *does* raise an error on bad technique."""
+    with pytest.raises(ValueError):
+        primary_window.suggest_model_type("Bogus technique for fools and knaves")
