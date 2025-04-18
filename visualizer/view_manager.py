@@ -325,6 +325,7 @@ class PrimaryWindow(QMainWindow):
         
         # Checking if the chosen function exists in list of functions and then call it
         if comparator in functions:
+            # Update self.data.technique to be the matching function in the dict
             print("success")
         elif comparator != "":
             raise RuntimeError(f"Selected function not found in {functions}")
