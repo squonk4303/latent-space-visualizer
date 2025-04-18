@@ -26,8 +26,6 @@ from PyQt6.QtWidgets import (
 )
 
 from visualizer import consts, loading, open_dialog, utils
-from visualizer.consts import DR_technique, MODEL_type
-from visualizer.loading import apply_tsne as t_sne
 from visualizer.models.segmentation import FCNResNet101
 from visualizer.plottables import Plottables, SavableData
 from visualizer.plot_widget import PlotWidget
