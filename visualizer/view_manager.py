@@ -479,6 +479,7 @@ class PrimaryWindow(QMainWindow):
             self.feedback_label.setText(e)
 
         # @Wilhelmsen: This could be an iglob
+        self.data.paths = utils.grab_image_paths_in_dir(self.data.dataset_location)
         reduced_data, paths, labels, masks = loading.preliminary_dim_reduction_iii(
             self.data.model, self.data.layer, self.data.paths
         )
