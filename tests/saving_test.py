@@ -113,6 +113,7 @@ def assert_integrity_of(canary: SavableData):
 # =====
 
 
+@pytest.mark.stub
 def test_the_object(obj_fixture):
     """
     Test the object filled here. If this test trips, saves may be broken.
@@ -136,6 +137,7 @@ def test_the_object(obj_fixture):
         assert_integrity_of(bad_object)
 
 
+@pytest.mark.stub
 def test_compare_with_old_save(obj_fixture):
     """
     Compares current savable-object with the one that's stubbed.
