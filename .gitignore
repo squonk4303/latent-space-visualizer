@@ -2,6 +2,8 @@
 __pycache__
 .vscode
 stubs/
+build/
+dist/
 
 # User Data
 save_data
