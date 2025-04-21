@@ -63,9 +63,9 @@ class MplCanvas(FigureCanvasQTAgg):
             0.5, -0.01, in_imgdesc, ha="center", va="top", 
             transform=self.input_display.transAxes
             )
-        self.output_display_display.text(
-            0.5, -0.01, out_imgdesc, ha="center", va="top", 
-            transform=self.input_display.transAxes
+        self.output_display.text(
+            0.5, -0.01, "Dominant Category: "+out_imgdesc.capitalize(), ha="center", va="top", 
+            transform=self.output_display.transAxes
             )
         
 
@@ -97,7 +97,6 @@ class PlotWidget(QWidget):
         # @Wilhelmsen: Make it detect whether coords are 2d or 3d and act accordingly
         # Map each label to a randomly-sampled color
         unique_labels = list(set(labels))
-        colors = consts.COLORS32
 
         # Make a dict which maps paths and coords to related unique labels
         plottables = {key: {"paths": [], "coords": []} for key in unique_labels}
@@ -108,7 +107,7 @@ class PlotWidget(QWidget):
 
         for L in sorted(plottables.keys()):
             x, y = zip(*plottables[L]["coords"])
-            self.canvas.axes.scatter(x, y, label=L, c=colormap[L])
+            self.canvas.axes.scatter(x, y, label=L.capitalize(), c=colormap[L])
 
         # Styling
         # @Linnea: Move this to MplCanvas
@@ -123,7 +122,7 @@ class PlotWidget(QWidget):
         """Changes which input image and mask is displayed, and highlights the corresponding point."""
         filename = Path(paths[value]).name
         inpic = PIL.Image.open(paths[value])
-        self.canvas.redraw(filename) # Only displays filename on 2nd image for some reason?
+        self.canvas.redraw(filename,labels[value]) # Only displays filename on 2nd image for some reason?
         tx, ty = coords[value]
         self.the_plottables(labels, paths, coords, masks, colormap)
         self.canvas.input_display.imshow(inpic)

@@ -47,6 +47,12 @@ COLORS32 = [
     # fmt: on
 ]
 
+COLORS16 = [
+    "#2f4f4f", "#7f0000", "#006400", "#bdb76b", "#000080", "#ff0000", "#ffa500",
+    "#ffff00", "#c71585", "#00ff00", "#00fa9a", "#00ffff", "#0000ff", "#d8bfd8",
+    "#ff00ff","#1e90ff"
+]
+
 
 # File-paths &c.
 # @Wilhelmsen: We should consider changing the valid image file extensions
