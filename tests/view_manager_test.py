@@ -133,24 +133,8 @@ def test_quicksave_n_quickload(window, data_object):
     )
 
 
-@pytest.mark.slow
 @pytest.mark.stub
-def test_try_to_activate_goforit_button(window, valid_model):
-    """
-    Assert that button starts disabled, and then is enabled when all conditions are fulfilled.
-    """
-    window.try_to_activate_goforit_button()
-    assert not window.go_for_it_button.isEnabled()
-    window.data.dataset_location = consts.MEDIUM_DATASET
-    window.data.dim_reduction = "TSNE"
-    window.data.layer = "layer4"
-    window.data.model = FCNResNet101()
-    window.data.model_location = consts.MULTILABEL_MODEL
-    window.try_to_activate_goforit_button()
-    assert window.go_for_it_button.isEnabled()
-
-
-def test_find_layer_activates_goforit_button(window):
+def test_launch_button_activates_on_layer(window):
     # @Linnea: Update this when we have a proper findlayer function
     # Mock to assure the function sets a valid layer
     # Assert the function doesn't enable the button erroneously
@@ -165,9 +149,8 @@ def test_find_layer_activates_goforit_button(window):
     assert window.go_for_it_button.isEnabled()
 
 
-@pytest.mark.slow
 @pytest.mark.stub
-def test_load_model_location_activates_goforit_button(window):
+def test_launch_button_activates_on_model_location(window):
     # Mock to assure the function will set a valid trained model
     with mocked_trained_model_qfiledialog:
         # Assert the function doesn't enable the button erroneously
@@ -182,9 +165,8 @@ def test_load_model_location_activates_goforit_button(window):
         assert window.go_for_it_button.isEnabled()
 
 
-@pytest.mark.slow
 @pytest.mark.stub
-def test_suggest_model_type_activates_goforit_button(window):
+def test_launch_button_activates_on_model_type(window):
     # Assert the function doesn't enable the button erroneously
     window.suggest_model_type("...")
     window.suggest_model_type(consts.MODEL_TYPES[0])
@@ -199,9 +181,8 @@ def test_suggest_model_type_activates_goforit_button(window):
     assert window.go_for_it_button.isEnabled()
 
 
-@pytest.mark.slow
 @pytest.mark.stub
-def test_suggest_dim_reduction_activates_goforit_button(window):
+def test_launch_button_activates_on_dim_reduction(window):
     # Assert the function doesn't enable the button erroneously
     window.suggest_dim_reduction("TSNE")
     assert not window.go_for_it_button.isEnabled()
@@ -215,9 +196,8 @@ def test_suggest_dim_reduction_activates_goforit_button(window):
     assert window.go_for_it_button.isEnabled()
 
 
-@pytest.mark.slow
 @pytest.mark.stub
-def test_find_dataset_activates_goforit_button(window, valid_model):
+def test_launch_button_activates_on_dataset(window):
     # Mock to assure the function will set a valid dataset
     mocked_directory_dialog = patch.object(
         QFileDialog, "getExistingDirectory", return_value=consts.MEDIUM_DATASET
@@ -228,7 +208,7 @@ def test_find_dataset_activates_goforit_button(window, valid_model):
         assert not window.go_for_it_button.isEnabled()
         window.data.dim_reduction = "TSNE"
         window.data.layer = "layer4"
-        window.data.model = valid_model
+        window.data.model = FCNResNet101()
         window.data.model_location = consts.MULTILABEL_MODEL
         # Assert the final function changes the button state
         window.find_dataset()
