@@ -454,7 +454,8 @@ class PrimaryWindow(QMainWindow):
         selected_layer = "layer4"
         if selected_layer:
             self.data.layer = selected_layer
-            self.layer_feedback_label = "You chose " + selected_layer
+            self.layer_feedback_label.setText("You chose " + selected_layer)
+            self.feedback_label.setText("You chose " + selected_layer)
             self.try_to_activate_goforit_button()
 
     def start_cooking_iii(self):
