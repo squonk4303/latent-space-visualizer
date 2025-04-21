@@ -198,26 +198,27 @@ class PrimaryWindow(QMainWindow):
         widget.setLayout(greater_layout)
         self.setCentralWidget(widget)
 
+        # ------
         # Cheats
         # ------
 
         if consts.flags["dev"]:
+            def quick_launch():
+                # @Wilhelmsen: see about moving this into the "if flags.dev" namespace
+                self.data.dataset_location = consts.S_DATASET
+                self.data.dim_reduction = "TSNE"
+                self.data.layer = "layer4"
+                self.data.model = FCNResNet101()
+                self.data.model_location = consts.MULTILABEL_MODEL
+                self.start_cooking_iii()
+
             quicklaunch_button = QPushButton("Cook")
-            quicklaunch_button.clicked.connect(self.quick_launch)
+            quicklaunch_button.clicked.connect(quick_launch)
             self.stage_tab.addWidget(quicklaunch_button)
 
     # =======
     # Methods
     # =======
-
-    def quick_launch(self):
-        # @Wilhelmsen: see about moving this into the "if flags.dev" namespace
-        self.data.model = FCNResNet101()
-        self.data.model.load(consts.MULTILABEL_MODEL)
-        self.data.layer = "layer4"
-        self.data.dataset_location = consts.S_DATASET
-        self.data.dim_reduction = "TSNE"
-        self.start_cooking_iii()
 
     def title_update(self, new_title):
         self.setWindowTitle(new_title)
