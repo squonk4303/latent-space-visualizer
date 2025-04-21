@@ -126,7 +126,7 @@ class PrimaryWindow(QMainWindow):
 
         # Open the file dialog
         self.action_to_open_file = QAction(consts.OPEN_FILE_LABEL, self)
-        self.action_to_open_file.triggered.connect(self.load_model_file)
+        self.action_to_open_file.triggered.connect(self.load_model_location)
 
         # Scroll to next/previous tabs
         self.goto_graph_tab = QAction("&Visualized Data", self)
@@ -226,7 +226,7 @@ class PrimaryWindow(QMainWindow):
     def init_model_selection(self):
         self.model_feedback_label = QLabel("<-- Select your trained model's .pth file")
         openfile_button = QPushButton("Select Trained NN Model")
-        openfile_button.clicked.connect(self.load_model_file)
+        openfile_button.clicked.connect(self.load_model_location)
         row_model_selection = QHBoxLayout()
         row_model_selection.addWidget(openfile_button)
         row_model_selection.addWidget(self.model_feedback_label)
@@ -382,13 +382,15 @@ class PrimaryWindow(QMainWindow):
             self.data.model.colormap,
         )
 
-    def load_model_file(self):
+    def load_model_location(self):
         """
         Open dialog for finding a trained neural-net-model, and inform user if successful.
 
         For use in buttons and actions.
         """
         model_path = open_dialog.for_trained_model_file(parent=self)
+
+        print("*** model_path:", model_path)
         if model_path:
             self.data.model_location = model_path
             self.model_feedback_label.setText("You chose: " + str(model_path))

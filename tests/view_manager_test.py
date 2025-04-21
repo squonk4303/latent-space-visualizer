@@ -141,9 +141,11 @@ def test_try_to_activate_goforit_button(primary_window, valid_model):
     """
     primary_window.try_to_activate_goforit_button()
     assert not primary_window.go_for_it_button.isEnabled()
-    primary_window.data.model = valid_model
-    primary_window.data.layer = "layer4"
     primary_window.data.dataset_location = consts.MEDIUM_DATASET
+    primary_window.data.dim_reduction = "TSNE"
+    primary_window.data.layer = "layer4"
+    primary_window.data.model = FCNResNet101()
+    primary_window.data.model_location = consts.MULTILABEL_MODEL
     primary_window.try_to_activate_goforit_button()
     assert primary_window.go_for_it_button.isEnabled()
 
@@ -156,8 +158,10 @@ def _test_find_layer_activates_goforit_button(primary_window, valid_model):
         # Assert the function doesn't enable the button erroneously
         primary_window.find_layer()
         assert not primary_window.go_for_it_button.isEnabled()
-        primary_window.data.model = valid_model
         primary_window.data.dataset_location = consts.MEDIUM_DATASET
+        primary_window.data.dim_reduction = "TSNE"
+        primary_window.data.model = FCNResNet101()
+        primary_window.data.model_location = consts.MULTILABEL_MODEL
         # Assert the final function changes the button state
         primary_window.find_layer()
         assert primary_window.go_for_it_button.isEnabled()
@@ -169,28 +173,28 @@ def test_find_model_activates_goforit_button(primary_window):
     # Mock to assure the function will set a valid trained model
     with mocked_trained_model_qfiledialog:
         # Assert the function doesn't enable the button erroneously
-        primary_window.load_model_file()
+        primary_window.load_model_location()
         assert not primary_window.go_for_it_button.isEnabled()
-        primary_window.data.layer = "layer4"
         primary_window.data.dataset_location = consts.MEDIUM_DATASET
+        primary_window.data.dim_reduction = "TSNE"
+        primary_window.data.layer = "layer4"
         primary_window.data.model = FCNResNet101()
         # Assert the final function changes the button state
-        primary_window.load_model_file()
+        primary_window.load_model_location()
         assert primary_window.go_for_it_button.isEnabled()
 
 
 @pytest.mark.slow
 @pytest.mark.stub
 def test_suggest_model_type_activates_goforit_button(primary_window):
-    primary_window.suggest_model_type("...")
     # Assert the function doesn't enable the button erroneously
-    primary_window.data.model = FCNResNet101()
+    primary_window.suggest_model_type("...")
     primary_window.suggest_model_type(consts.MODEL_TYPES[0])
     assert not primary_window.go_for_it_button.isEnabled()
 
     primary_window.data.dataset_location = consts.MEDIUM_DATASET
+    primary_window.data.dim_reduction = "TSNE"
     primary_window.data.layer = "layer4"
-    primary_window.data.model = FCNResNet101()
     primary_window.data.model_location = consts.MULTILABEL_MODEL
     # Assert the final function changes the button state
     primary_window.suggest_model_type(consts.MODEL_TYPES[0])
@@ -205,9 +209,12 @@ def test_find_dataset_activates_goforit_button(primary_window, valid_model):
     )
     with mocked_directory_dialog:
         # Assert the function doesn't enable the button erroneously
+        primary_window.find_dataset()
         assert not primary_window.go_for_it_button.isEnabled()
-        primary_window.data.model = valid_model
+        primary_window.data.dim_reduction = "TSNE"
         primary_window.data.layer = "layer4"
+        primary_window.data.model = valid_model
+        primary_window.data.model_location = consts.MULTILABEL_MODEL
         # Assert the final function changes the button state
         primary_window.find_dataset()
         assert primary_window.go_for_it_button.isEnabled()
