@@ -32,7 +32,7 @@ def data_object():
     data = SavableData()
     data.model = FCNResNet101()
     data.model.load(consts.MULTILABEL_MODEL)
-    data.layer = "layer4"
+    data.layer = consts.LAYER
     data.paths = utils.grab_image_paths_in_dir(consts.S_DATASET)
     data.dataset_location = consts.S_DATASET
     data.dataset_intermediary = torch.rand(1, 3, 640, 640)
@@ -155,7 +155,7 @@ def test_launch_button_activates_on_model_location(window):
         assert not window.launch_button.isEnabled()
         window.data.dataset_location = consts.MEDIUM_DATASET
         window.data.dim_reduction = "TSNE"
-        window.data.layer = "layer4"
+        window.data.layer = consts.LAYER
         window.data.model = FCNResNet101()
         # Assert the final function changes the button state
         window.load_model_location()
@@ -171,7 +171,7 @@ def test_launch_button_activates_on_model_type(window):
 
     window.data.dataset_location = consts.MEDIUM_DATASET
     window.data.dim_reduction = "TSNE"
-    window.data.layer = "layer4"
+    window.data.layer = consts.LAYER
     window.data.model_location = consts.MULTILABEL_MODEL
     # Assert the final function changes the button state
     window.suggest_model_type(consts.MODEL_TYPES[0])
@@ -185,7 +185,7 @@ def test_launch_button_activates_on_dim_reduction(window):
     assert not window.launch_button.isEnabled()
 
     window.data.dataset_location = consts.MEDIUM_DATASET
-    window.data.layer = "layer4"
+    window.data.layer = consts.LAYER
     window.data.model = FCNResNet101()
     window.data.model_location = consts.MULTILABEL_MODEL
     # Assert the final function changes the button state
@@ -204,7 +204,7 @@ def test_launch_button_activates_on_dataset(window):
         window.find_dataset()
         assert not window.launch_button.isEnabled()
         window.data.dim_reduction = "TSNE"
-        window.data.layer = "layer4"
+        window.data.layer = consts.LAYER
         window.data.model = FCNResNet101()
         window.data.model_location = consts.MULTILABEL_MODEL
         # Assert the final function changes the button state

@@ -28,7 +28,7 @@ def test_cookin_brains(qtbot):
     model = os.path.join(consts.REPO_DIR, "models.ignore/rgb-aug0/best_model.pth")
     window.data.model = FCNResNet101()
     window.data.model.load(model)
-    window.data.layer = "layer4"
+    window.data.layer = consts.LAYER
     window.data.dataset_location = os.path.join(consts.REPO_DIR, "pics/dataset_w_json")
 
     window.start_cooking_iii()

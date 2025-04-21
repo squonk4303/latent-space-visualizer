@@ -73,6 +73,8 @@ S_DATASET = Path(REPO_DIR, "models.ignore/dataset_w_json")
 SMALL_DATASET = Path(REPO_DIR, "pics/small_dataset")
 TRAINED_MODEL = Path(REPO_DIR, "models.ignore/RGB_no_augmentation.pth")
 
+LAYER = "layer4"
+
 # These are used in "getattr", so they're case sensitive, and it's
 # important to keep them updated. Always run tests when refactoring models.
 # Uses list comprehension to get all attributes of the module which are probably classes

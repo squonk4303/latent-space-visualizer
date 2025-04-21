@@ -6,8 +6,9 @@ build/
 dist/
 
 # User Data
-save_data
-tsne_visualizations
+save_data/
+tsne_visualizations/
+stubs/
 
 # Other
 *ignore*

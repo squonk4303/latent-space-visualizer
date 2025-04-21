@@ -17,7 +17,7 @@ def data_object():
     weights = ResNet101_Weights.DEFAULT
     data.model = resnet101(weights=weights)
     data.model.eval()
-    data.layer = "layer4"
+    data.layer = consts.LAYER
     data.dataset_location = consts.MEDIUM_DATASET
     # data.paths
     return data

@@ -24,7 +24,7 @@ def test_cookin_brains(qtbot):
 
     window.data.model = resnet101(weights=ResNet101_Weights.DEFAULT)
     window.data.model.eval()
-    window.data.layer = "layer4"
+    window.data.layer = consts.LAYER
 
     window.start_cooking()
 

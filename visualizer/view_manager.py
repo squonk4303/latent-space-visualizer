@@ -204,10 +204,9 @@ class PrimaryWindow(QMainWindow):
 
         if consts.flags["dev"]:
             def quick_launch():
-                # @Wilhelmsen: see about moving this into the "if flags.dev" namespace
                 self.data.dataset_location = consts.S_DATASET
                 self.data.dim_reduction = "TSNE"
-                self.data.layer = "layer4"
+                self.data.layer = consts.LAYER
                 self.data.model = FCNResNet101()
                 self.data.model_location = consts.MULTILABEL_MODEL
                 self.start_cooking_iii()
@@ -310,7 +309,7 @@ class PrimaryWindow(QMainWindow):
             the_class = getattr(visualizer.models.segmentation, model_type)
             self.data.model = the_class()
             # print(f"Successfully found model {model_type}, {the_class}")
-            self.try_to_activate_goforit_button()
+            self.try_to_activate_launch_button()
 
         # elif hasattr(models.whatever, model_type):
         #     self.feedback_label.setText("You sure chose " + model_type)
@@ -362,7 +361,7 @@ class PrimaryWindow(QMainWindow):
             # Update self.data.technique to be the matching function in the dict
             self.data.dim_reduction = standardized_input
             self.feedback_label.setText(f"You chose dim reduction technique {standardized_input}")
-            self.try_to_activate_goforit_button()
+            self.try_to_activate_launch_button()
         elif standardized_input != "":
             raise RuntimeError(f"Selected technique {standardized_input} not found in {dim_reduction_techs}")
 
@@ -393,9 +392,9 @@ class PrimaryWindow(QMainWindow):
             self.data.model_location = model_path
             self.model_feedback_label.setText("You chose: " + str(model_path))
             self.feedback_label.setText("You chose: " + str(model_path))
-            self.try_to_activate_goforit_button()
+            self.try_to_activate_launch_button()
 
-    def try_to_activate_goforit_button(self):
+    def try_to_activate_launch_button(self):
         """
         Evaluate and enact whether the go-for-it-button should be enabled.
 
@@ -404,7 +403,11 @@ class PrimaryWindow(QMainWindow):
         """
         # @Wilhelmsen: Check dataset by there being more than 3 images in there instead
         # 3 because that's how many the t-sne needs (or 2, I'm not sure)
-        dataset_alright = os.path.isdir(self.data.dataset_location)
+        dataset_alright = (
+            os.path.isdir(self.data.dataset_location)
+            if self.data.dataset_location is not None
+            else False
+        )
         dim_reduction_alright = bool(self.data.dim_reduction)
         layer_alright = bool(self.data.layer)
         model_alright = hasattr(self.data.model, "state_dict")
@@ -425,6 +428,7 @@ class PrimaryWindow(QMainWindow):
             and model_alright
             and model_location_alright
         )
+
         self.launch_button.setDisabled(not should_be_enabled)
 
     def find_dataset(self):
@@ -442,19 +446,19 @@ class PrimaryWindow(QMainWindow):
             text = str(self.data.dataset_location) + ", length: " + str(len(paths))
             self.dataset_feedback_label.setText(text)
             self.feedback_label.setText(text)
-            self.try_to_activate_goforit_button()
+            self.try_to_activate_launch_button()
 
     def find_layer(self):
         """
         @Linnea: Complete this function and add a small docstring
                  Pretty please
         """
-        selected_layer = "layer4"
+        selected_layer = consts.LAYER
         if selected_layer:
             self.data.layer = selected_layer
             self.layer_feedback_label.setText("You chose " + selected_layer)
             self.feedback_label.setText("You chose " + selected_layer)
-            self.try_to_activate_goforit_button()
+            self.try_to_activate_launch_button()
 
     def start_cooking_iii(self):
         # Try to load the trained model
@@ -475,9 +479,8 @@ class PrimaryWindow(QMainWindow):
             self.feedback_label.setText(e)
 
         # @Wilhelmsen: This could be an iglob
-        image_locations = utils.grab_image_paths_in_dir(self.data.dataset_location)
         reduced_data, paths, labels, masks = loading.preliminary_dim_reduction_iii(
-            self.data.model, self.data.layer, image_locations
+            self.data.model, self.data.layer, self.data.paths
         )
         # @Wilhelmsen: Move this assertion to tests
         assert len(reduced_data) == len(paths) == len(labels) == len(masks)
