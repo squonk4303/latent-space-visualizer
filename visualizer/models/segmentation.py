@@ -66,7 +66,7 @@ class FCNResNet101(_SegmentationInterface):
             label: color
             for label, color in zip(
                 self.categories,
-                random.sample(consts.COLORS32, k=len(self.categories)),
+                random.sample(consts.COLORS16, k=len(self.categories)),
             )
         }
 

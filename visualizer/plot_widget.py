@@ -97,7 +97,6 @@ class PlotWidget(QWidget):
         # @Wilhelmsen: Make it detect whether coords are 2d or 3d and act accordingly
         # Map each label to a randomly-sampled color
         unique_labels = list(set(labels))
-        colors = consts.COLORS32
 
         # Make a dict which maps paths and coords to related unique labels
         plottables = {key: {"paths": [], "coords": []} for key in unique_labels}
