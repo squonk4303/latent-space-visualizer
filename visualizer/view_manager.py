@@ -309,7 +309,7 @@ class PrimaryWindow(QMainWindow):
             self.feedback_label.setText(f"You chose model type {model_type}!")
             the_class = getattr(visualizer.models.segmentation, model_type)
             self.data.model = the_class()
-            print(f"Successfully found model {model_type}, {the_class}")
+            # print(f"Successfully found model {model_type}, {the_class}")
             self.try_to_activate_goforit_button()
 
         # elif hasattr(models.whatever, model_type):
@@ -360,7 +360,6 @@ class PrimaryWindow(QMainWindow):
         # Checking if the chosen function exists in list of functions and then call it
         if standardized_input in dim_reduction_techs:
             # Update self.data.technique to be the matching function in the dict
-            print(f"success {standardized_input}")
             self.data.dim_reduction = standardized_input
             self.feedback_label.setText(f"You chose dim reduction technique {standardized_input}")
             self.try_to_activate_goforit_button()
@@ -390,7 +389,6 @@ class PrimaryWindow(QMainWindow):
         """
         model_path = open_dialog.for_trained_model_file(parent=self)
 
-        print("*** model_path:", model_path)
         if model_path:
             self.data.model_location = model_path
             self.model_feedback_label.setText("You chose: " + str(model_path))
@@ -532,6 +530,7 @@ class PrimaryWindow(QMainWindow):
         if self.data.model is not None:
             self.utilize_data()
         else:
+            # @Wilhelmsen: Find something to do with this
             print("There's nothing here! TODO")
 
     def quicksave_wrapper(self):
