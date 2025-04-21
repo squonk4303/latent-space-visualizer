@@ -1,6 +1,7 @@
 # Build Artifacts
 __pycache__
 .vscode
+stubs/
 
 # User Data
 save_data
