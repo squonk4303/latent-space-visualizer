@@ -126,7 +126,7 @@ class PrimaryWindow(QMainWindow):
 
         # Open the file dialog
         self.action_to_open_file = QAction(consts.OPEN_FILE_LABEL, self)
-        self.action_to_open_file.triggered.connect(self.load_model_file)
+        self.action_to_open_file.triggered.connect(self.load_model_location)
 
         # Scroll to next/previous tabs
         self.goto_graph_tab = QAction("&Visualized Data", self)
@@ -148,7 +148,7 @@ class PrimaryWindow(QMainWindow):
         self.init_model_selection()
         self.init_layer_selection()
         self.init_feedback_label()
-        self.init_go_for_it_button()
+        self.init_launch_button()
 
         # ========
         # Plot Tab
@@ -198,12 +198,22 @@ class PrimaryWindow(QMainWindow):
         widget.setLayout(greater_layout)
         self.setCentralWidget(widget)
 
+        # ------
         # Cheats
         # ------
 
         if consts.flags["dev"]:
+            def quick_launch():
+                # @Wilhelmsen: see about moving this into the "if flags.dev" namespace
+                self.data.dataset_location = consts.S_DATASET
+                self.data.dim_reduction = "TSNE"
+                self.data.layer = "layer4"
+                self.data.model = FCNResNet101()
+                self.data.model_location = consts.MULTILABEL_MODEL
+                self.start_cooking_iii()
+
             quicklaunch_button = QPushButton("Cook")
-            quicklaunch_button.clicked.connect(self.quick_launch)
+            quicklaunch_button.clicked.connect(quick_launch)
             self.stage_tab.addWidget(quicklaunch_button)
 
     # =======
@@ -213,19 +223,10 @@ class PrimaryWindow(QMainWindow):
     def title_update(self, new_title):
         self.setWindowTitle(new_title)
 
-    def quick_launch(self):
-        # @Wilhelmsen: see about moving this into the "if flags.dev" namespace
-        self.data.model = FCNResNet101()
-        self.data.model.load(consts.MULTILABEL_MODEL)
-        self.data.layer = "layer4"
-        self.data.dataset_location = consts.S_DATASET
-        self.data.dim_reduction = "TSNE"
-        self.start_cooking_iii()
-
     def init_model_selection(self):
         self.model_feedback_label = QLabel("<-- Select your trained model's .pth file")
         openfile_button = QPushButton("Select Trained NN Model")
-        openfile_button.clicked.connect(self.load_model_file)
+        openfile_button.clicked.connect(self.load_model_location)
         row_model_selection = QHBoxLayout()
         row_model_selection.addWidget(openfile_button)
         row_model_selection.addWidget(self.model_feedback_label)
@@ -253,11 +254,11 @@ class PrimaryWindow(QMainWindow):
         row_dataset_selection.addWidget(self.dataset_feedback_label)
         self.stage_tab.addLayout(row_dataset_selection)
 
-    def init_go_for_it_button(self):
-        self.go_for_it_button = QPushButton("LAUNCH")
-        self.go_for_it_button.setDisabled(True)
-        self.go_for_it_button.clicked.connect(self.start_cooking_iii)
-        self.stage_tab.addWidget(self.go_for_it_button)
+    def init_launch_button(self):
+        self.launch_button = QPushButton("LAUNCH")
+        self.launch_button.setDisabled(True)
+        self.launch_button.clicked.connect(self.start_cooking_iii)
+        self.stage_tab.addWidget(self.launch_button)
 
     def init_feedback_label(self):
         self.feedback_label = QLabel("")
@@ -307,9 +308,9 @@ class PrimaryWindow(QMainWindow):
         if hasattr(visualizer.models.segmentation, model_type):
             self.feedback_label.setText(f"You chose model type {model_type}!")
             the_class = getattr(visualizer.models.segmentation, model_type)
-            self.model = the_class()
-            print(f"Successfully found model {model_type}, {the_class}")
-            self.try_to_load_model()
+            self.data.model = the_class()
+            # print(f"Successfully found model {model_type}, {the_class}")
+            self.try_to_activate_goforit_button()
 
         # elif hasattr(models.whatever, model_type):
         #     self.feedback_label.setText("You sure chose " + model_type)
@@ -330,8 +331,8 @@ class PrimaryWindow(QMainWindow):
         # Dropdown Menu
         reduction_dropdown = QComboBox(parent=self)
         reduction_dropdown.addItem("...")
-        for technique in dim_reduction_techs.keys():
-            reduction_dropdown.addItem(technique)
+       # for technique in dim_reduction_techs.keys():
+       #     reduction_dropdown.addItem(technique)
         reduction_dropdown.addItem("t-SNE")
         reduction_dropdown.addItem("P.C.A.")
         reduction_dropdown.addItem("~UMAP")
@@ -359,9 +360,9 @@ class PrimaryWindow(QMainWindow):
         # Checking if the chosen function exists in list of functions and then call it
         if standardized_input in dim_reduction_techs:
             # Update self.data.technique to be the matching function in the dict
-            print(f"success {standardized_input}")
             self.data.dim_reduction = standardized_input
             self.feedback_label.setText(f"You chose dim reduction technique {standardized_input}")
+            self.try_to_activate_goforit_button()
         elif standardized_input != "":
             raise RuntimeError(f"Selected technique {standardized_input} not found in {dim_reduction_techs}")
 
@@ -380,36 +381,19 @@ class PrimaryWindow(QMainWindow):
             self.data.model.colormap,
         )
 
-    def load_model_file(self):
+    def load_model_location(self):
         """
         Open dialog for finding a trained neural-net-model, and inform user if successful.
 
         For use in buttons and actions.
         """
         model_path = open_dialog.for_trained_model_file(parent=self)
+
         if model_path:
             self.data.model_location = model_path
             self.model_feedback_label.setText("You chose: " + str(model_path))
             self.feedback_label.setText("You chose: " + str(model_path))
-            self.try_to_load_model()
-
-    def try_to_load_model(self):
-        """Automatically load the model if model and pth-file are both selected."""
-        if self.data.model is not None and self.data.model_location != "":
-            # @Wilhelmsen: Better error handling please!
-            # Try to prevent the program from crashing on bad file
-            # Maybe just by ensuring .pth as file extension...
-            try:
-                self.data.model.load(self.data.model_location)
-                self.try_to_activate_goforit_button()
-            except RuntimeError as e:
-                print(
-                    f"Tried and failed to load model! "
-                    f"type: {type(self.data.model)}, "
-                    f"location: {self.data.model.location}, "
-                    f"error message: {e}"
-                )
-                self.feedback_label.setText(e)
+            self.try_to_activate_goforit_button()
 
     def try_to_activate_goforit_button(self):
         """
@@ -418,23 +402,30 @@ class PrimaryWindow(QMainWindow):
         Meaning if dataset, layer, model, and model type are selected, the button is activated,
         and if any of these are found to be insufficient, the button is deactivated.
         """
-        model_alright = hasattr(self.data.model, "state_dict")
+        # @Wilhelmsen: Check dataset by there being more than 3 images in there instead
+        # 3 because that's how many the t-sne needs (or 2, I'm not sure)
         dataset_alright = os.path.isdir(self.data.dataset_location)
-        categories_alright = (
-            len(self.data.model.categories) > 0
-            if hasattr(self.data.model, "categories")
-            else False
-        )
+        dim_reduction_alright = bool(self.data.dim_reduction)
+        layer_alright = bool(self.data.layer)
+        model_alright = hasattr(self.data.model, "state_dict")
+        model_location_alright = bool(self.data.model_location)
 
-        should_be_disabled = bool(
-            not (
-                model_alright
-                and categories_alright
-                and self.data.layer
-                and dataset_alright
-            )
+        # print(
+        #     f"dataset location: {self.data.dataset_location} bool: {dataset_alright}\n"
+        #     f"dim reduction:    {self.data.dim_reduction}  bool: {dim_reduction_alright}\n"
+        #     f"layer:            {self.data.layer}  bool: {layer_alright}\n"
+        #     f"model location:   {self.data.model_location} bool: {model_location_alright}\n"
+        #     f"model:                    bool: {model_alright}\n"
+        # )
+
+        should_be_enabled = bool(
+            dataset_alright
+            and dim_reduction_alright
+            and layer_alright
+            and model_alright
+            and model_location_alright
         )
-        self.go_for_it_button.setDisabled(should_be_disabled)
+        self.launch_button.setDisabled(not should_be_enabled)
 
     def find_dataset(self):
         """
@@ -453,19 +444,6 @@ class PrimaryWindow(QMainWindow):
             self.feedback_label.setText(text)
             self.try_to_activate_goforit_button()
 
-    def find_picture(self):
-        """
-        Open dialog for finding picture, and inform user if successful.
-
-        For use in buttons and actions. Probably deprecated.
-        """
-        image_path = open_dialog.for_image_file(parent=self)
-        if image_path:
-            # @Wilhelmsen: Yet to check image validity
-            # @Wilhelmsen: Yet to resize image for better display in GUI
-            self.single_image_label.setText(image_path)
-            self.single_image_thumb_label.setPixmap(QPixmap(image_path))
-
     def find_layer(self):
         """
         @Linnea: Complete this function and add a small docstring
@@ -474,10 +452,28 @@ class PrimaryWindow(QMainWindow):
         selected_layer = "layer4"
         if selected_layer:
             self.data.layer = selected_layer
-            self.layer_feedback_label = "You chose " + selected_layer
+            self.layer_feedback_label.setText("You chose " + selected_layer)
+            self.feedback_label.setText("You chose " + selected_layer)
             self.try_to_activate_goforit_button()
 
     def start_cooking_iii(self):
+        # Try to load the trained model
+        # On failure, give the user some constructive feedback
+        # @Wilhelmsen: Better error handling please!
+        # Try to prevent the program from crashing on bad file
+        # Maybe just by ensuring .pth as file extension...
+        try:
+            self.data.model.load(self.data.model_location)
+        except RuntimeError as e:
+            print(
+                f"Tried and failed to load model! "
+                f"type: {type(self.data.model)}, "
+                f"location: {self.data.model.location}, "
+                f"error message: {e}"
+            )
+            # @Wilhelmsen: Give the user a little *better* constructive feedback
+            self.feedback_label.setText(e)
+
         # @Wilhelmsen: This could be an iglob
         image_locations = utils.grab_image_paths_in_dir(self.data.dataset_location)
         reduced_data, paths, labels, masks = loading.preliminary_dim_reduction_iii(
@@ -534,6 +530,7 @@ class PrimaryWindow(QMainWindow):
         if self.data.model is not None:
             self.utilize_data()
         else:
+            # @Wilhelmsen: Find something to do with this
             print("There's nothing here! TODO")
 
     def quicksave_wrapper(self):
