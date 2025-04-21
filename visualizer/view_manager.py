@@ -210,9 +210,6 @@ class PrimaryWindow(QMainWindow):
     # Methods
     # =======
 
-    def title_update(self, new_title):
-        self.setWindowTitle(new_title)
-
     def quick_launch(self):
         # @Wilhelmsen: see about moving this into the "if flags.dev" namespace
         self.data.model = FCNResNet101()
@@ -221,6 +218,9 @@ class PrimaryWindow(QMainWindow):
         self.data.dataset_location = consts.S_DATASET
         self.data.dim_reduction = "TSNE"
         self.start_cooking_iii()
+
+    def title_update(self, new_title):
+        self.setWindowTitle(new_title)
 
     def init_model_selection(self):
         self.model_feedback_label = QLabel("<-- Select your trained model's .pth file")
@@ -307,9 +307,9 @@ class PrimaryWindow(QMainWindow):
         if hasattr(visualizer.models.segmentation, model_type):
             self.feedback_label.setText(f"You chose model type {model_type}!")
             the_class = getattr(visualizer.models.segmentation, model_type)
-            self.model = the_class()
+            self.data.model = the_class()
             print(f"Successfully found model {model_type}, {the_class}")
-            # self.try_to_load_model()
+            self.try_to_activate_goforit_button()
 
         # elif hasattr(models.whatever, model_type):
         #     self.feedback_label.setText("You sure chose " + model_type)
@@ -362,6 +362,7 @@ class PrimaryWindow(QMainWindow):
             print(f"success {standardized_input}")
             self.data.dim_reduction = standardized_input
             self.feedback_label.setText(f"You chose dim reduction technique {standardized_input}")
+            self.try_to_activate_goforit_button()
         elif standardized_input != "":
             raise RuntimeError(f"Selected technique {standardized_input} not found in {dim_reduction_techs}")
 
@@ -391,27 +392,7 @@ class PrimaryWindow(QMainWindow):
             self.data.model_location = model_path
             self.model_feedback_label.setText("You chose: " + str(model_path))
             self.feedback_label.setText("You chose: " + str(model_path))
-            # self.try_to_load_model()
-
-    def try_to_load_model(self):
-        """Automatically load the model if model and pth-file are both selected."""
-        # if self.data.model is not None and self.data.model_location != "":
-        if True:
-            # @Wilhelmsen: Better error handling please!
-            # Try to prevent the program from crashing on bad file
-            # Maybe just by ensuring .pth as file extension...
-            try:
-                self.data.model = FCNResNet101()
-                self.data.model.load(self.data.model_location)
-                self.try_to_activate_goforit_button()
-            except RuntimeError as e:
-                print(
-                    f"Tried and failed to load model! "
-                    f"type: {type(self.data.model)}, "
-                    f"location: {self.data.model.location}, "
-                    f"error message: {e}"
-                )
-                self.feedback_label.setText(e)
+            self.try_to_activate_goforit_button()
 
     def try_to_activate_goforit_button(self):
         """
@@ -420,23 +401,30 @@ class PrimaryWindow(QMainWindow):
         Meaning if dataset, layer, model, and model type are selected, the button is activated,
         and if any of these are found to be insufficient, the button is deactivated.
         """
-        model_alright = hasattr(self.data.model, "state_dict")
+        # @Wilhelmsen: Check dataset by there being more than 3 images in there instead
+        # 3 because that's how many the t-sne needs (or 2, I'm not sure)
         dataset_alright = os.path.isdir(self.data.dataset_location)
-        categories_alright = (
-            len(self.data.model.categories) > 0
-            if hasattr(self.data.model, "categories")
-            else False
+        dim_reduction_alright = bool(self.data.dim_reduction)
+        layer_alright = bool(self.data.layer)
+        model_alright = hasattr(self.data.model, "state_dict")
+        model_location_alright = bool(self.data.model_location)
+
+        print(
+            f"dataset location: {self.data.dataset_location} bool: {dataset_alright}\n"
+            f"dim reduction:    {self.data.dim_reduction}  bool: {dim_reduction_alright}\n"
+            f"layer:            {self.data.layer}  bool: {layer_alright}\n"
+            f"model location:   {self.data.model_location} bool: {model_location_alright}\n"
+            f"model:                                       bool: {model_alright}\n"
         )
 
-        should_be_disabled = bool(
-            not (
-                model_alright
-                and categories_alright
-                and self.data.layer
-                and dataset_alright
-            )
+        should_be_enabled = bool(
+            dataset_alright
+            and dim_reduction_alright
+            and layer_alright
+            and model_alright
+            and model_location_alright
         )
-        self.go_for_it_button.setDisabled(False)
+        self.go_for_it_button.setDisabled(not should_be_enabled)
 
     def find_dataset(self):
         """
@@ -455,19 +443,6 @@ class PrimaryWindow(QMainWindow):
             self.feedback_label.setText(text)
             self.try_to_activate_goforit_button()
 
-    def find_picture(self):
-        """
-        Open dialog for finding picture, and inform user if successful.
-
-        For use in buttons and actions. Probably deprecated.
-        """
-        image_path = open_dialog.for_image_file(parent=self)
-        if image_path:
-            # @Wilhelmsen: Yet to check image validity
-            # @Wilhelmsen: Yet to resize image for better display in GUI
-            self.single_image_label.setText(image_path)
-            self.single_image_thumb_label.setPixmap(QPixmap(image_path))
-
     def find_layer(self):
         """
         @Linnea: Complete this function and add a small docstring
@@ -480,9 +455,24 @@ class PrimaryWindow(QMainWindow):
             self.try_to_activate_goforit_button()
 
     def start_cooking_iii(self):
+        # Try to load the trained model
+        # On failure, give the user some constructive feedback
+        # @Wilhelmsen: Better error handling please!
+        # Try to prevent the program from crashing on bad file
+        # Maybe just by ensuring .pth as file extension...
+        try:
+            self.data.model.load(self.data.model_location)
+        except RuntimeError as e:
+            print(
+                f"Tried and failed to load model! "
+                f"type: {type(self.data.model)}, "
+                f"location: {self.data.model.location}, "
+                f"error message: {e}"
+            )
+            # @Wilhelmsen: Give the user a little *better* constructive feedback
+            self.feedback_label.setText(e)
+
         # @Wilhelmsen: This could be an iglob
-        self.data.model = FCNResNet101()
-        self.data.model.load(self.data.model_location)
         image_locations = utils.grab_image_paths_in_dir(self.data.dataset_location)
         reduced_data, paths, labels, masks = loading.preliminary_dim_reduction_iii(
             self.data.model, self.data.layer, image_locations
