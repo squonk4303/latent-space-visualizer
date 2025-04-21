@@ -105,11 +105,15 @@ def test_cancelled_file_select(window, qtbot):
         assert window.tab_layout.currentIndex() == 0
 
 
+@pytest.mark.require_pretrained_model
 @pytest.mark.slow
 def test_quicksave_n_quickload(window, data_object):
     """
     Quicksave and quickload an object to assert if the loaded copy is equal.
 
+    @Wilhelmsen: the data_object this uses requires pretrained model,
+                 but that needn't be the case for the test.
+                 Change that.
     NOTE: Overwrites the quicksave.
     """
     window.data = data_object
