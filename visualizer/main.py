@@ -5,6 +5,15 @@ from PyQt6.QtWidgets import QApplication
 from visualizer import arguments
 from visualizer.view_manager import PrimaryWindow
 
+# Set process application group for windows
+try:
+    from ctypes import windll
+
+    myappid = "com.example"
+    windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+except ImportError:
+    pass
+
 
 def main() -> int:
     """Entry point to the program."""
