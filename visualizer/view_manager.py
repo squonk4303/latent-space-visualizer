@@ -148,7 +148,7 @@ class PrimaryWindow(QMainWindow):
         self.init_model_selection()
         self.init_layer_selection()
         self.init_feedback_label()
-        self.init_go_for_it_button()
+        self.init_launch_button()
 
         # ========
         # Plot Tab
@@ -254,11 +254,11 @@ class PrimaryWindow(QMainWindow):
         row_dataset_selection.addWidget(self.dataset_feedback_label)
         self.stage_tab.addLayout(row_dataset_selection)
 
-    def init_go_for_it_button(self):
-        self.go_for_it_button = QPushButton("LAUNCH")
-        self.go_for_it_button.setDisabled(True)
-        self.go_for_it_button.clicked.connect(self.start_cooking_iii)
-        self.stage_tab.addWidget(self.go_for_it_button)
+    def init_launch_button(self):
+        self.launch_button = QPushButton("LAUNCH")
+        self.launch_button.setDisabled(True)
+        self.launch_button.clicked.connect(self.start_cooking_iii)
+        self.stage_tab.addWidget(self.launch_button)
 
     def init_feedback_label(self):
         self.feedback_label = QLabel("")
@@ -412,13 +412,13 @@ class PrimaryWindow(QMainWindow):
         model_alright = hasattr(self.data.model, "state_dict")
         model_location_alright = bool(self.data.model_location)
 
-        print(
-            f"dataset location: {self.data.dataset_location} bool: {dataset_alright}\n"
-            f"dim reduction:    {self.data.dim_reduction}  bool: {dim_reduction_alright}\n"
-            f"layer:            {self.data.layer}  bool: {layer_alright}\n"
-            f"model location:   {self.data.model_location} bool: {model_location_alright}\n"
-            f"model:                                       bool: {model_alright}\n"
-        )
+        # print(
+        #     f"dataset location: {self.data.dataset_location} bool: {dataset_alright}\n"
+        #     f"dim reduction:    {self.data.dim_reduction}  bool: {dim_reduction_alright}\n"
+        #     f"layer:            {self.data.layer}  bool: {layer_alright}\n"
+        #     f"model location:   {self.data.model_location} bool: {model_location_alright}\n"
+        #     f"model:                    bool: {model_alright}\n"
+        # )
 
         should_be_enabled = bool(
             dataset_alright
@@ -427,7 +427,7 @@ class PrimaryWindow(QMainWindow):
             and model_alright
             and model_location_alright
         )
-        self.go_for_it_button.setDisabled(not should_be_enabled)
+        self.launch_button.setDisabled(not should_be_enabled)
 
     def find_dataset(self):
         """
