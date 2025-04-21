@@ -48,7 +48,7 @@ class MplCanvas(FigureCanvasQTAgg):
 
         super().__init__(fig)
 
-    def redraw(self, imgdesc=""):
+    def redraw(self, in_imgdesc="", out_imgdesc=""):
         """Clear subplots and reapply titles."""
         self.axes.clear()
         self.input_display.clear()
@@ -60,7 +60,11 @@ class MplCanvas(FigureCanvasQTAgg):
         self.input_display.set_title("Input Image")
         self.output_display.set_title("Output Image")
         self.input_display.text(
-            0.5, -0.01, imgdesc, ha="center", va="top", 
+            0.5, -0.01, in_imgdesc, ha="center", va="top", 
+            transform=self.input_display.transAxes
+            )
+        self.output_display_display.text(
+            0.5, -0.01, out_imgdesc, ha="center", va="top", 
             transform=self.input_display.transAxes
             )
         
