@@ -171,68 +171,6 @@ def hooker(t: list):
     return f
 
 
-def layer_summary(loaded_model, start_layer=0, end_layer=0):
-    """
-    Summarises selected layers from a given model objet.
-    If endlayer is left blank only return one layer.
-    If start layer is left blank returns all layers.
-    If both layers are specified returns from startlayer up to
-    and including the endlayer!
-    """
-    # Sets basic logic and variables
-    all_layers = False
-    if not end_layer:
-        end_layer = start_layer
-    if not start_layer:
-        all_layers = True
-
-    input_txt = str(loaded_model)
-    target = "layer"
-    # Assigns targetlayers for use in search later
-    next_layer = target + str(end_layer + 1)
-    target += str(start_layer)
-
-    """
-    At some point in this function an extraction function is to be added
-    to filter the information and only return the useful information and attributes
-    to be added to the list. For now it takes the entire line of information.
-    """
-
-    # Create a temporary data file to store data in a list
-    lines = []
-    with tempfile.TemporaryFile("wb+", 0) as file:
-        file.write(input_txt.encode("utf-8"))
-        mm = mmap.mmap(file.fileno(), 0, access=mmap.ACCESS_READ)
-        while True:
-            byteline = mm.readline()
-            if byteline:
-                lines.append(byteline.decode("utf-8"))
-            else:
-                break
-        mm.close()
-
-    # Returns selected layers
-    found = False
-    eol = False
-    new = 0
-    for i, line in enumerate(lines):
-        if all_layers:
-            pass
-        elif target in line:
-            found = True
-        elif next_layer in line:
-            eol = True
-            new = i
-        if all_layers or found and not eol:
-            print(f"{i}: {line}", end="")
-
-    # End of print
-    if all_layers:
-        print("\nEOF: no more lines")
-    else:
-        print(f"\nNext line is {new}: {lines[new]}")
-
-
 def quickload(load_location=consts.QUICKSAVE_PATH):
     """Load python object from pickle file."""
     with open(load_location, "rb") as f:

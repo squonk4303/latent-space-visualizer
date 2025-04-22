@@ -35,12 +35,13 @@ import visualizer.models
 # Dict for function selection
 # Add your desired function with the matched string here
 dim_reduction_techs = {
-    "TSNE" : loading.tsne,
-    "PCA" : loading.pca,
-    "UMAP" : loading.umap,
-    "TRIMAP" : loading.trimap,
-    "PACMAP" : loading.pacmap,
+    "TSNE": loading.tsne,
+    "PCA": loading.pca,
+    "UMAP": loading.umap,
+    "TRIMAP": loading.trimap,
+    "PACMAP": loading.pacmap,
 }
+
 
 class PrimaryWindow(QMainWindow):
     """
@@ -203,6 +204,7 @@ class PrimaryWindow(QMainWindow):
         # ------
 
         if consts.flags["dev"]:
+
             def quick_launch():
                 self.data.dataset_location = consts.S_DATASET
                 self.data.dim_reduction = "TSNE"
@@ -320,7 +322,9 @@ class PrimaryWindow(QMainWindow):
             print(f"Model is {model_type}? Whatever. I don't care.")
 
         else:
-            raise ValueError(f"Woah. Model type {model_type} wasn't supposed to be selectable.")
+            raise ValueError(
+                f"Woah. Model type {model_type} wasn't supposed to be selectable."
+            )
 
     def init_reduction_selector(self):
         self.reduction_select_label = QLabel(
@@ -330,8 +334,8 @@ class PrimaryWindow(QMainWindow):
         # Dropdown Menu
         reduction_dropdown = QComboBox(parent=self)
         reduction_dropdown.addItem("...")
-       # for technique in dim_reduction_techs.keys():
-       #     reduction_dropdown.addItem(technique)
+        # for technique in dim_reduction_techs.keys():
+        #     reduction_dropdown.addItem(technique)
         reduction_dropdown.addItem("t-SNE")
         reduction_dropdown.addItem("P.C.A.")
         reduction_dropdown.addItem("~UMAP")
@@ -354,16 +358,20 @@ class PrimaryWindow(QMainWindow):
 
     def suggest_dim_reduction(self, text: str):
         # Reformatting text without special characters like - _ *
-        standardized_input = (''.join(filter(str.isalpha, text))).upper()
+        standardized_input = ("".join(filter(str.isalpha, text))).upper()
 
         # Checking if the chosen function exists in list of functions and then call it
         if standardized_input in dim_reduction_techs:
             # Update self.data.technique to be the matching function in the dict
             self.data.dim_reduction = standardized_input
-            self.feedback_label.setText(f"You chose dim reduction technique {standardized_input}")
+            self.feedback_label.setText(
+                f"You chose dim reduction technique {standardized_input}"
+            )
             self.try_to_activate_launch_button()
         elif standardized_input != "":
-            raise RuntimeError(f"Selected technique {standardized_input} not found in {dim_reduction_techs}")
+            raise RuntimeError(
+                f"Selected technique {standardized_input} not found in {dim_reduction_techs}"
+            )
 
     def set_new_elements_to_display(self, value):
         """
@@ -454,7 +462,9 @@ class PrimaryWindow(QMainWindow):
                  Pretty please
         """
         print("Entered find_layer")
-        selected_layer = open_dialog.for_layer_select("SELECT LAYER", parent=self)
+        selected_layer = open_dialog.for_layer_select(
+            model=self.data.model, caption="SELECT LAYER", parent=self
+        )
         print("*** selected_layer:", selected_layer)
         if selected_layer:
             self.data.layer = selected_layer
