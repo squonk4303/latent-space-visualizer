@@ -464,7 +464,7 @@ class PrimaryWindow(QMainWindow):
         print("Hardcoding a model in; yet TODO; hardcode it out again")
         self.data.model = FCNResNet101()
         self.data.model.load(consts.MULTILABEL_MODEL)
-        selected_layer = open_dialog.for_layer_select(
+        selected_layer, _ = open_dialog.for_layer_select(
             self.data.model, "SELECT LAYER", parent=self
         )
         print("*** selected_layer:", selected_layer)

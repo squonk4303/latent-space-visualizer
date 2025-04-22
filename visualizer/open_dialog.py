@@ -126,9 +126,9 @@ def for_directory(caption="", *, parent):
 
 
 def for_layer_select(model, caption="", *, parent):
-    layer = LayerDialog().get_layers(model=model, caption=caption, parent=parent)
-    print("After dialog, got layer", layer)
-    return layer
+    startlayer, endlayer = LayerDialog().get_layers(model=model, caption=caption, parent=parent)
+    print("After dialog, got layer", startlayer, endlayer)
+    return startlayer, endlayer
 
 
 class LayerDialog(QDialog):
@@ -175,9 +175,10 @@ class LayerDialog(QDialog):
         self.setLayout(layout)
 
     def expand_buttons(self, layers):
-        for layer in layers:
-            self.startButton.addItem(layer)
-            self.endButton.addItem(layer)
+        self.startButton.clear()
+        self.endButton.clear()
+        self.startButton.addItems(layers)
+        self.endButton.addItems(layers)
 
     def startbox_changed(self, text: str):
         """
@@ -203,6 +204,11 @@ class LayerDialog(QDialog):
             self.textbox.setPlainText("".join(self.paramdict_lines))
 
     def endbox_changed(self, text: str):
+        """
+        Finds "layer*" from selected item and rewrites the textbox accordingly
+
+        Is called every time the start dropdown menu is invoked with a new value.
+        """
         # Really just finds IF the user selected a layer start
         layer_match = self.layer_pattern.search(text)
 
@@ -232,10 +238,14 @@ class LayerDialog(QDialog):
         # self.textbox.setPlainText(str(model))
         self.textbox.setPlainText("".join(self.paramdict_lines))
         self.expand_buttons(self.paramdict_lines)
-
         self.exec()
-        # Only returns the startlayer selected
-        return "layer" + str(self.start_input)
+
+        # @Linnea: Feel free to make this something more sensible
+        # Returns both start and end layers
+        if self.start_input == 0:
+            return None, None
+        else:
+            return "layer" + str(self.start_input), "layer" + str(self.end_input)
 
     def layer_summary(self, loaded_model, start_layer=0, end_layer=0):
         """
