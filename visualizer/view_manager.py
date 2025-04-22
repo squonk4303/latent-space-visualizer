@@ -149,7 +149,7 @@ class PrimaryWindow(QMainWindow):
         self.init_model_selection()
         self.init_layer_selection()
         self.init_feedback_label()
-        self.progress = Progress(self.stage_tab)
+        self.progress = ProgressBar(self.stage_tab)
         self.init_launch_button()
 
         # ========
@@ -483,7 +483,7 @@ class PrimaryWindow(QMainWindow):
         # @Wilhelmsen: This could be an iglob
         self.data.paths = utils.grab_image_paths_in_dir(self.data.dataset_location)
         reduced_data, paths, labels, masks = loading.preliminary_dim_reduction_iii(
-            self.data.model, self.data.layer, self.data.paths
+            self.data.model, self.data.layer, self.data.paths, self.progress
         )
         # @Wilhelmsen: Move this assertion to tests
         assert len(reduced_data) == len(paths) == len(labels) == len(masks)
@@ -556,15 +556,15 @@ class PrimaryWindow(QMainWindow):
         if self.data is not None:
             self.utilize_data()
 
-class Progress:
+class ProgressBar:
     def __init__(self, layout):
         self.progress = QProgressBar()
         layout.addWidget(self.progress)
 
     def set(self, maximum):
-        self.progress.setValue(maxumim)
+        self.progress.setMaximum(maximum)
 
     # @Wilhselmsen: What if this was __call__
-    def advance(self, increment):
+    def __call__(self, increment=1):
         total = self.progress.value() + increment
         self.progress.setValue(total)

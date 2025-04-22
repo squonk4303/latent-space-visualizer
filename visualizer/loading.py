@@ -17,7 +17,7 @@ from visualizer import consts, open_dialog
 from visualizer.plottables import SavableData
 
 
-def preliminary_dim_reduction_iii(model, layer, files):
+def preliminary_dim_reduction_iii(model, layer, files, progress):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     size_to_fit = 128 if consts.flags["truncate"] else consts.STANDARD_IMG_SIZE
     preprocessing = torchvision.transforms.Compose(
@@ -37,8 +37,12 @@ def preliminary_dim_reduction_iii(model, layer, files):
     hook_location = getattr(model.model.backbone, layer)
     hook_handle = hook_location.register_forward_hook(hooker(features_list))
 
-    files = files[:5] if consts.flags["truncate"] else files
+    files = files[:12] if consts.flags["truncate"] else files
+    progress.set(len(files))
+    progress()
     for image_location in tqdm(files, desc="processing imgs"):
+        print("Incrementing by one")
+        progress()
         image = PIL.Image.open(image_location).convert("RGB")
         image = preprocessing(image).unsqueeze(0).to(device)
         features_list.clear()
