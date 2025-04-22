@@ -149,7 +149,7 @@ class PrimaryWindow(QMainWindow):
         self.init_model_selection()
         self.init_layer_selection()
         self.init_feedback_label()
-        self.progress = ProgressBar(self.stage_tab)
+        self.progress = ProgressBar(where=self.stage_tab)
         self.init_launch_button()
 
         # ========
@@ -558,7 +558,7 @@ class PrimaryWindow(QMainWindow):
             self.utilize_data()
 
 class ProgressBar(QProgressBar):
-    def __init__(self, layout):
+    def __init__(self, *, where):
         super().__init__()
         self.setFormat("Images processed: %v / %m  --  %p%")
         self.skipped: int = 0
@@ -569,7 +569,7 @@ class ProgressBar(QProgressBar):
         self.container = QWidget()
         self.container.setLayout(innerlayout)
         self.set_visible(False)
-        layout.addWidget(self.container)
+        where.addWidget(self.container)
 
     def __call__(self, increment=1):
         progress = self.value() + increment
