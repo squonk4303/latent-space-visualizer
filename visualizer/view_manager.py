@@ -495,6 +495,7 @@ class PrimaryWindow(QMainWindow):
         reduced_data, paths, labels, masks = loading.preliminary_dim_reduction_iii(
             self.data.model, self.data.layer, self.data.paths
         )
+        self.try_to_load_model()
         # @Wilhelmsen: Move this assertion to tests
         assert len(reduced_data) == len(paths) == len(labels) == len(masks)
 
