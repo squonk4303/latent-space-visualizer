@@ -3,6 +3,9 @@
 Module with functions tohandle file dialogs.
 """
 import datetime
+import mmap
+import tempfile
+
 from PyQt6.QtWidgets import (
     QComboBox,
     QDialog,
@@ -14,6 +17,7 @@ from PyQt6.QtWidgets import (
     QTextEdit,
     QVBoxLayout,
 )
+
 from visualizer import consts
 
 
@@ -123,7 +127,7 @@ def for_directory(caption="", *, parent):
 def for_layer_select(model, caption="", *, parent):
     path = ""
     dialog = LayerDialog()
-    print(dialog.get_layers(model, caption, parent=parent))
+    print(dialog.get_layers(model=model, caption=caption, parent=parent))
     return path
 
 class LayerDialog(QDialog):
@@ -168,19 +172,21 @@ class LayerDialog(QDialog):
             self.endButton.addItem(layer)
 
     def get_layers(self, model, caption="Layer Dialog", *, parent):
-        print("*** model:", dir(model.model.backbone))
-
-        # self.setParent(parent)
+        # self.setParent(parent)  <<< TODO; has a weird effect
         self.setWindowTitle(caption)
         self.resize(850, 450)
 
         text = str(model)
         self.textbox.setText(text)
-        self.exec()
 
+        layers = self.layer_summary(model, 4)
+        print("*** layers:", layers)
+        self.expand_buttons(layers)
+
+        self.exec()
         return 42
 
-    def layer_summary(loaded_model, start_layer=0, end_layer=0):
+    def layer_summary(self, loaded_model, start_layer=0, end_layer=0):
         """
         Summarises selected layers from a given model objet.
         If endlayer is left blank only return one layer.
