@@ -3,6 +3,7 @@
 Module with functions tohandle file dialogs.
 """
 import datetime
+import re
 import mmap
 import tempfile
 
@@ -130,14 +131,19 @@ def for_layer_select(model, caption="", *, parent):
     print(dialog.get_layers(model=model, caption=caption, parent=parent))
     return path
 
+
 class LayerDialog(QDialog):
     def __init__(self):
         super().__init__()
+
+        self.layer_pattern = re.compile(r"layer\d+\.*\d*")
+        self.number_pattern = re.compile(r"\d+\.*\d*")
 
         # Elements
         left_label = QLabel("Start Layer:")
         self.startButton = QComboBox(parent=self)
         self.startButton.addItem("...")
+        self.startButton.currentTextChanged.connect(self.startbox_changed)
         left_col = QVBoxLayout()
         left_col.addWidget(left_label)
         left_col.addWidget(self.startButton)
@@ -145,6 +151,7 @@ class LayerDialog(QDialog):
         right_label = QLabel("End Layer:")
         self.endButton = QComboBox(parent=self)
         self.endButton.addItem("...")
+        self.endButton.currentTextChanged.connect(self.endbox_changed)
         right_col = QVBoxLayout()
         right_col.addWidget(right_label)
         right_col.addWidget(self.endButton)
@@ -171,17 +178,37 @@ class LayerDialog(QDialog):
             self.startButton.addItem(layer)
             self.endButton.addItem(layer)
 
+    def startbox_changed(self, text: str):
+        # Really just finds IF the user selected a layer start
+        layer_match = self.layer_pattern.search(text)
+        print(layer_match.group())
+
+        if layer_match:
+            # Find what number (with decimals) was found
+            number_match = self.number_pattern.search(text)
+            self.start_input = int(number_match.group())
+            # Set dropdowns and textbox again from the stuff found
+            self.paramdict_lines = self.layer_summary(
+                self.model, self.start_input, self.end_input
+            )
+            self.textbox.setText("".join(self.paramdict_lines))
+            self.expand_buttons(self.paramdict_lines)
+
+    def endbox_changed(self, text: str):
+        pass
+
     def get_layers(self, model, caption="Layer Dialog", *, parent):
         # self.setParent(parent)  <<< TODO; has a weird effect
         self.setWindowTitle(caption)
-        self.resize(850, 450)
+        self.resize(700, 450)
+        self.model = model
+        self.start_input = 0
+        self.end_input = 0
 
-        text = str(model)
-        self.textbox.setText(text)
-
-        layers = self.layer_summary(model, 4)
-        print("*** layers:", layers)
-        self.expand_buttons(layers)
+        self.paramdict_lines = self.layer_summary(model)
+        # self.textbox.setText(str(model))
+        self.textbox.setText("".join(self.paramdict_lines))
+        self.expand_buttons(self.paramdict_lines)
 
         self.exec()
         return 42
@@ -225,6 +252,8 @@ class LayerDialog(QDialog):
                 else:
                     break
             mm.close()
+
+        return lines
 
         # Returns selected layers
         found = False
