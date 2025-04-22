@@ -176,7 +176,7 @@ class PrimaryWindow(QMainWindow):
         self.slider.valueChanged.connect(self.set_new_elements_to_display)
         self.slider.setMinimum(0)
         self.slider.setMaximum(0)
-        self.slider.setDisabled(True)
+        self.slider.setEnabled(False)
 
         # Organize Widgets for Graph tab
         graph_tab.addWidget(self.plot)
@@ -257,7 +257,7 @@ class PrimaryWindow(QMainWindow):
 
     def init_launch_button(self):
         self.launch_button = QPushButton("LAUNCH")
-        self.launch_button.setDisabled(True)
+        self.launch_button.setEnabled(False)
         self.launch_button.clicked.connect(self.start_cooking_iii)
         self.stage_tab.addWidget(self.launch_button)
 
@@ -431,7 +431,7 @@ class PrimaryWindow(QMainWindow):
             and model_location_alright
         )
 
-        self.launch_button.setDisabled(not should_be_enabled)
+        self.launch_button.setEnabled(should_be_enabled)
 
     def find_dataset(self):
         """
@@ -514,7 +514,7 @@ class PrimaryWindow(QMainWindow):
         # Set slider limits
         self.slider.setMinimum(0)
         self.slider.setMaximum(len(self.data.paths) - 1)
-        self.slider.setDisabled(False)
+        self.slider.setEnabled(True)
 
     def goto_tab(self, n, titleupdate="Missing Title"):
         """
