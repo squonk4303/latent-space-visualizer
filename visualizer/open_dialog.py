@@ -126,10 +126,9 @@ def for_directory(caption="", *, parent):
 
 
 def for_layer_select(model, caption="", *, parent):
-    path = ""
-    dialog = LayerDialog()
-    print(dialog.get_layers(model=model, caption=caption, parent=parent))
-    return path
+    layer = LayerDialog().get_layers(model=model, caption=caption, parent=parent)
+    print("After dialog, got layer", layer)
+    return layer
 
 
 class LayerDialog(QDialog):
@@ -139,7 +138,7 @@ class LayerDialog(QDialog):
         self.layer_pattern = re.compile(r"layer\d+\.*\d*")
         self.number_pattern = re.compile(r"\d+\.*\d*")
 
-        # Elements
+        # Widgets and gidgets
         left_label = QLabel("Start Layer:")
         self.startButton = QComboBox(parent=self)
         self.startButton.addItem("...")
@@ -156,7 +155,9 @@ class LayerDialog(QDialog):
         right_col.addWidget(right_label)
         right_col.addWidget(self.endButton)
 
+        # Set the submit button to simply close the window
         submitButton = QPushButton("Submit")
+        submitButton.clicked.connect(self.done)
 
         layout = QVBoxLayout()
         self.textbox = QTextEdit()
@@ -179,39 +180,62 @@ class LayerDialog(QDialog):
             self.endButton.addItem(layer)
 
     def startbox_changed(self, text: str):
+        """
+        Finds "layer*" from selected item and rewrites the textbox accordingly
+
+        Is called every time the start dropdown menu is invoked with a new value.
+        """
         # Really just finds IF the user selected a layer start
         layer_match = self.layer_pattern.search(text)
-        print(layer_match.group())
 
         if layer_match:
+            print(layer_match.group())
             # Find what number (with decimals) was found
             number_match = self.number_pattern.search(text)
             self.start_input = int(number_match.group())
-            # Set dropdowns and textbox again from the stuff found
+            print("Start/end input:", self.start_input, self.end_input)
+            # @Wilhelmsen: textbox doesn't seem to take for some reason
+            # @Linnea: Any idea?
+            # Set textbox again from the stuff found
             self.paramdict_lines = self.layer_summary(
                 self.model, self.start_input, self.end_input
             )
-            self.textbox.setText("".join(self.paramdict_lines))
-            self.expand_buttons(self.paramdict_lines)
+            self.textbox.setPlainText("".join(self.paramdict_lines))
 
     def endbox_changed(self, text: str):
-        pass
+        # Really just finds IF the user selected a layer start
+        layer_match = self.layer_pattern.search(text)
+
+        if layer_match:
+            print(layer_match.group())
+            # Find what number (with decimals) was found
+            number_match = self.number_pattern.search(text)
+            self.end_input = int(number_match.group())
+            print("Start/end input:", self.start_input, self.end_input)
+            # @Wilhelmsen: textbox doesn't seem to take for some reason
+            # @Linnea: Any idea?
+            # Set textbox again from the stuff found
+            self.paramdict_lines = self.layer_summary(
+                self.model, self.start_input, self.end_input
+            )
+            self.textbox.setPlainText("".join(self.paramdict_lines))
 
     def get_layers(self, model, caption="Layer Dialog", *, parent):
         # self.setParent(parent)  <<< TODO; has a weird effect
         self.setWindowTitle(caption)
-        self.resize(700, 450)
+        self.resize(650, 450)
         self.model = model
         self.start_input = 0
         self.end_input = 0
 
         self.paramdict_lines = self.layer_summary(model)
-        # self.textbox.setText(str(model))
-        self.textbox.setText("".join(self.paramdict_lines))
+        # self.textbox.setPlainText(str(model))
+        self.textbox.setPlainText("".join(self.paramdict_lines))
         self.expand_buttons(self.paramdict_lines)
 
         self.exec()
-        return 42
+        # Only returns the startlayer selected
+        return "layer" + str(self.start_input)
 
     def layer_summary(self, loaded_model, start_layer=0, end_layer=0):
         """
