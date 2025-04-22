@@ -9,16 +9,16 @@ import torch
 from PyQt6.QtWidgets import QFileDialog
 
 from visualizer import consts, loading, utils
-from visualizer.models.fcn_resnet101 import FCNResNet101
-from visualizer.plottables import Plottables
+from visualizer.models.segmentation import FCNResNet101
+from visualizer.plottables import SavableData
 
 
 # --- Fixtures ---
 @pytest.fixture
 def data_object():
-    consts.DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    data = Plottables()
-    # data.model = FCNResNet101(["skin"])
+    # @Wilhelmsen: Reconsider this fixture
+    data = SavableData()
+    # data.model = FCNResNet101()
     # data.model.load(consts.TRAINED_MODEL)
     data.dataset_plottable = np.array(
         [
@@ -44,25 +44,27 @@ def temp_pickle(data_object) -> str:
 def test_load_model():
     """Just runs this to see if it crashes."""
     # @Wilhelmsen: Is there anything more useful to test here?
-    consts.DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = FCNResNet101(["skin"])
+    model = FCNResNet101()
     model.load(consts.TRAINED_MODEL)
     assert model is not None
 
 
-def test_dataset_to_tensor():
-    dataset = utils.grab_image_paths_in_dir(consts.SMALL_DATASET)
-    tensors = loading.dataset_to_tensors(dataset)
-    assert tensors is not None
+def check_tensor_shape(tensor):
+    """Expect shape [1, 3, h, w] where h or w have to be of size specified in consts"""
+    assert len(tensor.shape) == 4
+    assert tensor.shape[0] == 1
+    assert tensor.shape[1] == 3
+    std_size = consts.STANDARD_IMG_SIZE
+    assert tensor.shape[2] == std_size or tensor.shape[3] == std_size
 
 
 def test_apply_tsne():
     """Test features are reduced to desired dimensions and also it doesn't creash."""
     array = np.random.rand(8, 512)
     features = torch.Tensor(array)
-    reduced = loading.apply_tsne(features, target_dimensions=2)
+    reduced = loading.tsne(features, target_dimensions=2)
     assert reduced.shape[1] == 2
-    reduced = loading.apply_tsne(features, target_dimensions=3)
+    reduced = loading.tsne(features, target_dimensions=3)
     assert reduced.shape[1] == 3
 
 

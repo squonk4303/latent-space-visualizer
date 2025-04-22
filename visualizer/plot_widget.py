@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
+from contextlib import nullcontext
 import random
 
 from PyQt6.QtWidgets import (
     QWidget,
     QVBoxLayout,
 )
+from PyQt6.QtGui import QPalette
 
 # matplotlib necessarily imported after PyQt6
 from matplotlib.backends.backend_qtagg import (
@@ -13,112 +15,122 @@ from matplotlib.backends.backend_qtagg import (
 )
 from matplotlib.figure import Figure
 from sklearn.manifold import TSNE
+from pathlib import Path
 import matplotlib.pyplot as plt
+import matplotlib.colors as col
 import numpy as np
 import PIL
 
-from visualizer import consts, parse
+from visualizer import consts
 
 
 class MplCanvas(FigureCanvasQTAgg):
     """Hold a canvas for the plot to render onto."""
 
-    def __init__(self, parent, width=5, height=4, dpi=100):
-        fig = Figure(figsize=(width, height), dpi=dpi)
-
-        if consts.flags["xkcd"]:
-            with plt.xkcd():
-                self.axes = fig.add_subplot(1, 1, 1)
-        else:
-            self.axes = fig.add_subplot(1, 1, 1)
+    def __init__(self, parent, width=5, height=4, dpi=100, background="0.85", forecolor="1"):
+        fig = Figure(figsize=(width, height), dpi=dpi, layout="constrained", facecolor=background)
+        # Setting Foreground Colors
+        plt.rcParams['text.color'] = forecolor            # All text (titles, annotations)
+        plt.rcParams['axes.labelcolor'] = forecolor      # Axis labels
+        plt.rcParams['xtick.color'] = forecolor           # X tick labels
+        plt.rcParams['ytick.color'] = forecolor           # Y tick labels
+        # contextlib.nullcontext being a context manager which does nothing
+        cm = plt.xkcd() if consts.flags["xkcd"] else nullcontext()
+        with cm:
+            self.input_display, self.axes, self.output_display = fig.subplots(
+                nrows=1, ncols=3
+            )
+        
+        self.input_display.get_xaxis().set_visible(False)
+        self.input_display.get_yaxis().set_visible(False)
+        self.output_display.get_xaxis().set_visible(False)
+        self.output_display.get_yaxis().set_visible(False)
 
         super().__init__(fig)
 
+    def redraw(self, in_imgdesc="", out_imgdesc=""):
+        """Clear subplots and reapply titles."""
+        self.axes.clear()
+        self.input_display.clear()
+        self.output_display.clear()
+
+        self.axes.set_title("Visualized Latent Space")
+        self.axes.set_xlabel("X = Dimesion 1")
+        self.axes.set_ylabel("Y = Dimension 2")
+        self.input_display.set_title("Input Image")
+        self.output_display.set_title("Output Image")
+        self.input_display.text(
+            0.5, -0.01, in_imgdesc, ha="center", va="top", 
+            transform=self.input_display.transAxes
+            )
+        self.output_display.text(
+            0.5, -0.01, "Dominant Category: "+out_imgdesc.capitalize(), ha="center", va="top", 
+            transform=self.output_display.transAxes
+            )
+        
 
 class PlotWidget(QWidget):
     def __init__(self, parent):
         """Define and draw a graphical plot."""
         super().__init__(parent)
-
         self.parent = parent
         layout = QVBoxLayout(self)
-        self.canvas = MplCanvas(self)
-
+        self.bgcolor = self.get_color()
+        self.fgcolor = self.get_color(consts.COLOR.TEXT)
+        self.canvas = MplCanvas(self, background=self.bgcolor, forecolor=self.fgcolor)
+        self.canvas.redraw()
+        self.canvas.draw()
+        self.canvas.flush_events()
         layout.addWidget(self.canvas)
 
-    def plot_from_2d(self, array_2d: np.ndarray):
-        """
-        Plot a scatterplot from the given array.
+    def get_color(self, color=consts.COLOR.BACKGROUND):
+        match color:
+            case consts.COLOR.BACKGROUND:
+                background_color = self.palette().color(QPalette.ColorRole.Window)
+                return background_color.name()
+            case consts.COLOR.TEXT:
+                text_color = self.palette().color(QPalette.ColorRole.WindowText)
+                return text_color.name()
 
-        Does not clear previously plotted data.
-        """
-        x = array_2d[:, 0]
-        y = array_2d[:, 1]
 
-        if array_2d.shape[1] == 2:
-            self.canvas.axes.scatter(x, y)
-        elif array_2d.shape[1] == 3:
-            z = array_2d[:, 2]
-            self.canvas.axes.scatter(x, y, z)
-
-        self.canvas.draw()
-
-    def with_tsne(self, plottables):
-        # Put all features in a list, and all labels in a list with corresponding indices
-        # Python list comprehension is awesome; And the zip function; And tuple assignment
-        labels, all_feats = tuple(
-            zip(
-                *tuple(
-                    (key, element.features)
-                    for key, value in plottables.items()
-                    for element in value
-                )
-            )
-        )
-
-        # Make sure the feats are represented as a numpy.ndarray
-        all_feats = np.array(all_feats).reshape(len(all_feats), -1)
-
-        # t-SNE the features
-        perplexity_value = min(30, len(all_feats) - 1)
-        tsne_conf = TSNE(
-            n_components=2,
-            perplexity=perplexity_value,
-            random_state=consts.seed,
-        )
-        coords = tsne_conf.fit_transform(all_feats)
-        # print("".join([f"{x}\t{y}\n" for x, y in coords]))
-
-        # Coords is now an iter
-        # So it should be possible to loop over all the values in dict Plottables
-        # And assign coords to the .tsne values there
-
-        # @Wilhelmsen: Consider again whether plottables.values() always returns in the expected order
-        for coord, pathandfeature in zip(
-            coords, (p for obj in plottables.values() for p in obj)
-        ):
-            pathandfeature.tsne = coord
-
-        # print("".join(f"{w.tsne}\n" for obj in plottables.values() for w in obj))
-
-        # @Wilhelmsen: Move this assertion to tests
-        # assert len(all_feats) == len(coords) == len(labels)
-
+    def the_plottables(self, labels, paths, coords, masks, colormap):
+        # @Wilhelmsen: Make it detect whether coords are 2d or 3d and act accordingly
         # Map each label to a randomly-sampled color
-        color_map = {
-            label: color
-            for label, color in zip(
-                (category for category in plottables.keys()),
-                random.sample(consts.COLORS, k=len(plottables)),
-            )
-        }
+        unique_labels = list(set(labels))
 
-        for label, data in plottables.items():
-            tsne = [obj.tsne for obj in data]
-            x, y = [list(t) for t in zip(*tsne)]
+        # Make a dict which maps paths and coords to related unique labels
+        plottables = {key: {"paths": [], "coords": []} for key in unique_labels}
 
-            self.canvas.axes.scatter(x, y, label=label, c=color_map[label])
-            self.canvas.axes.legend()
+        for L, p, c in zip(labels, paths, coords):
+            plottables[L]["paths"].append(p)
+            plottables[L]["coords"].append(c)
+
+        for L in sorted(plottables.keys()):
+            x, y = zip(*plottables[L]["coords"])
+            self.canvas.axes.scatter(x, y, label=L.capitalize(), c=colormap[L])
+
+        # Styling
+        # @Linnea: Move this to MplCanvas
+        self.canvas.axes.set_facecolor('1')
+        self.canvas.axes.axvline(x=0, linestyle='--', linewidth=0.4, color='0.4')
+        self.canvas.axes.axhline(y=0, linestyle='--', linewidth=0.4, color='0.4')
+        self.canvas.axes.set_xlim(-2,2)
+        self.canvas.axes.set_ylim(-2,2)
+        self.canvas.axes.legend(loc="upper left", bbox_to_anchor=(1,1), framealpha=0)
+
+    def new_tuple(self, value, labels, paths, coords, masks, colormap):
+        """Changes which input image and mask is displayed, and highlights the corresponding point."""
+        filename = Path(paths[value]).name
+        inpic = PIL.Image.open(paths[value])
+        self.canvas.redraw(filename,labels[value]) # Only displays filename on 2nd image for some reason?
+        tx, ty = coords[value]
+        self.the_plottables(labels, paths, coords, masks, colormap)
+        self.canvas.input_display.imshow(inpic)
+        self.canvas.output_display.imshow(masks[value])
+        self.canvas.axes.scatter(tx, ty, s=500, marker="+", c="black")
+        # Update functionality to display correctly 
+        self.canvas.draw()
+        self.canvas.flush_events()
 
     def make_toolbar(self):
         """Generate a toolbar object for the matplotlib plot."""
@@ -127,26 +139,3 @@ class PlotWidget(QWidget):
         # the one that is.
         toolbar = NavigationToolbar(self.canvas, self.parent)
         return toolbar
-
-
-def surprise_plot(layer):
-    """
-    An independent plot that can appear from almost anywhere. Watch out!
-
-    Really for use in development.
-    """
-    from math import sqrt, ceil
-
-    num_kernels = layer.shape[1]
-    fig, axs = plt.subplots(nrows=16, ncols=16, layout="constrained")
-
-    # print("*** layer[1]:", "".join(f"*  {i}\n" for i in layer))
-    print("layer", layer)
-
-    # for ax, image in zip(axs.flat, images):
-    for i, ax in enumerate(axs.flat):
-        if i < num_kernels:
-            ax.imshow(layer[0, i].cpu().numpy())
-            ax.axis("off")
-
-    plt.show()

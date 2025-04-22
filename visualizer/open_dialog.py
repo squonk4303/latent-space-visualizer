@@ -66,7 +66,7 @@ def to_save_file(
     filters = ";;".join(file_filters)
 
     # Make default filename based on date/time
-    default_filename = datetime.datetime.now().strftime("%y%m%d-%H%M%S-data.pickle")
+    default_filename = datetime.datetime.now().strftime("save_data/%y%m%d-%H%M%S-data.pickle")
 
     # This function opens a nifty Qt-made file dialog
     filepath, selected_filter = QFileDialog.getSaveFileName(
@@ -87,7 +87,7 @@ def for_some_file(caption="", *, parent):
     return filepath
 
 
-def for_image_file(caption="", *, parent):
+def for_image_file(caption=consts.IMAGE_DIALOG_CAPTION, *, parent):
     """Launch file dialog where user is intended to pick out a graphical image file."""
     filters = [
         consts.FILE_FILTERS["pictures"],
@@ -97,7 +97,7 @@ def for_image_file(caption="", *, parent):
     return filepath
 
 
-def for_trained_model_file(caption="", *, parent):
+def for_trained_model_file(caption=consts.TRAINED_MODEL_DIALOG_CAPTION, *, parent):
     """Launch file dialog where user is intended to pick out the file for a trained nn-model."""
     filters = [
         consts.FILE_FILTERS["pytorch"],

@@ -37,18 +37,18 @@ def test_array_different_w_o_seed():
 def test_setup_tsne(set_seed):
     global examinee_array
     tensor = torch.Tensor(np.random.rand(3, 512))
-    examinee_array = loading.apply_tsne(tensor)
+    examinee_array = loading.tsne(tensor)
 
 
 def test_tsne_same_with_seed(set_seed):
     tensor = torch.Tensor(np.random.rand(3, 512))
-    examiner_array = loading.apply_tsne(tensor)
+    examiner_array = loading.tsne(tensor)
     assert np.array_equal(examiner_array, examinee_array)
 
 
 def test_tsne_different_w_o_seed():
     tensor = torch.Tensor(np.random.rand(3, 512))
-    examiner_array = loading.apply_tsne(tensor)
+    examiner_array = loading.tsne(tensor)
     assert not np.array_equal(examiner_array, examinee_array)
 
 

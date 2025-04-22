@@ -4,15 +4,14 @@ import pickle
 import pytest
 import torch
 from visualizer import consts
-from visualizer.models.fcn_resnet101 import FCNResNet101
+from visualizer.models.segmentation import FCNResNet101
 
 FILE = os.path.join(consts.SAVE_DIR, "fcn.pth")
 
 
-def _write_object_to_file():
+def _test_write_object_to_file():
     """Note that this isn't run when pytest is called."""
-    consts.DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = FCNResNet101(consts.DEFAULT_MODEL_CATEGORIES)
+    model = FCNResNet101()
     model.load(consts.TRAINED_MODEL)
 
     parent_dir = os.path.abspath(os.path.join(FILE, os.pardir))
@@ -32,8 +31,7 @@ def test_loaded_model_equal_to_stub():
     Does this by comparing it to an earlier iteration of which.
     Useful when refactoring the class without intending to actually change its effects.
     """
-    consts.DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    fresh_model = FCNResNet101(consts.DEFAULT_MODEL_CATEGORIES)
+    fresh_model = FCNResNet101()
     fresh_model.load(consts.TRAINED_MODEL)
 
     with open(FILE, "rb") as f:
