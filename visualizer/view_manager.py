@@ -14,14 +14,15 @@ from PyQt6.QtGui import (
 )
 
 from PyQt6.QtWidgets import (
-    QSlider,
+    QComboBox,
     QHBoxLayout,
     QLabel,
     QMainWindow,
+    QProgressBar,
     QPushButton,
+    QSlider,
     QStatusBar,
     QVBoxLayout,
-    QComboBox,
     QWidget,
 )
 
@@ -148,6 +149,7 @@ class PrimaryWindow(QMainWindow):
         self.init_model_selection()
         self.init_layer_selection()
         self.init_feedback_label()
+        self.progress = Progress(self.stage_tab)
         self.init_launch_button()
 
         # ========
@@ -553,3 +555,16 @@ class PrimaryWindow(QMainWindow):
 
         if self.data is not None:
             self.utilize_data()
+
+class Progress:
+    def __init__(self, layout):
+        self.progress = QProgressBar()
+        layout.addWidget(self.progress)
+
+    def set(self, maximum):
+        self.progress.setValue(maxumim)
+
+    # @Wilhselmsen: What if this was __call__
+    def advance(self, increment):
+        total = self.progress.value() + increment
+        self.progress.setValue(total)
