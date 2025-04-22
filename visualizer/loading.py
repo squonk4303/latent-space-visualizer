@@ -90,7 +90,7 @@ def preliminary_dim_reduction_iii(model, layer, files, progress):
             valid_paths.append(image_location)
         else:
             print(f"Skipping {image_location} due to no valid class predictions.")
-            progress.alert()
+            progress.skipped_image()
             continue
 
         # Generate false-color mask using RGB values

@@ -572,7 +572,7 @@ class ProgressBar(QProgressBar):
         progress = self.value() + increment
         self.setValue(progress)
 
-    def alert(self):
+    def skipped_image(self):
         self.skipped += 1
         self.label.setText(
             f"Skipping image {self.value()}; no valid class prediction\n"
