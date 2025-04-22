@@ -500,6 +500,7 @@ class PrimaryWindow(QMainWindow):
         self.data.paths = paths
         self.data.two_dee = plottable_data
         self.utilize_data()
+        self.tab_layout.setCurrentIndex(1)
 
     def utilize_data(self):
         # @Wilhelmsen: Refer to these by keywords
@@ -556,15 +557,29 @@ class PrimaryWindow(QMainWindow):
         if self.data is not None:
             self.utilize_data()
 
-class ProgressBar:
+class ProgressBar(QProgressBar):
     def __init__(self, layout):
-        self.progress = QProgressBar()
-        layout.addWidget(self.progress)
+        super().__init__()
+        self.setFormat("Images processed: %v / %m  --  %p%")
+        self.skipped: int = 0
+        innerlayout = QVBoxLayout()
+        self.label = QLabel()
+        innerlayout.addWidget(self)
+        innerlayout.addWidget(self.label)
+        layout.addLayout(innerlayout)
 
-    def set(self, maximum):
-        self.progress.setMaximum(maximum)
-
-    # @Wilhselmsen: What if this was __call__
     def __call__(self, increment=1):
-        total = self.progress.value() + increment
-        self.progress.setValue(total)
+        progress = self.value() + increment
+        self.setValue(progress)
+
+    def alert(self):
+        self.skipped += 1
+        self.label.setText(
+            f"Skipping image {self.value()}; no valid class prediction\n"
+            f"Total skipped: {self.skipped}"
+        )
+
+    def reset(self):
+        super().reset()
+        self.skipped = 0
+        self.label.setText("")

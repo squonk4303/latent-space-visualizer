@@ -38,10 +38,9 @@ def preliminary_dim_reduction_iii(model, layer, files, progress):
     hook_handle = hook_location.register_forward_hook(hooker(features_list))
 
     files = files[:12] if consts.flags["truncate"] else files
-    progress.set(len(files))
-    progress()
+    progress.setMaximum(len(files))
+    progress.reset()
     for image_location in tqdm(files, desc="processing imgs"):
-        print("Incrementing by one")
         progress()
         image = PIL.Image.open(image_location).convert("RGB")
         image = preprocessing(image).unsqueeze(0).to(device)
@@ -91,6 +90,7 @@ def preliminary_dim_reduction_iii(model, layer, files, progress):
             valid_paths.append(image_location)
         else:
             print(f"Skipping {image_location} due to no valid class predictions.")
+            progress.alert()
             continue
 
         # Generate false-color mask using RGB values
@@ -118,6 +118,7 @@ def preliminary_dim_reduction_iii(model, layer, files, progress):
         masks.append(false_color_img)
         # print(f"Saved false-color segmentation mask: {mask_path}")
 
+    progress()
     hook_handle.remove()
     features = np.array(features).reshape(len(features), -1)
     return features, valid_paths, dominant_categories, masks
