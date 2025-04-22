@@ -39,6 +39,7 @@ def preliminary_dim_reduction_iii(model, layer, files, progress):
 
     files = files[:12] if consts.flags["truncate"] else files
     progress.setMaximum(len(files))
+    progress.set_visible(True)
     progress.reset()
     for image_location in tqdm(files, desc="processing imgs"):
         progress()
@@ -119,6 +120,7 @@ def preliminary_dim_reduction_iii(model, layer, files, progress):
         # print(f"Saved false-color segmentation mask: {mask_path}")
 
     progress()
+    progress.set_visible(False)
     hook_handle.remove()
     features = np.array(features).reshape(len(features), -1)
     return features, valid_paths, dominant_categories, masks

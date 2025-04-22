@@ -566,7 +566,10 @@ class ProgressBar(QProgressBar):
         self.label = QLabel()
         innerlayout.addWidget(self)
         innerlayout.addWidget(self.label)
-        layout.addLayout(innerlayout)
+        self.container = QWidget()
+        self.container.setLayout(innerlayout)
+        self.set_visible(False)
+        layout.addWidget(self.container)
 
     def __call__(self, increment=1):
         progress = self.value() + increment
@@ -583,3 +586,6 @@ class ProgressBar(QProgressBar):
         super().reset()
         self.skipped = 0
         self.label.setText("")
+
+    def set_visible(self, visible: bool):
+        self.container.setVisible(visible)
