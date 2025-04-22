@@ -9,9 +9,10 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QHBoxLayout,
     QLabel,
+    QDialogButtonBox,
     QComboBox,
-    QPushButton
-    )
+    QPushButton,
+)
 from visualizer import consts
 
 
@@ -116,15 +117,16 @@ def for_directory(caption="", *, parent):
     return dirpath
 
 class LayerDialog(QDialog):
-    def __init__(self, parent):
+    def __init__(self, caption="Layer Dialog", *, parent):
         super().__init__(parent)
 
-        self.setWindowTitle("Select layer(s)")
+        self.setWindowTitle(caption)
 
-        self.startButton = QComboBox(self)
+        # Drop-downs
+        self.startButton = QComboBox(parent=self)
         self.startButton.addItem("...")
 
-        self.endButton = QComboBox(self)
+        self.endButton = QComboBox(parent=self)
         self.endButton.addItem("...")
 
         submitButton = QPushButton("Submit")
@@ -139,12 +141,14 @@ class LayerDialog(QDialog):
         layout.addWidget(label)
         layout.addLayout(subLayout)
         layout.addWidget(submitButton)
-    
-    def expand_buttons(self, layers):
 
+    def expand_buttons(self, layers):
         for layer in layers:
             self.startButton.addItem(layer)
             self.endButton.addItem(layer)
-        
-def for_layer_select(parent):
-    return None
+
+def for_layer_select(caption="", *, parent):
+    path = ""
+    dialog = LayerDialog(parent=parent)
+    dialog.exec()
+    return path

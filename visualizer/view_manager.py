@@ -453,7 +453,9 @@ class PrimaryWindow(QMainWindow):
         @Linnea: Complete this function and add a small docstring
                  Pretty please
         """
-        selected_layer = consts.LAYER
+        print("Entered find_layer")
+        selected_layer = open_dialog.for_layer_select("SELECT LAYER", parent=self)
+        print("*** selected_layer:", selected_layer)
         if selected_layer:
             self.data.layer = selected_layer
             self.layer_feedback_label.setText("You chose " + selected_layer)
