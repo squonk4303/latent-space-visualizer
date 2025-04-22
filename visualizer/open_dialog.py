@@ -4,14 +4,15 @@ Module with functions tohandle file dialogs.
 """
 import datetime
 from PyQt6.QtWidgets import (
-    QFileDialog,
+    QComboBox,
     QDialog,
-    QVBoxLayout,
+    QDialogButtonBox,
+    QFileDialog,
     QHBoxLayout,
     QLabel,
-    QDialogButtonBox,
-    QComboBox,
     QPushButton,
+    QTextEdit,
+    QVBoxLayout,
 )
 from visualizer import consts
 
@@ -119,32 +120,43 @@ def for_directory(caption="", *, parent):
     return dirpath
 
 
+def for_layer_select(model, caption="", *, parent):
+    path = ""
+    dialog = LayerDialog()
+    print(dialog.get_layers(model, caption, parent=parent))
+    return path
+
 class LayerDialog(QDialog):
-    def __init__(self, model, caption="Layer Dialog", *, parent):
-        super().__init__(parent)
-
-        self.setWindowTitle(caption)
-
-        print("*** model:", model)
+    def __init__(self):
+        super().__init__()
 
         # Elements
+        left_label = QLabel("Start Layer:")
         self.startButton = QComboBox(parent=self)
         self.startButton.addItem("...")
+        left_col = QVBoxLayout()
+        left_col.addWidget(left_label)
+        left_col.addWidget(self.startButton)
 
+        right_label = QLabel("End Layer:")
         self.endButton = QComboBox(parent=self)
         self.endButton.addItem("...")
+        right_col = QVBoxLayout()
+        right_col.addWidget(right_label)
+        right_col.addWidget(self.endButton)
 
         submitButton = QPushButton("Submit")
 
         layout = QVBoxLayout()
-        label = QLabel("Layers go here")
+        self.textbox = QTextEdit()
+        self.textbox.setReadOnly(True)
+        self.textbox.setPlainText("...")
         subLayout = QHBoxLayout()
 
-        # Organization
-        subLayout.addWidget(self.startButton)
-        subLayout.addWidget(self.endButton)
+        subLayout.addLayout(left_col)
+        subLayout.addLayout(right_col)
 
-        layout.addWidget(label)
+        layout.addWidget(self.textbox)
         layout.addLayout(subLayout)
         layout.addWidget(submitButton)
 
@@ -154,6 +166,19 @@ class LayerDialog(QDialog):
         for layer in layers:
             self.startButton.addItem(layer)
             self.endButton.addItem(layer)
+
+    def get_layers(self, model, caption="Layer Dialog", *, parent):
+        print("*** model:", dir(model.model.backbone))
+
+        # self.setParent(parent)
+        self.setWindowTitle(caption)
+        self.resize(850, 450)
+
+        text = str(model)
+        self.textbox.setText(text)
+        self.exec()
+
+        return 42
 
     def layer_summary(loaded_model, start_layer=0, end_layer=0):
         """
@@ -215,10 +240,3 @@ class LayerDialog(QDialog):
             print("\nEOF: no more lines")
         else:
             print(f"\nNext line is {new}: {lines[new]}")
-
-
-def for_layer_select(model, caption="", *, parent):
-    path = ""
-    dialog = LayerDialog(model, parent=parent)
-    dialog.exec()
-    return path
