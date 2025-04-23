@@ -17,10 +17,11 @@ OPEN_FILE_LABEL = "&Open File"
 APPLICATION_TITLE = "Latent Space Visualizer"
 STAGE_TITLE = "Select Data"
 GRAPH_TITLE = "Visualize Data"
-DATASET_DIALOG_CAPTION       = "SELECT DATASET"
-IMAGE_DIALOG_CAPTION         = "SELECT IMAGE"
-LOAD_FILE_DIALOG_CAPTION     = "SELECT FILE TO LOAD"
+DATASET_DIALOG_CAPTION = "SELECT DATASET"
+IMAGE_DIALOG_CAPTION = "SELECT IMAGE"
+LOAD_FILE_DIALOG_CAPTION = "SELECT FILE TO LOAD"
 TRAINED_MODEL_DIALOG_CAPTION = "SELECT NEURAL-NET MODEL"
+VERSION = "0.0.3"
 
 
 # Plaintext with other uses
@@ -68,13 +69,15 @@ COLORS32 = [
     "#ff1493",
     "#7b68ee",
     "#fff8dc",
-    "#ffb6c1"
+    "#ffb6c1",
 ]
 
 COLORS16 = [
+    # fmt: off
     "#2f4f4f", "#7f0000", "#006400", "#bdb76b", "#000080", "#ff0000", "#ffa500",
     "#ffff00", "#c71585", "#00ff00", "#00fa9a", "#00ffff", "#0000ff", "#d8bfd8",
     "#ff00ff","#1e90ff"
+    # fmt: on
 ]
 
 
