@@ -177,6 +177,8 @@ class LayerDialog(QDialog):
     def expand_buttons(self, layers):
         self.startButton.clear()
         self.endButton.clear()
+        self.startButton.addItem("...")
+        self.endButton.addItem("...")
         self.startButton.addItems(layers)
         self.endButton.addItems(layers)
 
