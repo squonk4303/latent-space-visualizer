@@ -238,10 +238,11 @@ class PrimaryWindow(QMainWindow):
         self.layer_feedback_label = QLabel(
             "<-- Select the layer in your model for the latent space"
         )
-        layer_button = QPushButton("Select layer")
-        layer_button.clicked.connect(self.find_layer)
+        self.layer_button = QPushButton("Select layer")
+        self.layer_button.setEnabled(False)
+        self.layer_button.clicked.connect(self.find_layer)
         row_layer_selection = QHBoxLayout()
-        row_layer_selection.addWidget(layer_button)
+        row_layer_selection.addWidget(self.layer_button)
         row_layer_selection.addWidget(self.layer_feedback_label)
         self.stage_tab.addLayout(row_layer_selection)
 
@@ -311,6 +312,7 @@ class PrimaryWindow(QMainWindow):
             self.feedback_label.setText(f"You chose model type {model_type}!")
             the_class = getattr(visualizer.models.segmentation, model_type)
             self.data.model = the_class()
+            self.layer_button.setEnabled(True)
             # print(f"Successfully found model {model_type}, {the_class}")
             self.try_to_activate_launch_button()
 
@@ -321,6 +323,7 @@ class PrimaryWindow(QMainWindow):
 
         elif model_type == "...":
             print(f"Model is {model_type}? Whatever. I don't care.")
+            self.layer_button.setEnabled(False)
 
         else:
             raise ValueError(
@@ -462,18 +465,18 @@ class PrimaryWindow(QMainWindow):
         @Linnea: Complete this function and add a small docstring
                  Pretty please
         """
-        print("Hardcoding a model in; yet TODO; hardcode it out again")
-        self.data.model = FCNResNet101()
-        self.data.model.load(consts.MULTILABEL_MODEL)
-        selected_layer, _ = open_dialog.for_layer_select(
-            self.data.model, "SELECT LAYER", parent=self
-        )
-        print("*** selected_layer:", selected_layer)
-        if selected_layer:
-            self.data.layer = selected_layer
-            self.layer_feedback_label.setText("You chose " + selected_layer)
-            self.feedback_label.setText("You chose " + selected_layer)
-            self.try_to_activate_launch_button()
+        if self.data.model is None:
+            print("Select a model first")
+        else:
+            selected_layer, _ = open_dialog.for_layer_select(
+                self.data.model, "SELECT LAYER", parent=self
+            )
+            print("*** selected_layer:", selected_layer)
+            if selected_layer:
+                self.data.layer = selected_layer
+                self.layer_feedback_label.setText("You chose " + selected_layer)
+                self.feedback_label.setText("You chose " + selected_layer)
+                self.try_to_activate_launch_button()
 
     def start_cooking_iii(self):
         # Try to load the trained model
@@ -498,7 +501,6 @@ class PrimaryWindow(QMainWindow):
         reduced_data, paths, labels, masks = loading.preliminary_dim_reduction_iii(
             self.data.model, self.data.layer, self.data.paths
         )
-        self.try_to_load_model()
         # @Wilhelmsen: Move this assertion to tests
         assert len(reduced_data) == len(paths) == len(labels) == len(masks)
 
