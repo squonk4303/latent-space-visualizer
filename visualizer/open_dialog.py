@@ -176,11 +176,23 @@ class LayerDialog(QDialog):
 
     def expand_buttons(self, layers):
         self.startButton.clear()
-        self.endButton.clear()
+        #self.endButton.clear()
         self.startButton.addItem("...")
-        self.endButton.addItem("...")
+        #self.endButton.addItem("...")
         self.startButton.addItems(layers)
-        self.endButton.addItems(layers)
+        #self.endButton.addItems(layers)
+
+    def compare_button(self):
+        start_pos = self.startButton.currentIndex()
+        end_pos = self.endButton.currentIndex()
+
+        if start_pos == 0:
+            self.endButton.clear()
+            self.endButton.addItem("...")
+            self.endButton.addItems(self.layer_menu_maker(self.paramdict_lines))
+        elif start_pos > end_pos:
+            self.endButton.clear()
+            self.endButton.addItems(self.layer_menu_maker(self.paramdict_lines)[start_pos-1:])
 
     def startbox_changed(self, text: str):
         """
@@ -189,21 +201,20 @@ class LayerDialog(QDialog):
         Is called every time the start dropdown menu is invoked with a new value.
         """
         # Really just finds IF the user selected a layer start
-        layer_match = self.layer_pattern.search(text)
-
-        if layer_match:
-            print(layer_match.group())
-            # Find what number (with decimals) was found
-            number_match = self.number_pattern.search(text)
+        
+        # Find what number (with decimals) was found
+        number_match = self.number_pattern.search(text)
+        if number_match is not None:
             self.start_input = int(number_match.group())
-            print("Start/end input:", self.start_input, self.end_input)
-            # @Wilhelmsen: textbox doesn't seem to take for some reason
-            # @Linnea: Any idea?
-            # Set textbox again from the stuff found
-            self.paramdict_lines = self.layer_summary(
-                self.model, self.start_input, self.end_input
-            )
-            self.textbox.setPlainText("".join(self.paramdict_lines))
+        else:
+            self.start_input = 0
+        print("Start/end input:", self.start_input, self.end_input)
+        # @Wilhelmsen: textbox doesn't seem to take for some reason
+        # @Linnea: Any idea?
+        # Set textbox again from the stuff found
+        self.compare_button()
+        self.box_update()
+            
 
     def endbox_changed(self, text: str):
         """
@@ -212,21 +223,26 @@ class LayerDialog(QDialog):
         Is called every time the start dropdown menu is invoked with a new value.
         """
         # Really just finds IF the user selected a layer start
-        layer_match = self.layer_pattern.search(text)
+        
 
-        if layer_match:
-            print(layer_match.group())
-            # Find what number (with decimals) was found
-            number_match = self.number_pattern.search(text)
+       
+        # Find what number (with decimals) was found
+        number_match = self.number_pattern.search(text)
+        if number_match is not None:
             self.end_input = int(number_match.group())
-            print("Start/end input:", self.start_input, self.end_input)
-            # @Wilhelmsen: textbox doesn't seem to take for some reason
-            # @Linnea: Any idea?
-            # Set textbox again from the stuff found
-            self.paramdict_lines = self.layer_summary(
+        else:
+            self.end_input = 0
+        print("Start/end input:", self.start_input, self.end_input)
+        # @Wilhelmsen: textbox doesn't seem to take for some reason
+        # @Linnea: Any idea?
+        # Set textbox again from the stuff found
+        self.box_update()
+    
+    def box_update(self):
+        update = self.layer_summary(
                 self.model, self.start_input, self.end_input
             )
-            self.textbox.setPlainText("".join(self.paramdict_lines))
+        self.textbox.setPlainText("".join(update))
 
     def get_layers(self, model, caption="Layer Dialog", *, parent):
         # self.setParent(parent)  <<< TODO; has a weird effect
@@ -269,6 +285,7 @@ class LayerDialog(QDialog):
         all_layers = False
         if not end_layer:
             end_layer = start_layer
+            control = -1
         if not start_layer:
             all_layers = True
 
@@ -315,9 +332,13 @@ class LayerDialog(QDialog):
                 output.append(str(f"{i}: {line}"))
 
         # End of print
-        if all_layers:
-            output.append(str("\nEOF: no more lines"))
-        else:
+        #if all_layers:
+        #    output.append(str("\nEOF: no more lines"))
+        #else:
+        #    output.append(str(f"\nNext line is {new}: {lines[new]}"))
+        if new > 0 and not all_layers:
             output.append(str(f"\nNext line is {new}: {lines[new]}"))
+        else:
+            output.append(str("\nEOF: no more lines"))
         
         return output
