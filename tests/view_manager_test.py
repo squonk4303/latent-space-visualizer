@@ -105,6 +105,7 @@ def test_cancelled_file_select(window, qtbot):
         assert window.tab_layout.currentIndex() == 0
 
 
+@pytest.mark.filterwarnings("ignore:No artists")
 @pytest.mark.require_pretrained_model
 @pytest.mark.slow
 def test_quicksave_n_quickload(window, data_object):

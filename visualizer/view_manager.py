@@ -15,14 +15,15 @@ from PyQt6.QtGui import (
 )
 
 from PyQt6.QtWidgets import (
-    QSlider,
+    QComboBox,
     QHBoxLayout,
     QLabel,
     QMainWindow,
+    QProgressBar,
     QPushButton,
+    QSlider,
     QStatusBar,
     QVBoxLayout,
-    QComboBox,
     QWidget,
 )
 
@@ -150,6 +151,7 @@ class PrimaryWindow(QMainWindow):
         self.init_model_selection()
         self.init_layer_selection()
         self.init_feedback_label()
+        self.progress = ProgressBar(where=self.stage_tab)
         self.init_launch_button()
 
         # ========
@@ -176,7 +178,7 @@ class PrimaryWindow(QMainWindow):
         self.slider.valueChanged.connect(self.set_new_elements_to_display)
         self.slider.setMinimum(0)
         self.slider.setMaximum(0)
-        self.slider.setDisabled(True)
+        self.slider.setEnabled(False)
 
         # Organize Widgets for Graph tab
         graph_tab.addWidget(self.plot)
@@ -259,7 +261,7 @@ class PrimaryWindow(QMainWindow):
 
     def init_launch_button(self):
         self.launch_button = QPushButton("LAUNCH")
-        self.launch_button.setDisabled(True)
+        self.launch_button.setEnabled(False)
         self.launch_button.clicked.connect(self.start_cooking_iii)
         self.stage_tab.addWidget(self.launch_button)
 
@@ -441,7 +443,7 @@ class PrimaryWindow(QMainWindow):
             and model_location_alright
         )
 
-        self.launch_button.setDisabled(not should_be_enabled)
+        self.launch_button.setEnabled(should_be_enabled)
 
     def find_dataset(self):
         """
@@ -499,7 +501,7 @@ class PrimaryWindow(QMainWindow):
         # @Wilhelmsen: This could be an iglob
         self.data.paths = utils.grab_image_paths_in_dir(self.data.dataset_location)
         reduced_data, paths, labels, masks = loading.preliminary_dim_reduction_iii(
-            self.data.model, self.data.layer, self.data.paths
+            self.data.model, self.data.layer, self.data.paths, self.progress
         )
         # @Wilhelmsen: Move this assertion to tests
         assert len(reduced_data) == len(paths) == len(labels) == len(masks)
@@ -516,6 +518,7 @@ class PrimaryWindow(QMainWindow):
         self.data.paths = paths
         self.data.two_dee = plottable_data
         self.utilize_data()
+        self.tab_layout.setCurrentIndex(1)
 
     def utilize_data(self):
         # @Wilhelmsen: Refer to these by keywords
@@ -529,7 +532,7 @@ class PrimaryWindow(QMainWindow):
         # Set slider limits
         self.slider.setMinimum(0)
         self.slider.setMaximum(len(self.data.paths) - 1)
-        self.slider.setDisabled(False)
+        self.slider.setEnabled(True)
 
     def goto_tab(self, n, titleupdate="Missing Title"):
         """
@@ -571,3 +574,36 @@ class PrimaryWindow(QMainWindow):
 
         if self.data is not None:
             self.utilize_data()
+
+class ProgressBar(QProgressBar):
+    def __init__(self, *, where):
+        super().__init__()
+        self.setFormat("Images processed: %v / %m  --  %p%")
+        self.skipped: int = 0
+        innerlayout = QVBoxLayout()
+        self.label = QLabel()
+        innerlayout.addWidget(self)
+        innerlayout.addWidget(self.label)
+        self.container = QWidget()
+        self.container.setLayout(innerlayout)
+        self.set_visible(False)
+        where.addWidget(self.container)
+
+    def __call__(self, increment=1):
+        progress = self.value() + increment
+        self.setValue(progress)
+
+    def skipped_image(self):
+        self.skipped += 1
+        self.label.setText(
+            f"Skipping image {self.value()}; no valid class prediction\n"
+            f"Total skipped: {self.skipped}"
+        )
+
+    def reset(self):
+        super().reset()
+        self.skipped = 0
+        self.label.setText("")
+
+    def set_visible(self, visible: bool):
+        self.container.setVisible(visible)

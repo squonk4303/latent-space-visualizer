@@ -17,10 +17,11 @@ OPEN_FILE_LABEL = "&Open File"
 APPLICATION_TITLE = "Latent Space Visualizer"
 STAGE_TITLE = "Select Data"
 GRAPH_TITLE = "Visualize Data"
-DATASET_DIALOG_CAPTION       = "SELECT DATASET"
-IMAGE_DIALOG_CAPTION         = "SELECT IMAGE"
-LOAD_FILE_DIALOG_CAPTION     = "SELECT FILE TO LOAD"
+DATASET_DIALOG_CAPTION = "SELECT DATASET"
+IMAGE_DIALOG_CAPTION = "SELECT IMAGE"
+LOAD_FILE_DIALOG_CAPTION = "SELECT FILE TO LOAD"
 TRAINED_MODEL_DIALOG_CAPTION = "SELECT NEURAL-NET MODEL"
+VERSION = "0.0.3"
 
 
 # Plaintext with other uses
@@ -37,20 +38,46 @@ class COLOR(Enum):
 
 
 COLORS32 = [
-    # fmt: off
-    "#00008b", "#00008b", "#0000ff", "#0000ff", "#006400", "#006400", "#008b8b",
-    "#008b8b", "#00fa9a", "#00fa9a", "#00ff00", "#00ff00", "#1e90ff", "#1e90ff",
-    "#32cd32", "#4682b4", "#483d8b", "#696969", "#7b68ee", "#7f0000", "#7fffd4",
-    "#800080", "#808000", "#8a2be2", "#8fbc8f", "#adff2f", "#afeeee", "#b03060",
-    "#d8bfd8", "#da70d6", "#dc143c", "#f08080", "#f0e68c", "#f4a460", "#ff0000",
-    "#ff0080", "#ff00ff", "#ff1493", "#ff8c00", "#ffd700",
-    # fmt: on
+    "#696969",
+    "#006400",
+    "#8b0000",
+    "#808000",
+    "#483d8b",
+    "#008b8b",
+    "#cd853f",
+    "#000080",
+    "#9acd32",
+    "#7f007f",
+    "#8fbc8f",
+    "#b03060",
+    "#ff0000",
+    "#ff8c00",
+    "#ffd700",
+    "#7fff00",
+    "#8a2be2",
+    "#00ff7f",
+    "#00ffff",
+    "#00bfff",
+    "#0000ff",
+    "#ff6347",
+    "#da70d6",
+    "#b0c4de",
+    "#ff00ff",
+    "#1e90ff",
+    "#f0e68c",
+    "#90ee90",
+    "#ff1493",
+    "#7b68ee",
+    "#fff8dc",
+    "#ffb6c1",
 ]
 
 COLORS16 = [
+    # fmt: off
     "#2f4f4f", "#7f0000", "#006400", "#bdb76b", "#000080", "#ff0000", "#ffa500",
     "#ffff00", "#c71585", "#00ff00", "#00fa9a", "#00ffff", "#0000ff", "#d8bfd8",
     "#ff00ff","#1e90ff"
+    # fmt: on
 ]
 
 

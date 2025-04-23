@@ -17,7 +17,7 @@ from visualizer import consts, open_dialog
 from visualizer.plottables import SavableData
 
 
-def preliminary_dim_reduction_iii(model, layer, files):
+def preliminary_dim_reduction_iii(model, layer, files, progress):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     size_to_fit = 128 if consts.flags["truncate"] else consts.STANDARD_IMG_SIZE
     preprocessing = torchvision.transforms.Compose(
@@ -37,8 +37,12 @@ def preliminary_dim_reduction_iii(model, layer, files):
     hook_location = getattr(model.model.backbone, layer)
     hook_handle = hook_location.register_forward_hook(hooker(features_list))
 
-    files = files[:5] if consts.flags["truncate"] else files
+    files = files[:12] if consts.flags["truncate"] else files
+    progress.setMaximum(len(files))
+    progress.set_visible(True)
+    progress.reset()
     for image_location in tqdm(files, desc="processing imgs"):
+        progress()
         image = PIL.Image.open(image_location).convert("RGB")
         image = preprocessing(image).unsqueeze(0).to(device)
         features_list.clear()
@@ -87,6 +91,7 @@ def preliminary_dim_reduction_iii(model, layer, files):
             valid_paths.append(image_location)
         else:
             print(f"Skipping {image_location} due to no valid class predictions.")
+            progress.skipped_image()
             continue
 
         # Generate false-color mask using RGB values
@@ -114,6 +119,8 @@ def preliminary_dim_reduction_iii(model, layer, files):
         masks.append(false_color_img)
         # print(f"Saved false-color segmentation mask: {mask_path}")
 
+    progress()
+    progress.set_visible(False)
     hook_handle.remove()
     features = np.array(features).reshape(len(features), -1)
     return features, valid_paths, dominant_categories, masks
