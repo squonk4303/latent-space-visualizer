@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import os
 import numpy as np
+from pathlib import Path
 
 # NOTE: Sucky capitalization on torchvision.models because one is a function and one is a class
 from torchvision.models import resnet101, ResNet101_Weights

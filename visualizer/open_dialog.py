@@ -287,7 +287,7 @@ class LayerDialog(QDialog):
                     break
             mm.close()
 
-        return lines
+        output = []
 
         # Returns selected layers
         found = False
@@ -302,10 +302,12 @@ class LayerDialog(QDialog):
                 eol = True
                 new = i
             if all_layers or found and not eol:
-                print(f"{i}: {line}", end="")
+                output.append(str(f"{i}: {line}"))
 
         # End of print
         if all_layers:
-            print("\nEOF: no more lines")
+            output.append(str("\nEOF: no more lines"))
         else:
-            print(f"\nNext line is {new}: {lines[new]}")
+            output.append(str(f"\nNext line is {new}: {lines[new]}"))
+        
+        return output
