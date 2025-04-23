@@ -154,7 +154,8 @@ class LayerDialog(QDialog):
         right_col = QVBoxLayout()
         right_col.addWidget(right_label)
         right_col.addWidget(self.endButton)
-
+        
+        descriptionLabel = QLabel("If you just require 1 layer, select just the start layer.")
         # Set the submit button to simply close the window
         submitButton = QPushButton("Submit")
         submitButton.clicked.connect(self.done)
@@ -170,6 +171,7 @@ class LayerDialog(QDialog):
 
         layout.addWidget(self.textbox)
         layout.addLayout(subLayout)
+        layout.addWidget(descriptionLabel)
         layout.addWidget(submitButton)
 
         self.setLayout(layout)
