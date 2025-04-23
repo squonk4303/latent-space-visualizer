@@ -260,12 +260,28 @@ class LayerDialog(QDialog):
         self.expand_buttons(self.layer_menu_maker(self.paramdict_lines))
         self.exec()
 
-        # @Linnea: Feel free to make this something more sensible
-        # Returns both start and end layers
-        if self.start_input == 0:
-            return None, None
+        end_button_result = self.endButton.currentText()
+        start_button_result = self.startButton.currentText()
+
+        if end_button_result == "..." and start_button_result == "...":
+            print("Please select a valid layer")
+        elif end_button_result is None or start_button_result is None:
+            print("Error no layer detected, try again!")
+            if start_button_result is None:
+                print("Start Layer missing")
+            if end_button_result is None:
+                print("End Layer missing")
+        elif end_button_result == "...":
+            return start_button_result, start_button_result
+        elif start_button_result == "...":
+            return end_button_result, end_button_result
+        elif end_button_result != start_button_result:
+            return start_button_result, end_button_result
+        elif start_button_result == end_button_result:
+            return start_button_result, start_button_result
         else:
-            return "layer" + str(self.start_input), "layer" + str(self.end_input)
+            print("Something has gone terribly wrong...")
+        return None, None
 
     def layer_menu_maker(self, list_):
         menu_of_layers =[]
