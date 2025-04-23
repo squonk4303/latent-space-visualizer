@@ -237,7 +237,7 @@ class LayerDialog(QDialog):
         self.paramdict_lines = self.layer_summary(model)
         # self.textbox.setPlainText(str(model))
         self.textbox.setPlainText("".join(self.paramdict_lines))
-        self.expand_buttons(self.paramdict_lines)
+        self.expand_buttons(self.layer_menu_maker(self.paramdict_lines))
         self.exec()
 
         # @Linnea: Feel free to make this something more sensible
@@ -246,6 +246,14 @@ class LayerDialog(QDialog):
             return None, None
         else:
             return "layer" + str(self.start_input), "layer" + str(self.end_input)
+
+    def layer_menu_maker(self, list_):
+        menu_of_layers =[]
+        for line in list_:
+            match = self.layer_pattern.search(line)
+            if match is not None:
+                menu_of_layers.append(match.group())
+        return menu_of_layers
 
     def layer_summary(self, loaded_model, start_layer=0, end_layer=0):
         """
