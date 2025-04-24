@@ -14,14 +14,19 @@ STANDARD_IMG_SIZE = 640
 # GUI Text
 
 APPLICATION_TITLE = "Latent Space Visualizer"
-DATASET_DIALOG_CAPTION = "SELECT DATASET"
+
 NIL = "..."
+
 GRAPH_TITLE = "Visualize Data"
-IMAGE_DIALOG_CAPTION = "SELECT IMAGE"
-LOAD_FILE_DIALOG_CAPTION = "SELECT FILE TO LOAD"
-OPEN_FILE_LABEL = "&Open File"
 STAGE_TITLE = "Select Data"
-TRAINED_MODEL_DIALOG_CAPTION = "SELECT NEURAL-NET MODEL"
+
+OPEN_FILE_LABEL = "&Open File"
+
+DATASET_DIALOG_CAPTION = "Select Dataset"
+IMAGE_DIALOG_CAPTION = "Select Image"
+LOAD_FILE_DIALOG_CAPTION = "Select File To Load"
+TRAINED_MODEL_DIALOG_CAPTION = "Select Neural-Net Model"
+
 VERSION = "0.0.3"
 
 
@@ -77,7 +82,7 @@ COLORS16 = [
     # fmt: off
     "#2f4f4f", "#7f0000", "#006400", "#bdb76b", "#000080", "#ff0000", "#ffa500",
     "#ffff00", "#c71585", "#00ff00", "#00fa9a", "#00ffff", "#0000ff", "#d8bfd8",
-    "#ff00ff","#1e90ff"
+    "#ff00ff", "#1e90ff"
     # fmt: on
 ]
 

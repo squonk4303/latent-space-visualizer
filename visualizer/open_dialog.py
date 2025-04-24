@@ -350,13 +350,13 @@ class LayerDialog(QDialog):
                 output.append(str(f"{i}: {line}"))
 
         # End of print
-        #if all_layers:
-        #    output.append(str("\nEOF: no more lines"))
-        #else:
-        #    output.append(str(f"\nNext line is {new}: {lines[new]}"))
+        # if all_layers:
+        #     output.append(str("\nEOF: no more lines"))
+        # else:
+        #     output.append(str(f"\nNext line is {new}: {lines[new]}"))
         if new > 0 and not all_layers:
             output.append(str(f"\nNext line is {new}: {lines[new]}"))
         else:
             output.append(str("\nEOF: no more lines"))
-        
+
         return output

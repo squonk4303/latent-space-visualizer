@@ -1,16 +1,11 @@
 #!/usr/bin/env python3
 import os
 import numpy as np
-from pathlib import Path
-
-# NOTE: Sucky capitalization on torchvision.models because one is a function and one is a class
-from torchvision.models import resnet101, ResNet101_Weights
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import (
     QAction,
     QKeySequence,
-    QPixmap,
     QWheelEvent,
 )
 
@@ -29,7 +24,7 @@ from PyQt6.QtWidgets import (
 
 from visualizer import consts, loading, open_dialog, utils
 from visualizer.models.segmentation import FCNResNet101
-from visualizer.plottables import Plottables, SavableData
+from visualizer.plottables import SavableData
 from visualizer.plot_widget import PlotWidget
 from visualizer.stacked_layout_manager import StackedLayoutManager
 import visualizer.models
@@ -340,16 +335,8 @@ class PrimaryWindow(QMainWindow):
         # Dropdown Menu
         reduction_dropdown = QComboBox(parent=self)
         reduction_dropdown.addItem(consts.NIL)
-        # for technique in dim_reduction_techs.keys():
-        #     reduction_dropdown.addItem(technique)
-        reduction_dropdown.addItem("t-SNE")
-        reduction_dropdown.addItem("P.C.A.")
-        reduction_dropdown.addItem("~UMAP")
-        reduction_dropdown.addItem("TRI-MAP")
-        reduction_dropdown.addItem("PA¢CMAP")
-        reduction_dropdown.addItem("SE.GMEN.TAT.ION")
-        reduction_dropdown.addItem("CLASS!IFICATION_24")
-        reduction_dropdown.addItem("bogus")
+        for technique in dim_reduction_techs.keys():
+            reduction_dropdown.addItem(technique)
 
         # Functionality
         reduction_dropdown.currentTextChanged.connect(self.suggest_dim_reduction)
@@ -574,6 +561,7 @@ class PrimaryWindow(QMainWindow):
 
         if self.data is not None:
             self.utilize_data()
+
 
 class ProgressBar(QProgressBar):
     def __init__(self, *, where):

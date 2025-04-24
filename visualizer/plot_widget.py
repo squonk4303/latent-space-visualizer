@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 from contextlib import nullcontext
-import random
 
 from PyQt6.QtWidgets import (
     QWidget,
@@ -14,11 +13,8 @@ from matplotlib.backends.backend_qtagg import (
     NavigationToolbar2QT as NavigationToolbar,
 )
 from matplotlib.figure import Figure
-from sklearn.manifold import TSNE
 from pathlib import Path
 import matplotlib.pyplot as plt
-import matplotlib.colors as col
-import numpy as np
 import PIL
 
 from visualizer import consts

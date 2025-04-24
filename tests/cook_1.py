@@ -15,6 +15,7 @@ See also: "cook one's goose"
 """
 
 from torchvision.models import resnet101, ResNet101_Weights
+from visualizer import consts
 from visualizer.view_manager import PrimaryWindow
 
 

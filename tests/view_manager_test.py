@@ -8,11 +8,10 @@ import torch
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QFileDialog
 
-from visualizer import consts, utils, loading
+from visualizer import consts, utils
 from visualizer.models.segmentation import FCNResNet101
 from visualizer.plottables import SavableData
 from visualizer.view_manager import PrimaryWindow
-import visualizer.models.segmentation
 
 
 # --- Fixtures and Sort-of-Fixtures ---

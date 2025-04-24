@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 from collections.abc import Callable
 from pathlib import Path
-import mmap
 import os
 import pickle
-import tempfile
 
 from sklearn.manifold import TSNE
 from tqdm import tqdm
@@ -143,24 +141,24 @@ def tsne(features, target_dimensions=2):
 
 
 def pca():
-    undefined_dim_reduction_technique(pca)
+    not_implemented_yet(pca)
 
 
 def umap():
-    undefined_dim_reduction_technique(umap)
+    not_implemented_yet(umap)
 
 
 def trimap():
-    undefined_dim_reduction_technique(trimap)
+    not_implemented_yet(trimap)
 
 
 def pacmap():
-    undefined_dim_reduction_technique(pacmap)
+    not_implemented_yet(pacmap)
 
 
-def undefined_dim_reduction_technique(f: Callable):
+def not_implemented_yet(f: Callable):
     raise NotImplementedError(
-        f"Dim. reduction function {f} not implemented yet!"
+        f'Dimensionality-reduction function "{f.__name__}" not implemented yet!'
     )
 
 
@@ -222,7 +220,9 @@ def load_by_dialog(parent) -> object:
 
     For use in actions and buttons.
     """
-    load_location = open_dialog.for_some_file(parent=parent, caption=consts.LOAD_FILE_DIALOG_CAPTION)
+    load_location = open_dialog.for_some_file(
+        parent=parent, caption=consts.LOAD_FILE_DIALOG_CAPTION
+    )
 
     if load_location:
         with open(load_location, "rb") as f:
