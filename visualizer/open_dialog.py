@@ -141,7 +141,7 @@ class LayerDialog(QDialog):
         # Widgets and gidgets
         left_label = QLabel("Start Layer:")
         self.startButton = QComboBox(parent=self)
-        self.startButton.addItem("...")
+        self.startButton.addItem(consts.NIL)
         self.startButton.currentTextChanged.connect(self.startbox_changed)
         left_col = QVBoxLayout()
         left_col.addWidget(left_label)
@@ -149,7 +149,7 @@ class LayerDialog(QDialog):
 
         right_label = QLabel("End Layer:")
         self.endButton = QComboBox(parent=self)
-        self.endButton.addItem("...")
+        self.endButton.addItem(consts.NIL)
         self.endButton.currentTextChanged.connect(self.endbox_changed)
         right_col = QVBoxLayout()
         right_col.addWidget(right_label)
@@ -163,7 +163,7 @@ class LayerDialog(QDialog):
         layout = QVBoxLayout()
         self.textbox = QTextEdit()
         self.textbox.setReadOnly(True)
-        self.textbox.setPlainText("...")
+        self.textbox.setPlainText(consts.NIL)
         subLayout = QHBoxLayout()
 
         subLayout.addLayout(left_col)
@@ -179,8 +179,8 @@ class LayerDialog(QDialog):
     def expand_buttons(self, layers):
         self.startButton.clear()
         #self.endButton.clear()
-        self.startButton.addItem("...")
-        #self.endButton.addItem("...")
+        self.startButton.addItem(consts.NIL)
+        #self.endButton.addItem(consts.NIL)
         self.startButton.addItems(layers)
         #self.endButton.addItems(layers)
 
@@ -190,7 +190,7 @@ class LayerDialog(QDialog):
 
         if start_pos == 0:
             self.endButton.clear()
-            self.endButton.addItem("...")
+            self.endButton.addItem(consts.NIL)
             self.endButton.addItems(self.layer_menu_maker(self.paramdict_lines))
         elif start_pos > end_pos:
             self.endButton.clear()
@@ -263,7 +263,7 @@ class LayerDialog(QDialog):
         end_button_result = self.endButton.currentText()
         start_button_result = self.startButton.currentText()
 
-        if end_button_result == "..." and start_button_result == "...":
+        if end_button_result == consts.NIL and start_button_result == consts.NIL:
             print("Please select a valid layer")
         elif end_button_result is None or start_button_result is None:
             print("Error no layer detected, try again!")
@@ -271,9 +271,9 @@ class LayerDialog(QDialog):
                 print("Start Layer missing")
             if end_button_result is None:
                 print("End Layer missing")
-        elif end_button_result == "...":
+        elif end_button_result == consts.NIL:
             return start_button_result, start_button_result
-        elif start_button_result == "...":
+        elif start_button_result == consts.NIL:
             return end_button_result, end_button_result
         elif end_button_result != start_button_result:
             return start_button_result, end_button_result

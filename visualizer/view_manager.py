@@ -293,7 +293,7 @@ class PrimaryWindow(QMainWindow):
 
         # Dropdown Menu
         type_dropdown = QComboBox(parent=self)
-        type_dropdown.addItem("...")
+        type_dropdown.addItem(consts.NIL)
         for model_type in consts.MODEL_TYPES:
             type_dropdown.addItem(model_type)
 
@@ -323,7 +323,7 @@ class PrimaryWindow(QMainWindow):
         #     self.model = getattr(models.whatever, model_type)()
         #     self.try_to_load_model()
 
-        elif model_type == "...":
+        elif model_type == consts.NIL:
             print(f"Model is {model_type}? Whatever. I don't care.")
             self.layer_button.setEnabled(False)
 
@@ -339,7 +339,7 @@ class PrimaryWindow(QMainWindow):
 
         # Dropdown Menu
         reduction_dropdown = QComboBox(parent=self)
-        reduction_dropdown.addItem("...")
+        reduction_dropdown.addItem(consts.NIL)
         # for technique in dim_reduction_techs.keys():
         #     reduction_dropdown.addItem(technique)
         reduction_dropdown.addItem("t-SNE")

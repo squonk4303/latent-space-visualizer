@@ -166,7 +166,7 @@ def test_launch_button_activates_on_model_location(window):
 @pytest.mark.stub
 def test_launch_button_activates_on_model_type(window):
     # Assert the function doesn't enable the button erroneously
-    window.suggest_model_type("...")
+    window.suggest_model_type(consts.NIL)
     window.suggest_model_type(consts.MODEL_TYPES[0])
     assert not window.launch_button.isEnabled()
 
