@@ -97,10 +97,13 @@ class PlotWidget(QWidget):
         # Make a dict which maps paths and coords to related unique labels
         plottables = {key: {"paths": [], "coords": []} for key in unique_labels}
 
+
         for L, p, c in zip(labels, paths, coords):
             plottables[L]["paths"].append(p)
             plottables[L]["coords"].append(c)
 
+        # Clear subplot before plotting
+        self.canvas.axes.clear()
         for L in sorted(plottables.keys()):
             x, y = zip(*plottables[L]["coords"])
             self.canvas.axes.scatter(x, y, label=L.capitalize(), c=colormap[L])
@@ -114,11 +117,14 @@ class PlotWidget(QWidget):
         self.canvas.axes.set_ylim(-2,2)
         self.canvas.axes.legend(loc="upper left", bbox_to_anchor=(1,1), framealpha=0)
 
+        self.canvas.draw()
+        self.canvas.flush_events()
+
     def new_tuple(self, value, labels, paths, coords, masks, colormap):
         """Changes which input image and mask is displayed, and highlights the corresponding point."""
         filename = Path(paths[value]).name
         inpic = PIL.Image.open(paths[value])
-        self.canvas.redraw(filename,labels[value]) # Only displays filename on 2nd image for some reason?
+        self.canvas.redraw(filename,labels[value])
         tx, ty = coords[value]
         self.the_plottables(labels, paths, coords, masks, colormap)
         self.canvas.input_display.imshow(inpic)

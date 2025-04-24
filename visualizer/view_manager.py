@@ -157,7 +157,7 @@ class PrimaryWindow(QMainWindow):
         self.plot = PlotWidget(parent=self)
         self.toolbar = self.plot.make_toolbar()
 
-        # Save/Load Buttons
+        # Save/Load Buttons @Wilhelmsen: ...
         quicksave_button = QPushButton("Quicksave Plot")
         quickload_button = QPushButton("Quickload Plot")
         quicksave_button.clicked.connect(self.quicksave_wrapper)
@@ -174,6 +174,13 @@ class PrimaryWindow(QMainWindow):
         self.slider.setMinimum(0)
         self.slider.setMaximum(0)
         self.slider.setEnabled(False)
+
+        # ---------------------------------------------------------------------------
+        # @Wilhelmsen: TEMP: PCA-button
+        pca_button = QPushButton("PCA")
+        pca_button.clicked.connect(self.change_to_pca)
+        graph_tab.addWidget(pca_button)
+        # ---------------------------------------------------------------------------
 
         # Organize Widgets for Graph tab
         graph_tab.addWidget(self.plot)
@@ -487,17 +494,18 @@ class PrimaryWindow(QMainWindow):
 
         # @Wilhelmsen: This could be an iglob
         self.data.paths = utils.grab_image_paths_in_dir(self.data.dataset_location)
-        reduced_data, paths, labels, masks = loading.preliminary_dim_reduction_iii(
+        # @Wilhelmsen: Reduced_data should definitely be stored elsewise
+        self.reduced_data, paths, labels, masks = loading.preliminary_dim_reduction_iii(
             self.data.model, self.data.layer, self.data.paths, self.progress
         )
         # @Wilhelmsen: Move this assertion to tests
-        assert len(reduced_data) == len(paths) == len(labels) == len(masks)
+        assert len(self.reduced_data) == len(paths) == len(labels) == len(masks)
 
-        # Normalize array
+        # TSNE & Normalize array
         # @Wilhelmsen: This normalizes for the whole matrix at once,
         #              As opposed to for each axis, which is what I want
-        #              And it also doesn't at all work
-        arr = dim_reduction_techs[self.data.dim_reduction](reduced_data)
+        #              And it also doesn't at all work how it should.
+        arr = dim_reduction_techs[self.data.dim_reduction](self.reduced_data)
         plottable_data = arr / np.min(arr) / (np.max(arr) / np.min(arr))
 
         self.data.labels = labels
@@ -507,14 +515,22 @@ class PrimaryWindow(QMainWindow):
         self.utilize_data()
         self.tab_layout.setCurrentIndex(1)
 
+    def change_to_pca(self):
+        from sklearn.decomposition import PCA
+
+        print("*** BEFORE: self.data.two_dee:", self.data.two_dee.shape, self.data.two_dee)
+        # plottable_data = dim_reduction_techs["PCA"](self.reduced_data)
+        self.data.two_dee = PCA(n_components=2).fit_transform(self.reduced_data)
+        print("*** AFTER: self.data.two_dee:", self.data.two_dee.shape, self.data.two_dee)
+        self.utilize_data()
+
     def utilize_data(self):
-        # @Wilhelmsen: Refer to these by keywords
         self.plot.the_plottables(
-            self.data.labels,
-            self.data.paths,
-            self.data.two_dee,
-            self.data.masks,
-            self.data.model.colormap,
+            labels=self.data.labels,
+            paths=self.data.paths,
+            coords=self.data.two_dee,
+            masks=self.data.masks,
+            colormap=self.data.model.colormap,
         )
         # Set slider limits
         self.slider.setMinimum(0)
