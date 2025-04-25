@@ -19,10 +19,10 @@ from visualizer.plottables import SavableData
 use_gpu_tsne = False
 try:
     from cuml.manifold import TSNE as cuTSNE
+
     use_gpu_tsne = True
-    print(" Using GPU-accelerated cuML t-SNE")
 except ImportError:
-    print("⚠️ cuML not found. Falling back to CPU-based t-SNE.")
+    pass
 
 
 def preliminary_dim_reduction_iii(model, layer, files, progress):
@@ -137,22 +137,22 @@ def preliminary_dim_reduction_iii(model, layer, files, progress):
 def tsne(features, target_dimensions=2):
     """Reduce features' dimensionality by t-SNE and return the 2d/3d coordinates."""
     # Ensure a reasonable/legal perplexity value
-    perplexity_value = min(30, len(features) - 1)
-    perplexity_value = 4
+    # 30 is usually the default
+    perplexity_value = min(4, len(features) - 1)
 
     if use_gpu_tsne:
-        tsne_conf = cuTSNE(n_components=2, perplexity=perplexity_value)
+        tsne_conf = cuTSNE(
+            n_components=target_dimensions,
+            perplexity=perplexity_value,
+            random_state=consts.seed,
+        )
     else:
-        print("Not using gpu")
-        tsne_conf = TSNE(n_components=2, perplexity=perplexity_value, n_jobs=-1)
-
-
-    # # @Wilhelmsen: Include option to use mutlithreaded tsne
-    # tsne_conf = TSNE(
-    #     n_components=target_dimensions,
-    #     perplexity=perplexity_value,
-    #     random_state=consts.seed,
-    # )
+        tsne_conf = TSNE(
+            n_components=target_dimensions,
+            perplexity=perplexity_value,
+            n_jobs=-1,
+            random_state=consts.seed,
+        )
 
     reduced_features = tsne_conf.fit_transform(features)
     return reduced_features
