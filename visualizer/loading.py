@@ -15,6 +15,16 @@ from visualizer import consts, open_dialog
 from visualizer.plottables import SavableData
 
 
+# Try to use cuML for GPU acceleration (optional)
+use_gpu_tsne = False
+try:
+    from cuml.manifold import TSNE as cuTSNE
+    use_gpu_tsne = True
+    print(" Using GPU-accelerated cuML t-SNE")
+except ImportError:
+    print("⚠️ cuML not found. Falling back to CPU-based t-SNE.")
+
+
 def preliminary_dim_reduction_iii(model, layer, files, progress):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     size_to_fit = 128 if consts.flags["truncate"] else consts.STANDARD_IMG_SIZE
@@ -128,13 +138,21 @@ def tsne(features, target_dimensions=2):
     """Reduce features' dimensionality by t-SNE and return the 2d/3d coordinates."""
     # Ensure a reasonable/legal perplexity value
     perplexity_value = min(30, len(features) - 1)
+    perplexity_value = 4
 
-    # @Wilhelmsen: Include option to use mutlithreaded tsne
-    tsne_conf = TSNE(
-        n_components=target_dimensions,
-        perplexity=perplexity_value,
-        random_state=consts.seed,
-    )
+    if use_gpu_tsne:
+        tsne_conf = cuTSNE(n_components=2, perplexity=perplexity_value)
+    else:
+        print("Not using gpu")
+        tsne_conf = TSNE(n_components=2, perplexity=perplexity_value, n_jobs=-1)
+
+
+    # # @Wilhelmsen: Include option to use mutlithreaded tsne
+    # tsne_conf = TSNE(
+    #     n_components=target_dimensions,
+    #     perplexity=perplexity_value,
+    #     random_state=consts.seed,
+    # )
 
     reduced_features = tsne_conf.fit_transform(features)
     return reduced_features
