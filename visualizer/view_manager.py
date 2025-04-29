@@ -177,6 +177,10 @@ class PrimaryWindow(QMainWindow):
 
         # ---------------------------------------------------------------------------
         # @Wilhelmsen: TEMP: PCA-button
+        tsne_button = QPushButton("t-SNE")
+        tsne_button.clicked.connect(self.change_to_tsne)
+        graph_tab.addWidget(tsne_button)
+
         pca_button = QPushButton("PCA")
         pca_button.clicked.connect(self.change_to_pca)
         graph_tab.addWidget(pca_button)
@@ -515,11 +519,20 @@ class PrimaryWindow(QMainWindow):
         self.utilize_data()
         self.tab_layout.setCurrentIndex(1)
 
+    def change_to_tsne(self):
+        # @Wilhelmsen: Make better use of the dim_reduction_techs dict
+        # @Wilhelmsen: Doesn't work at all like it should
+        self.data_two_dee = dim_reduction_techs["TSNE"](self.reduced_data)
+        self.utilize_data()
+
     def change_to_pca(self):
-        self.data.two_dee  = dim_reduction_techs["PCA"](self.reduced_data)
+        # @Wilhelmsen: Make better use of the dim_reduction_techs dict
+        # @Wilhelmsen: Doesn't work at all like it should
+        self.data.two_dee = dim_reduction_techs["PCA"](self.reduced_data)
         self.utilize_data()
 
     def utilize_data(self):
+        """Take the data gathered and apply it to the plot."""
         self.plot.the_plottables(
             labels=self.data.labels,
             paths=self.data.paths,
