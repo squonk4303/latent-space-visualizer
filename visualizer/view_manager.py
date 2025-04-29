@@ -176,6 +176,13 @@ class PrimaryWindow(QMainWindow):
         self.slider.setMaximum(0)
         self.slider.setEnabled(False)
 
+        # Tracking is when the slider emits signals while the user holds
+        # the knob. Here, tracking is disabled, so it only emits the signal
+        # when the knob is released, which should make the program more
+        # pleasant to use, due to the poor performance when updating
+        # selected image, mask and point
+        self.slider.setTracking(False)
+
         # Slider buttons
         def increment_slider(difference):
             """Returns a funciton which changes slider position based on the value given."""

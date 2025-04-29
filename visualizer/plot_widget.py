@@ -121,7 +121,12 @@ class PlotWidget(QWidget):
         self.canvas.flush_events()
 
     def new_tuple(self, value, labels, paths, coords, masks, colormap):
-        """Changes which input image and mask is displayed, and highlights the corresponding point."""
+        """
+        Changes which input image and mask is displayed, and highlight the corresponding point.
+
+        Made to be called when user selects a given data point, which shows
+        the related image, mask, and highlights the corresponding point.
+        """
         filename = Path(paths[value]).name
         inpic = PIL.Image.open(paths[value])
         self.canvas.redraw(filename,labels[value])
