@@ -112,15 +112,21 @@ class PrimaryWindow(QMainWindow):
         # -------
 
         # Quick-saving
-        self.quickload_action = QAction("Quickload Plot", parent=self)
-        self.quicksave_action = QAction("Quicksave Plot", parent=self)
+        self.quickload_action = QAction("Quick&load Plot", parent=self)
+        self.quickload_action.setShortcut("F9")
         self.quickload_action.triggered.connect(self.quickload_wrapper)
+
+        self.quicksave_action = QAction("Quick&save Plot", parent=self)
+        self.quicksave_action.setShortcut("F6")
         self.quicksave_action.triggered.connect(self.quicksave_wrapper)
 
         # Save-as...-ing
-        self.save_as_action = QAction("Proper Save", parent=self)
-        self.load_file_action = QAction("Proper Load", parent=self)
+        self.save_as_action = QAction("Save &As...", parent=self)
+        self.save_as_action.setShortcut(QKeySequence.StandardKey.SaveAs)
         self.save_as_action.triggered.connect(self.save_to_certain_file_wrapper)
+
+        self.load_file_action = QAction("&Open File", parent=self)
+        self.load_file_action.setShortcut(QKeySequence.StandardKey.Open)
         self.load_file_action.triggered.connect(self.load_file_wrapper)
 
         # Open the file dialog
