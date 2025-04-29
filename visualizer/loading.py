@@ -150,7 +150,6 @@ def tsne(features, target_dimensions=2):
         tsne_conf = TSNE(
             n_components=target_dimensions,
             perplexity=perplexity_value,
-            n_jobs=-1,
             random_state=consts.seed,
         )
 
