@@ -27,13 +27,13 @@ class MplCanvas(FigureCanvasQTAgg):
         fig = Figure(figsize=(width, height), dpi=dpi, layout="constrained", facecolor=background)
         # Setting Foreground Colors
         plt.rcParams['text.color'] = forecolor            # All text (titles, annotations)
-        plt.rcParams['axes.labelcolor'] = forecolor      # Axis labels
+        plt.rcParams['axes.labelcolor'] = forecolor       # Axis labels
         plt.rcParams['xtick.color'] = forecolor           # X tick labels
         plt.rcParams['ytick.color'] = forecolor           # Y tick labels
         # contextlib.nullcontext being a context manager which does nothing
         cm = plt.xkcd() if consts.flags["xkcd"] else nullcontext()
         with cm:
-            self.input_display, self.axes, self.output_display = fig.subplots(
+            self.input_display, self.scatterplot, self.output_display = fig.subplots(
                 nrows=1, ncols=3
             )
         
@@ -46,13 +46,13 @@ class MplCanvas(FigureCanvasQTAgg):
 
     def redraw(self, in_imgdesc="", out_imgdesc=""):
         """Clear subplots and reapply titles."""
-        self.axes.clear()
+        self.scatterplot.clear()
         self.input_display.clear()
         self.output_display.clear()
 
-        self.axes.set_title("Visualized Latent Space")
-        self.axes.set_xlabel("X = Dimesion 1")
-        self.axes.set_ylabel("Y = Dimension 2")
+        self.scatterplot.set_title("Visualized Latent Space")
+        self.scatterplot.set_xlabel("X = Dimesion 1")
+        self.scatterplot.set_ylabel("Y = Dimension 2")
         self.input_display.set_title("Input Image")
         self.output_display.set_title("Output Image")
         self.input_display.text(
@@ -103,19 +103,19 @@ class PlotWidget(QWidget):
             plottables[L]["coords"].append(c)
 
         # Clear subplot before plotting
-        self.canvas.axes.clear()
+        self.canvas.scatterplot.clear()
         for L in sorted(plottables.keys()):
             x, y = zip(*plottables[L]["coords"])
-            self.canvas.axes.scatter(x, y, label=L.capitalize(), c=colormap[L])
+            self.canvas.scatterplot.scatter(x, y, label=L.capitalize(), c=colormap[L])
 
         # Styling
         # @Linnea: Move this to MplCanvas
-        self.canvas.axes.set_facecolor('1')
-        self.canvas.axes.axvline(x=0, linestyle='--', linewidth=0.4, color='0.4')
-        self.canvas.axes.axhline(y=0, linestyle='--', linewidth=0.4, color='0.4')
-        self.canvas.axes.set_xlim(-2,2)
-        self.canvas.axes.set_ylim(-2,2)
-        self.canvas.axes.legend(loc="upper left", bbox_to_anchor=(1,1), framealpha=0)
+        self.canvas.scatterplot.set_facecolor('1')
+        self.canvas.scatterplot.axvline(x=0, linestyle='--', linewidth=0.4, color='0.4')
+        self.canvas.scatterplot.axhline(y=0, linestyle='--', linewidth=0.4, color='0.4')
+        self.canvas.scatterplot.set_xlim(-2,2)
+        self.canvas.scatterplot.set_ylim(-2,2)
+        self.canvas.scatterplot.legend(loc="upper left", bbox_to_anchor=(1,1), framealpha=0)
 
         self.canvas.draw()
         self.canvas.flush_events()
@@ -129,7 +129,7 @@ class PlotWidget(QWidget):
         self.the_plottables(labels, paths, coords, masks, colormap)
         self.canvas.input_display.imshow(inpic)
         self.canvas.output_display.imshow(masks[value])
-        self.canvas.axes.scatter(tx, ty, s=500, marker="+", c="black")
+        self.canvas.scatterplot.scatter(tx, ty, s=500, marker="+", c="black")
         # Update functionality to display correctly 
         self.canvas.draw()
         self.canvas.flush_events()
