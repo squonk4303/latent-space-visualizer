@@ -59,6 +59,7 @@ class PrimaryWindow(QMainWindow):
         # (Though it seems matplotlib captures the mouse event)
         if self.tab_layout.currentIndex() == 1:
             # Note that this will trigger slider.valueChanged
+            # And indeed, that is the intention
             if ev.angleDelta().y() > 0:
                 new_value = min(self.slider.maximum(), self.slider.value() + 1)
                 self.slider.setValue(new_value)
@@ -175,6 +176,27 @@ class PrimaryWindow(QMainWindow):
         self.slider.setMaximum(0)
         self.slider.setEnabled(False)
 
+        # Slider buttons
+        def increment_slider(difference):
+            """Returns a funciton which changes slider position based on the value given."""
+
+            def func():
+                position = self.slider.value()
+                position += difference
+                position = min(position, self.slider.maximum())
+                position = max(position, self.slider.minimum())
+                self.slider.setValue(position)
+
+            return func
+
+        slider_buttons = QHBoxLayout()
+        slider_left = QPushButton("<--")
+        slider_right = QPushButton("-->")
+        slider_left.clicked.connect(increment_slider(-1))
+        slider_right.clicked.connect(increment_slider(1))
+        slider_buttons.addWidget(slider_left)
+        slider_buttons.addWidget(slider_right)
+
         # ---------------------------------------------------------------------------
         # @Wilhelmsen: TEMP: PCA-button
         tsne_button = QPushButton("t-SNE")
@@ -190,6 +212,7 @@ class PrimaryWindow(QMainWindow):
         graph_tab.addWidget(self.plot)
         graph_tab.addWidget(self.toolbar)
         graph_tab.addWidget(self.slider)
+        graph_tab.addLayout(slider_buttons)
 
         # ---------------------
         # Menu Bar And Submenus
