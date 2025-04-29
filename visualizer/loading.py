@@ -4,6 +4,7 @@ from pathlib import Path
 import os
 import pickle
 
+from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 from tqdm import tqdm
 import numpy as np
@@ -157,8 +158,14 @@ def tsne(features, target_dimensions=2):
     return reduced_features
 
 
-def pca():
-    not_implemented_yet(pca)
+def pca(features, target_dimensions=2):
+    """Reduce features' dimensionality by PCA and return the 2d/3d coordinates."""
+    # @Wilhelmsen: Look into GPU-versions of this
+    # @Wilhelmsen: Ask about appropriate arguments or customizability for PCA
+    # @Wilhelmsen: Make it so this retains the scatterplot marker for selected image
+    pca_conf = PCA(n_components=target_dimensions)
+    reduced_features = pca_conf.fit_transform(features)
+    return reduced_features
 
 
 def umap():

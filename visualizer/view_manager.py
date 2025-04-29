@@ -516,12 +516,7 @@ class PrimaryWindow(QMainWindow):
         self.tab_layout.setCurrentIndex(1)
 
     def change_to_pca(self):
-        from sklearn.decomposition import PCA
-
-        print("*** BEFORE: self.data.two_dee:", self.data.two_dee.shape, self.data.two_dee)
-        # plottable_data = dim_reduction_techs["PCA"](self.reduced_data)
-        self.data.two_dee = PCA(n_components=2).fit_transform(self.reduced_data)
-        print("*** AFTER: self.data.two_dee:", self.data.two_dee.shape, self.data.two_dee)
+        self.data.two_dee  = dim_reduction_techs["PCA"](self.reduced_data)
         self.utilize_data()
 
     def utilize_data(self):
