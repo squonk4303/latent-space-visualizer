@@ -595,6 +595,7 @@ class PrimaryWindow(QMainWindow):
 
         if self.data.model is not None:
             self.utilize_data()
+            self.goto_tab(1, consts.GRAPH_TITLE)()
         else:
             # @Wilhelmsen: Find something to do with this
             print("There's nothing here! TODO")
@@ -615,6 +616,7 @@ class PrimaryWindow(QMainWindow):
 
         if self.data is not None:
             self.utilize_data()
+            self.goto_tab(1, consts.GRAPH_TITLE)()
 
 
 class ProgressBar(QProgressBar):
