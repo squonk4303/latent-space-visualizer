@@ -59,6 +59,7 @@ class PrimaryWindow(QMainWindow):
         # (Though it seems matplotlib captures the mouse event)
         if self.tab_layout.currentIndex() == 1:
             # Note that this will trigger slider.valueChanged
+            # And indeed, that is the intention
             if ev.angleDelta().y() > 0:
                 new_value = min(self.slider.maximum(), self.slider.value() + 1)
                 self.slider.setValue(new_value)
@@ -111,15 +112,21 @@ class PrimaryWindow(QMainWindow):
         # -------
 
         # Quick-saving
-        self.quickload_action = QAction("Quickload Plot", parent=self)
-        self.quicksave_action = QAction("Quicksave Plot", parent=self)
+        self.quickload_action = QAction("Quick&load Plot", parent=self)
+        self.quickload_action.setShortcut("F9")
         self.quickload_action.triggered.connect(self.quickload_wrapper)
+
+        self.quicksave_action = QAction("Quick&save Plot", parent=self)
+        self.quicksave_action.setShortcut("F6")
         self.quicksave_action.triggered.connect(self.quicksave_wrapper)
 
         # Save-as...-ing
-        self.save_as_action = QAction("Proper Save", parent=self)
-        self.load_file_action = QAction("Proper Load", parent=self)
+        self.save_as_action = QAction("Save &As...", parent=self)
+        self.save_as_action.setShortcut(QKeySequence.StandardKey.SaveAs)
         self.save_as_action.triggered.connect(self.save_to_certain_file_wrapper)
+
+        self.load_file_action = QAction("&Open File", parent=self)
+        self.load_file_action.setShortcut(QKeySequence.StandardKey.Open)
         self.load_file_action.triggered.connect(self.load_file_wrapper)
 
         # Open the file dialog
@@ -157,7 +164,7 @@ class PrimaryWindow(QMainWindow):
         self.plot = PlotWidget(parent=self)
         self.toolbar = self.plot.make_toolbar()
 
-        # Save/Load Buttons
+        # Save/Load Buttons @Wilhelmsen: ...
         quicksave_button = QPushButton("Quicksave Plot")
         quickload_button = QPushButton("Quickload Plot")
         quicksave_button.clicked.connect(self.quicksave_wrapper)
@@ -175,10 +182,50 @@ class PrimaryWindow(QMainWindow):
         self.slider.setMaximum(0)
         self.slider.setEnabled(False)
 
+        # Tracking is when the slider emits signals while the user holds
+        # the knob. Here, tracking is disabled, so it only emits the signal
+        # when the knob is released, which should make the program more
+        # pleasant to use, due to the poor performance when updating
+        # selected image, mask and point
+        self.slider.setTracking(False)
+
+        # Slider buttons
+        def increment_slider(difference):
+            """Returns a funciton which changes slider position based on the value given."""
+
+            def func():
+                position = self.slider.value()
+                position += difference
+                position = min(position, self.slider.maximum())
+                position = max(position, self.slider.minimum())
+                self.slider.setValue(position)
+
+            return func
+
+        slider_buttons = QHBoxLayout()
+        slider_left = QPushButton("<--")
+        slider_right = QPushButton("-->")
+        slider_left.clicked.connect(increment_slider(-1))
+        slider_right.clicked.connect(increment_slider(1))
+        slider_buttons.addWidget(slider_left)
+        slider_buttons.addWidget(slider_right)
+
+        # ---------------------------------------------------------------------------
+        # @Wilhelmsen: TEMP: PCA-button
+        tsne_button = QPushButton("t-SNE")
+        tsne_button.clicked.connect(self.change_to_tsne)
+        graph_tab.addWidget(tsne_button)
+
+        pca_button = QPushButton("PCA")
+        pca_button.clicked.connect(self.change_to_pca)
+        graph_tab.addWidget(pca_button)
+        # ---------------------------------------------------------------------------
+
         # Organize Widgets for Graph tab
         graph_tab.addWidget(self.plot)
         graph_tab.addWidget(self.toolbar)
         graph_tab.addWidget(self.slider)
+        graph_tab.addLayout(slider_buttons)
 
         # ---------------------
         # Menu Bar And Submenus
@@ -487,17 +534,18 @@ class PrimaryWindow(QMainWindow):
 
         # @Wilhelmsen: This could be an iglob
         self.data.paths = utils.grab_image_paths_in_dir(self.data.dataset_location)
-        reduced_data, paths, labels, masks = loading.preliminary_dim_reduction_iii(
+        # @Wilhelmsen: Reduced_data should definitely be stored elsewise
+        self.reduced_data, paths, labels, masks = loading.preliminary_dim_reduction_iii(
             self.data.model, self.data.layer, self.data.paths, self.progress
         )
         # @Wilhelmsen: Move this assertion to tests
-        assert len(reduced_data) == len(paths) == len(labels) == len(masks)
+        assert len(self.reduced_data) == len(paths) == len(labels) == len(masks)
 
-        # Normalize array
+        # TSNE & Normalize array
         # @Wilhelmsen: This normalizes for the whole matrix at once,
         #              As opposed to for each axis, which is what I want
-        #              And it also doesn't at all work
-        arr = dim_reduction_techs[self.data.dim_reduction](reduced_data)
+        #              And it also doesn't at all work how it should.
+        arr = dim_reduction_techs[self.data.dim_reduction](self.reduced_data)
         plottable_data = arr / np.min(arr) / (np.max(arr) / np.min(arr))
 
         self.data.labels = labels
@@ -507,14 +555,26 @@ class PrimaryWindow(QMainWindow):
         self.utilize_data()
         self.tab_layout.setCurrentIndex(1)
 
+    def change_to_tsne(self):
+        # @Wilhelmsen: Make better use of the dim_reduction_techs dict
+        # @Wilhelmsen: Doesn't work at all like it should
+        self.data_two_dee = dim_reduction_techs["TSNE"](self.reduced_data)
+        self.utilize_data()
+
+    def change_to_pca(self):
+        # @Wilhelmsen: Make better use of the dim_reduction_techs dict
+        # @Wilhelmsen: Doesn't work at all like it should
+        self.data.two_dee = dim_reduction_techs["PCA"](self.reduced_data)
+        self.utilize_data()
+
     def utilize_data(self):
-        # @Wilhelmsen: Refer to these by keywords
+        """Take the data gathered and apply it to the plot."""
         self.plot.the_plottables(
-            self.data.labels,
-            self.data.paths,
-            self.data.two_dee,
-            self.data.masks,
-            self.data.model.colormap,
+            labels=self.data.labels,
+            paths=self.data.paths,
+            coords=self.data.two_dee,
+            masks=self.data.masks,
+            colormap=self.data.model.colormap,
         )
         # Set slider limits
         self.slider.setMinimum(0)
@@ -541,6 +601,7 @@ class PrimaryWindow(QMainWindow):
 
         if self.data.model is not None:
             self.utilize_data()
+            self.goto_tab(1, consts.GRAPH_TITLE)()
         else:
             # @Wilhelmsen: Find something to do with this
             print("There's nothing here! TODO")
@@ -561,6 +622,7 @@ class PrimaryWindow(QMainWindow):
 
         if self.data is not None:
             self.utilize_data()
+            self.goto_tab(1, consts.GRAPH_TITLE)()
 
 
 class ProgressBar(QProgressBar):
