@@ -73,9 +73,9 @@ def preliminary_dim_reduction_iii(model, layer, files, progress):
 
         # --- Handle Model Output ---
         # Process prediction logits (assume output["out"] list of logits, shape: [1, C, H, W])
-        # Here gets shape (C, H, W)
+        # Here gets shape (C, H, W), where C is categories
         logits = output["out"]
-        pred_mask = torch.sigmoid(logits).squeeze()
+        pred_mask = torch.sigmoid(logits).squeeze(0)
         # Set values under threshold to 0
         # @Wilhelmsen: Make the threshold based on a factor of the average
         pred_mask[pred_mask < 0.2] = 0
@@ -87,7 +87,11 @@ def preliminary_dim_reduction_iii(model, layer, files, progress):
             background_mask = (pred_mask.sum(dim=0) == 0).cpu().numpy()
             pred_class[background_mask] = -1
         else:
-            raise ValueError("Unexpected prediction shape.")
+            raise ValueError(
+                "Unexpected prediction shape. "
+                "Expected \"torch.Size([categories, width, height])\", "
+                f"got \"{pred_mask.shape}\"."
+            )
 
         # Determine dominant class; ignore background
         valid_classes = pred_class[pred_class != -1]
