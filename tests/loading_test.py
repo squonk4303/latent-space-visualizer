@@ -8,7 +8,7 @@ import torch
 
 from PyQt6.QtWidgets import QFileDialog
 
-from visualizer import consts, loading, utils
+from visualizer import consts, loading
 from visualizer.models.segmentation import FCNResNet101
 from visualizer.plottables import SavableData
 

@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 from collections.abc import Callable
 from pathlib import Path
-import mmap
 import os
 import pickle
-import tempfile
 
+from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 from tqdm import tqdm
 import numpy as np
@@ -17,7 +16,17 @@ from visualizer import consts, open_dialog
 from visualizer.plottables import SavableData
 
 
-def preliminary_dim_reduction_iii(model, layer, files):
+# Try to use cuML for GPU acceleration (optional)
+use_gpu_tsne = False
+try:
+    from cuml.manifold import TSNE as cuTSNE
+
+    use_gpu_tsne = True
+except ImportError:
+    pass
+
+
+def preliminary_dim_reduction_iii(model, layer, files, progress):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     size_to_fit = 128 if consts.flags["truncate"] else consts.STANDARD_IMG_SIZE
     preprocessing = torchvision.transforms.Compose(
@@ -37,8 +46,12 @@ def preliminary_dim_reduction_iii(model, layer, files):
     hook_location = getattr(model.model.backbone, layer)
     hook_handle = hook_location.register_forward_hook(hooker(features_list))
 
-    files = files[:5] if consts.flags["truncate"] else files
+    files = files[:12] if consts.flags["truncate"] else files
+    progress.setMaximum(len(files))
+    progress.set_visible(True)
+    progress.reset()
     for image_location in tqdm(files, desc="processing imgs"):
+        progress()
         image = PIL.Image.open(image_location).convert("RGB")
         image = preprocessing(image).unsqueeze(0).to(device)
         features_list.clear()
@@ -60,9 +73,9 @@ def preliminary_dim_reduction_iii(model, layer, files):
 
         # --- Handle Model Output ---
         # Process prediction logits (assume output["out"] list of logits, shape: [1, C, H, W])
-        # Here gets shape (C, H, W)
+        # Here gets shape (C, H, W), where C is categories
         logits = output["out"]
-        pred_mask = torch.sigmoid(logits).squeeze()
+        pred_mask = torch.sigmoid(logits).squeeze(0)
         # Set values under threshold to 0
         # @Wilhelmsen: Make the threshold based on a factor of the average
         pred_mask[pred_mask < 0.2] = 0
@@ -74,7 +87,11 @@ def preliminary_dim_reduction_iii(model, layer, files):
             background_mask = (pred_mask.sum(dim=0) == 0).cpu().numpy()
             pred_class[background_mask] = -1
         else:
-            raise ValueError("Unexpected prediction shape.")
+            raise ValueError(
+                "Unexpected prediction shape. "
+                "Expected \"torch.Size([categories, width, height])\", "
+                f"got \"{pred_mask.shape}\"."
+            )
 
         # Determine dominant class; ignore background
         valid_classes = pred_class[pred_class != -1]
@@ -87,6 +104,7 @@ def preliminary_dim_reduction_iii(model, layer, files):
             valid_paths.append(image_location)
         else:
             print(f"Skipping {image_location} due to no valid class predictions.")
+            progress.skipped_image()
             continue
 
         # Generate false-color mask using RGB values
@@ -114,6 +132,8 @@ def preliminary_dim_reduction_iii(model, layer, files):
         masks.append(false_color_img)
         # print(f"Saved false-color segmentation mask: {mask_path}")
 
+    progress()
+    progress.set_visible(False)
     hook_handle.remove()
     features = np.array(features).reshape(len(features), -1)
     return features, valid_paths, dominant_categories, masks
@@ -122,38 +142,51 @@ def preliminary_dim_reduction_iii(model, layer, files):
 def tsne(features, target_dimensions=2):
     """Reduce features' dimensionality by t-SNE and return the 2d/3d coordinates."""
     # Ensure a reasonable/legal perplexity value
-    perplexity_value = min(30, len(features) - 1)
+    # 30 is usually the default
+    perplexity_value = min(4, len(features) - 1)
 
-    # @Wilhelmsen: Include option to use mutlithreaded tsne
-    tsne_conf = TSNE(
-        n_components=target_dimensions,
-        perplexity=perplexity_value,
-        random_state=consts.seed,
-    )
+    if use_gpu_tsne:
+        tsne_conf = cuTSNE(
+            n_components=target_dimensions,
+            perplexity=perplexity_value,
+            random_state=consts.seed,
+        )
+    else:
+        tsne_conf = TSNE(
+            n_components=target_dimensions,
+            perplexity=perplexity_value,
+            random_state=consts.seed,
+        )
 
     reduced_features = tsne_conf.fit_transform(features)
     return reduced_features
 
 
-def pca():
-    undefined_dim_reduction_technique(pca)
+def pca(features, target_dimensions=2):
+    """Reduce features' dimensionality by PCA and return the 2d/3d coordinates."""
+    # @Wilhelmsen: Look into GPU-versions of this
+    # @Wilhelmsen: Ask about appropriate arguments or customizability for PCA
+    # @Wilhelmsen: Make it so this retains the scatterplot marker for selected image
+    pca_conf = PCA(n_components=target_dimensions)
+    reduced_features = pca_conf.fit_transform(features)
+    return reduced_features
 
 
 def umap():
-    undefined_dim_reduction_technique(umap)
+    not_implemented_yet(umap)
 
 
 def trimap():
-    undefined_dim_reduction_technique(trimap)
+    not_implemented_yet(trimap)
 
 
 def pacmap():
-    undefined_dim_reduction_technique(pacmap)
+    not_implemented_yet(pacmap)
 
 
-def undefined_dim_reduction_technique(f: Callable):
+def not_implemented_yet(f: Callable):
     raise NotImplementedError(
-        f"Dim. reduction function {f} not implemented yet!"
+        f'Dimensionality-reduction function "{f.__name__}" not implemented yet!'
     )
 
 
@@ -169,68 +202,6 @@ def hooker(t: list):
         t.append(output.detach().cpu().numpy())
 
     return f
-
-
-def layer_summary(loaded_model, start_layer=0, end_layer=0):
-    """
-    Summarises selected layers from a given model objet.
-    If endlayer is left blank only return one layer.
-    If start layer is left blank returns all layers.
-    If both layers are specified returns from startlayer up to
-    and including the endlayer!
-    """
-    # Sets basic logic and variables
-    all_layers = False
-    if not end_layer:
-        end_layer = start_layer
-    if not start_layer:
-        all_layers = True
-
-    input_txt = str(loaded_model)
-    target = "layer"
-    # Assigns targetlayers for use in search later
-    next_layer = target + str(end_layer + 1)
-    target += str(start_layer)
-
-    """
-    At some point in this function an extraction function is to be added
-    to filter the information and only return the useful information and attributes
-    to be added to the list. For now it takes the entire line of information.
-    """
-
-    # Create a temporary data file to store data in a list
-    lines = []
-    with tempfile.TemporaryFile("wb+", 0) as file:
-        file.write(input_txt.encode("utf-8"))
-        mm = mmap.mmap(file.fileno(), 0, access=mmap.ACCESS_READ)
-        while True:
-            byteline = mm.readline()
-            if byteline:
-                lines.append(byteline.decode("utf-8"))
-            else:
-                break
-        mm.close()
-
-    # Returns selected layers
-    found = False
-    eol = False
-    new = 0
-    for i, line in enumerate(lines):
-        if all_layers:
-            pass
-        elif target in line:
-            found = True
-        elif next_layer in line:
-            eol = True
-            new = i
-        if all_layers or found and not eol:
-            print(f"{i}: {line}", end="")
-
-    # End of print
-    if all_layers:
-        print("\nEOF: no more lines")
-    else:
-        print(f"\nNext line is {new}: {lines[new]}")
 
 
 def quickload(load_location=consts.QUICKSAVE_PATH):
@@ -277,7 +248,9 @@ def load_by_dialog(parent) -> object:
 
     For use in actions and buttons.
     """
-    load_location = open_dialog.for_some_file(parent=parent, caption=consts.LOAD_FILE_DIALOG_CAPTION)
+    load_location = open_dialog.for_some_file(
+        parent=parent, caption=consts.LOAD_FILE_DIALOG_CAPTION
+    )
 
     if load_location:
         with open(load_location, "rb") as f:
