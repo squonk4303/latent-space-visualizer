@@ -43,13 +43,17 @@ def preliminary_dim_reduction_iii(model, layer, files, progress):
 
     # Register hook; hooked_feature is a list for its pointer-like qualities
     features_list = []  # @Wilhelmsen: change this to a dict or something; for elegance
-    hook_location = getattr(model.model.backbone, layer)
+
+    # @Wilhelmsen: Temp-hard-coding hook locaiton
+    hook_location = model.upconv4
+    # hook_location = getattr(model.model.backbone, layer)
     hook_handle = hook_location.register_forward_hook(hooker(features_list))
 
     files = files[:12] if consts.flags["truncate"] else files
     progress.setMaximum(len(files))
     progress.set_visible(True)
     progress.reset()
+
     for image_location in tqdm(files, desc="processing imgs"):
         progress()
         image = PIL.Image.open(image_location).convert("RGB")
@@ -58,6 +62,7 @@ def preliminary_dim_reduction_iii(model, layer, files, progress):
 
         # Forward pass to get output and trip hook
         with torch.no_grad():
+            # TODO: Current error is here
             output = model(image)
 
         # --- Handle Data From Hook ---

@@ -83,6 +83,7 @@ class FCNResNet101(_SegmentationInterface):
 class UNet(nn.Module):
     def __init__(self, in_channels=3, out_channels=3):
         super(UNet, self).__init__()
+        self.categories = []
 
         # Contracting path (Encoder)
         self.encoder1 = self.conv_block(in_channels, 64)
@@ -144,3 +145,13 @@ class UNet(nn.Module):
         dec1 = self.decoder1(dec1)
 
         return self.final_conv(dec1)
+
+    def load(self, trained_file):
+        """Load a trained model from path into current object."""
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        # Load model data from checkpoint in file
+        checkpoint = torch.load(trained_file, map_location=device, weights_only=False)
+
+        self.load_state_dict(checkpoint, strict=True)
+        self.to(device)
+        self.eval()

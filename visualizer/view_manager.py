@@ -23,7 +23,7 @@ from PyQt6.QtWidgets import (
 )
 
 from visualizer import consts, loading, open_dialog, utils
-from visualizer.models.segmentation import FCNResNet101
+from visualizer.models.segmentation import FCNResNet101, UNet
 from visualizer.plottables import SavableData
 from visualizer.plot_widget import PlotWidget
 from visualizer.stacked_layout_manager import StackedLayoutManager
@@ -251,14 +251,18 @@ class PrimaryWindow(QMainWindow):
         if consts.flags["dev"]:
 
             def quick_launch():
+                from torchvision.models import resnet101, ResNet101_Weights
                 self.data.dataset_location = consts.S_DATASET
                 self.data.dim_reduction = "TSNE"
                 self.data.layer = consts.LAYER
-                self.data.model = FCNResNet101()
-                self.data.model_location = consts.MULTILABEL_MODEL
+
+                self.data.model_location = "models.ignore/UNet_L1.pth"
+                self.data.model = UNet()
+                self.data.model.load(self.data.model_location)
+
                 self.start_cooking_iii()
 
-            quicklaunch_button = QPushButton("Cook")
+            quicklaunch_button = QPushButton("Quick-Start")
             quicklaunch_button.clicked.connect(quick_launch)
             self.stage_tab.addWidget(quicklaunch_button)
 
