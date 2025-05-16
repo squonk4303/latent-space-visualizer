@@ -46,7 +46,7 @@ def for_file(
     # This function opens a nifty Qt-made file dialog
     filepath, selected_filter = QFileDialog.getOpenFileName(
         parent=parent,
-        caption=caption,
+        caption=caption.replace("&", ""),
         filter=filters,
         initialFilter=initial_filter,
         options=options,
@@ -120,7 +120,7 @@ def for_directory(caption="", *, parent):
     """Launch a file dialog where user is prompted to pick out a directory."""
     dirpath = QFileDialog.getExistingDirectory(
         parent=parent,
-        caption=caption,
+        caption=caption.replace("&", ""),
     )
     return dirpath
 
@@ -248,7 +248,7 @@ class LayerDialog(QDialog):
 
     def get_layers(self, model, caption="Layer Dialog", *, parent):
         # self.setParent(parent)  <<< TODO; has a weird effect
-        self.setWindowTitle(caption)
+        self.setWindowTitle(caption.replace("&", ""))
         self.resize(650, 450)
         self.model = model
         self.start_input = 0

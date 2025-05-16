@@ -144,8 +144,9 @@ class PrimaryWindow(QMainWindow):
         self.goto_graph_tab.triggered.connect(self.goto_tab(1, consts.GRAPH_TITLE))
         self.goto_stage_tab.triggered.connect(self.goto_tab(0, consts.STAGE_TITLE))
 
+        # =====================================
         # Initialize Selection Menu in load_tab
-        # -----------------------
+        # =====================================
 
         self.init_type_selector()
         self.init_reduction_selector()
@@ -270,39 +271,44 @@ class PrimaryWindow(QMainWindow):
         self.setWindowTitle(new_title)
 
     def init_model_selection(self):
-        self.model_feedback_label = QLabel("<-- Select your trained model's .pth file")
-        openfile_button = QPushButton("Select Trained NN Model")
+        # Elements
+        self.model_feedback_label = QLabel("Neural Net Model .pth Checkpoint")
+        openfile_button = QPushButton(consts.CHECKPOINT_DIALOG_CAPTION)
+        # Functionality
         openfile_button.clicked.connect(self.load_model_location)
+        # Layout
         row_model_selection = QHBoxLayout()
-        row_model_selection.addWidget(openfile_button)
         row_model_selection.addWidget(self.model_feedback_label)
+        row_model_selection.addWidget(openfile_button)
         self.stage_tab.addLayout(row_model_selection)
 
     def init_layer_selection(self):
-        self.layer_feedback_label = QLabel(
-            "<-- Select the layer in your model for the latent space"
-        )
-        self.layer_button = QPushButton("Select layer")
+        # Elements
+        self.layer_feedback_label = QLabel("Layer to Hook")
+        self.layer_button = QPushButton(consts.LAYER_SELECT_DIALOG_CAPTION)
+        # Functionality
         self.layer_button.setEnabled(False)
         self.layer_button.clicked.connect(self.find_layer)
+        # Layout
         row_layer_selection = QHBoxLayout()
-        row_layer_selection.addWidget(self.layer_button)
         row_layer_selection.addWidget(self.layer_feedback_label)
+        row_layer_selection.addWidget(self.layer_button)
         self.stage_tab.addLayout(row_layer_selection)
 
     def init_dataset_selection(self):
-        dataset_selection_button = QPushButton("Select Dataset")
-        self.dataset_feedback_label = QLabel(
-            "<-- Select the folder for the dataset you wish to use"
-        )
+        # Elements
+        self.dataset_feedback_label = QLabel("Dataset Location")
+        dataset_selection_button = QPushButton(consts.DATASET_DIALOG_CAPTION)
+        # Functionality
         dataset_selection_button.clicked.connect(self.find_dataset)
         row_dataset_selection = QHBoxLayout()
-        row_dataset_selection.addWidget(dataset_selection_button)
+        # Layout
         row_dataset_selection.addWidget(self.dataset_feedback_label)
+        row_dataset_selection.addWidget(dataset_selection_button)
         self.stage_tab.addLayout(row_dataset_selection)
 
     def init_launch_button(self):
-        self.launch_button = QPushButton("LAUNCH")
+        self.launch_button = QPushButton("Start")
         self.launch_button.setEnabled(False)
         self.launch_button.clicked.connect(self.start_cooking_iii)
         self.stage_tab.addWidget(self.launch_button)
@@ -330,8 +336,7 @@ class PrimaryWindow(QMainWindow):
         navigate_menu.addAction(self.goto_stage_tab)
 
     def init_type_selector(self):
-
-        self.type_select_label = QLabel("<-- Select the desired type of NN model")
+        self.type_select_label = QLabel("Neural Network Name:")
 
         # Dropdown Menu
         type_dropdown = QComboBox(parent=self)
@@ -344,8 +349,8 @@ class PrimaryWindow(QMainWindow):
 
         # Layout
         type_select_menu = QHBoxLayout()
-        type_select_menu.addWidget(type_dropdown)
         type_select_menu.addWidget(self.type_select_label)
+        type_select_menu.addWidget(type_dropdown)
 
         # Add to stage
         self.stage_tab.addLayout(type_select_menu)
@@ -375,9 +380,7 @@ class PrimaryWindow(QMainWindow):
             )
 
     def init_reduction_selector(self):
-        self.reduction_select_label = QLabel(
-            "<-- Select the desired reduction technique"
-        )
+        self.reduction_select_label = QLabel("Dimensionality Reduction Technique")
 
         # Dropdown Menu
         reduction_dropdown = QComboBox(parent=self)
@@ -390,8 +393,8 @@ class PrimaryWindow(QMainWindow):
 
         # Layout
         reduction_select_menu = QHBoxLayout()
-        reduction_select_menu.addWidget(reduction_dropdown)
         reduction_select_menu.addWidget(self.reduction_select_label)
+        reduction_select_menu.addWidget(reduction_dropdown)
 
         # Add to stage
         self.stage_tab.addLayout(reduction_select_menu)
@@ -434,7 +437,10 @@ class PrimaryWindow(QMainWindow):
 
         For use in buttons and actions.
         """
-        model_path = open_dialog.for_trained_model_file(parent=self)
+        model_path = open_dialog.for_trained_model_file(
+            caption=consts.CHECKPOINT_DIALOG_CAPTION,
+            parent=self,
+        )
 
         if model_path:
             self.data.model_location = model_path
@@ -505,7 +511,9 @@ class PrimaryWindow(QMainWindow):
             print("Select a model first")
         else:
             selected_layer, _ = open_dialog.for_layer_select(
-                self.data.model, "SELECT LAYER", parent=self
+                self.data.model,
+                consts.LAYER_SELECT_DIALOG_CAPTION,
+                parent=self,
             )
             print("*** selected_layer:", selected_layer)
             if selected_layer:
@@ -636,7 +644,7 @@ class ProgressBar(QProgressBar):
         innerlayout.addWidget(self.label)
         self.container = QWidget()
         self.container.setLayout(innerlayout)
-        self.set_visible(False)
+        self.set_visible(True)
         where.addWidget(self.container)
 
     def __call__(self, increment=1):
