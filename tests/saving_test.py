@@ -25,6 +25,13 @@ SIZE = 10
 
 
 def get_savable():
+    """
+    Generate an object of the class with all attributes fulfilled.
+
+    Must be updated each time the class changes. Which should in turn
+    trigger the following tests. So update when these tests fail.
+    Maybe in some other extraordinary circumstance.
+    """
     data = SavableData()
     data.model = FCNResNet101()
     data.model_location = consts.MULTILABEL_MODEL

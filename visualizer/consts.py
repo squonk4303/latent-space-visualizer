@@ -27,8 +27,6 @@ IMAGE_DIALOG_CAPTION = "Select Image"
 LOAD_FILE_DIALOG_CAPTION = "Select File To Load"
 TRAINED_MODEL_DIALOG_CAPTION = "Select Neural-Net Model"
 
-VERSION = "0.0.3"
-
 
 # Plaintext with other uses
 PROGRAM_DESCRIPTION = """
