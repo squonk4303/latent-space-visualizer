@@ -213,13 +213,13 @@ class PrimaryWindow(QMainWindow):
 
         # ---------------------------------------------------------------------------
         # @Wilhelmsen: TEMP: PCA-button
-        tsne_button = QPushButton("t-SNE")
-        tsne_button.clicked.connect(self.change_to_tsne)
-        graph_tab.addWidget(tsne_button)
+        # tsne_button = QPushButton("t-SNE")
+        # tsne_button.clicked.connect(self.change_to_tsne)
+        # graph_tab.addWidget(tsne_button)
 
-        pca_button = QPushButton("PCA")
-        pca_button.clicked.connect(self.change_to_pca)
-        graph_tab.addWidget(pca_button)
+        # pca_button = QPushButton("PCA")
+        # pca_button.clicked.connect(self.change_to_pca)
+        # graph_tab.addWidget(pca_button)
         # ---------------------------------------------------------------------------
 
         # Organize Widgets for Graph tab
