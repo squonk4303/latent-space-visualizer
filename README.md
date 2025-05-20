@@ -1,7 +1,8 @@
 # Latent Space Visualizer
 
-Developed by Olivia Linnea Kopsland Tjore & William Westye Mikal Wilhelmsen
+A GUI tool for visualizing the latent space of pre-trained variational autoencoders (VAEs) for semantic segmentation applications. Providing simple to use methods for loading and processing user selected models and datasets. Developed as part of a Bachelor's project. Designed to be open and evolved by the community.
 
+Developed by Olivia Linnea Kopsland Tjore & William Westye Mikal Wilhelmsen
 
 ## Build Instructions
 
