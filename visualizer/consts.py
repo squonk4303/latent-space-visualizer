@@ -22,12 +22,12 @@ STAGE_TITLE = "Select Data"
 
 OPEN_FILE_LABEL = "&Open File"
 
-DATASET_DIALOG_CAPTION = "Select Dataset"
+CHECKPOINT_DIALOG_CAPTION = "Open &Checkpoint File"
+DATASET_DIALOG_CAPTION = "Open &Dataset Directory"
 IMAGE_DIALOG_CAPTION = "Select Image"
 LOAD_FILE_DIALOG_CAPTION = "Select File To Load"
 TRAINED_MODEL_DIALOG_CAPTION = "Select Neural-Net Model"
-
-VERSION = "0.0.3"
+LAYER_SELECT_DIALOG_CAPTION = "Select &Layer"
 
 
 # Plaintext with other uses

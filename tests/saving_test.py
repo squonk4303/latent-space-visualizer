@@ -25,6 +25,13 @@ SIZE = 10
 
 
 def get_savable():
+    """
+    Generate an object of the class with all attributes fulfilled.
+
+    Must be updated each time the class changes. Which should in turn
+    trigger the following tests. So update when these tests fail.
+    Maybe in some other extraordinary circumstance.
+    """
     data = SavableData()
     data.model = FCNResNet101()
     data.model_location = consts.MULTILABEL_MODEL
@@ -90,8 +97,8 @@ def assert_integrity_of(canary: SavableData):
     - Change in attribute type
 
     If this causes a test to fail, it may be because of a change in
-    SavableData, meaning the next update will be a breaking change. Also
-    obj_fixture should be updated and that stubs should be regenerated.
+    SavableData. Then obj_fixture should be updated and stubs should be
+    regenerated.
     """
     # Infers attributes from whether its first character is a letter
     # Note that dir() is not *entirely* reliable for finding every attribute
