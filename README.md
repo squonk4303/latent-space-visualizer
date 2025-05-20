@@ -1,6 +1,15 @@
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![GPLv3](https://img.shields.io/badge/License-GPLv3-red)](https://www.gnu.org/licenses/gpl-3.0.en.html)
+[![PyQt6](https://img.shields.io/badge/Made%20With-PyQt6-blue)](https://www.riverbankcomputing.com/software/pyqt/)
+[![security: bandit](https://img.shields.io/badge/security-bandit-yellow.svg)](https://github.com/PyCQA/bandit)
+
+
+
 # Latent Space Visualizer
 
-A GUI tool for visualizing the latent space of pre-trained variational autoencoders (VAEs) for semantic segmentation applications. Providing simple to use methods for loading and processing user selected models and datasets. Developed as part of a Bachelor's project. Designed to be open and evolved by the community.
+A GUI tool for visualizing the latent space of pre-trained variational autoencoders (VAEs) for semantic segmentation applications. Providing simple to use methods for loading and processing user selected models and datasets. Developed as part of a Bachelor's project in collaboration with the Rochester Institute of Technology.
+
+Designed to be open and evolved by the community.
 
 Developed by Olivia Linnea Kopsland Tjore & William Westye Mikal Wilhelmsen
 
