@@ -32,8 +32,7 @@ LAYER_SELECT_DIALOG_CAPTION = "Select &Layer"
 
 # Plaintext with other uses
 PROGRAM_DESCRIPTION = """
-Launch a GUI which helps manipulate the latent space of a trained neural-network model.
-And that kind of thing.
+GUI tool to explore the latent space of a trained variational autoencoder model.
 """
 
 
@@ -44,38 +43,13 @@ class COLOR(Enum):
 
 
 COLORS32 = [
-    "#696969",
-    "#006400",
-    "#8b0000",
-    "#808000",
-    "#483d8b",
-    "#008b8b",
-    "#cd853f",
-    "#000080",
-    "#9acd32",
-    "#7f007f",
-    "#8fbc8f",
-    "#b03060",
-    "#ff0000",
-    "#ff8c00",
-    "#ffd700",
-    "#7fff00",
-    "#8a2be2",
-    "#00ff7f",
-    "#00ffff",
-    "#00bfff",
-    "#0000ff",
-    "#ff6347",
-    "#da70d6",
-    "#b0c4de",
-    "#ff00ff",
-    "#1e90ff",
-    "#f0e68c",
-    "#90ee90",
-    "#ff1493",
-    "#7b68ee",
-    "#fff8dc",
-    "#ffb6c1",
+    # fmt: off
+    "#696969", "#006400", "#8b0000", "#808000", "#483d8b", "#008b8b", "#cd853f",
+    "#000080", "#9acd32", "#7f007f", "#8fbc8f", "#b03060", "#ff0000", "#ff8c00",
+    "#ffd700", "#7fff00", "#8a2be2", "#00ff7f", "#00ffff", "#00bfff", "#0000ff",
+    "#ff6347", "#da70d6", "#b0c4de", "#ff00ff", "#1e90ff", "#f0e68c", "#90ee90",
+    "#ff1493", "#7b68ee", "#fff8dc", "#ffb6c1",
+    # fmt: on
 ]
 
 COLORS16 = [
