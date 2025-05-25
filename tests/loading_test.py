@@ -8,7 +8,8 @@ import torch
 
 from PyQt6.QtWidgets import QFileDialog
 
-from visualizer import consts, loading
+from visualizer import loading
+from visualizer.globals import Consts
 from visualizer.models.segmentation import FCNResNet101
 from visualizer.plottables import SavableData
 
@@ -19,7 +20,7 @@ def data_object():
     # @Wilhelmsen: Reconsider this fixture
     data = SavableData()
     # data.model = FCNResNet101()
-    # data.model.load(consts.TRAINED_MODEL)
+    # data.model.load(Consts.TRAINED_MODEL)
     data.dataset_plottable = np.array(
         [
             [0.18295779, 0.42863305],
@@ -45,16 +46,16 @@ def test_load_model():
     """Just runs this to see if it crashes."""
     # @Wilhelmsen: Is there anything more useful to test here?
     model = FCNResNet101()
-    model.load(consts.TRAINED_MODEL)
+    model.load(Consts.TRAINED_MODEL)
     assert model is not None
 
 
 def check_tensor_shape(tensor):
-    """Expect shape [1, 3, h, w] where h or w have to be of size specified in consts"""
+    """Expect shape [1, 3, h, w] where h or w have to be of size specified in Consts"""
     assert len(tensor.shape) == 4
     assert tensor.shape[0] == 1
     assert tensor.shape[1] == 3
-    std_size = consts.STANDARD_IMG_SIZE
+    std_size = Consts.STANDARD_IMG_SIZE
     assert tensor.shape[2] == std_size or tensor.shape[3] == std_size
 
 
@@ -87,14 +88,14 @@ def test_setup_presistent_file(data_object):
     Isn't *really* meant to test anything;
     just sets up a file which is useful in other tests.
     """
-    persistent_file = os.path.join(consts.SAVE_DIR, "test_save.pickle")
+    persistent_file = os.path.join(Consts.SAVE_DIR, "test_save.pickle")
     loading.quicksave(data_object, persistent_file)
 
 
 @pytest.mark.slow
 def test_loading_cold_model_file(data_object):
     # @Wilhelmsen: Something stinks here...
-    persistent_file = os.path.join(consts.SAVE_DIR, "test_save.pickle")
+    persistent_file = os.path.join(Consts.SAVE_DIR, "test_save.pickle")
     other_data = loading.quickload(persistent_file)
     assert np.array_equal(other_data.dataset_plottable, data_object.dataset_plottable)
 

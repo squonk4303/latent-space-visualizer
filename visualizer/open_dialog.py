@@ -19,14 +19,14 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
 )
 
-from visualizer import consts
+from visualizer.globals import Consts
 
 
 def for_file(
     caption="",
     *,
     parent,
-    file_filters=consts.FILE_FILTERS.values(),
+    file_filters=Consts.FILE_FILTERS.values(),
     options=QFileDialog.Option.ReadOnly,
 ):
     """
@@ -35,7 +35,7 @@ def for_file(
     Note that the first element in file_filters is used as the initial file filter.
     """
     # Test whether file_filters is a subset of-- or equal to, the legal file filters
-    if not set(file_filters) <= set(consts.FILE_FILTERS.values()):
+    if not set(file_filters) <= set(Consts.FILE_FILTERS.values()):
         raise RuntimeError("Unacceptable list of file filters")
 
     # Generate Qt-readable filter specifications
@@ -59,12 +59,12 @@ def to_save_file(
     caption="",
     *,
     parent,
-    file_filters=consts.FILE_FILTERS.values(),
+    file_filters=Consts.FILE_FILTERS.values(),
     options=QFileDialog.Option.ReadOnly,
 ):
     """Launch file dialog where user is prompted for where to save a .pickle file."""
     # Test whether file_filters is a subset of-- or equal to, the legal file filters
-    if not set(file_filters) <= set(consts.FILE_FILTERS.values()):
+    if not set(file_filters) <= set(Consts.FILE_FILTERS.values()):
         raise RuntimeError("Unacceptable list of file filters")
 
     # Generate Qt-readable filter specifications
@@ -96,21 +96,21 @@ def for_some_file(caption="", *, parent):
     return filepath
 
 
-def for_image_file(caption=consts.IMAGE_DIALOG_CAPTION, *, parent):
+def for_image_file(caption=Consts.IMAGE_DIALOG_CAPTION, *, parent):
     """Launch file dialog where user is intended to pick out a graphical image file."""
     filters = [
-        consts.FILE_FILTERS["pictures"],
-        consts.FILE_FILTERS["whatever"],
+        Consts.FILE_FILTERS["pictures"],
+        Consts.FILE_FILTERS["whatever"],
     ]
     filepath, _ = for_file(caption, parent=parent, file_filters=filters)
     return filepath
 
 
-def for_trained_model_file(caption=consts.TRAINED_MODEL_DIALOG_CAPTION, *, parent):
+def for_trained_model_file(caption=Consts.TRAINED_MODEL_DIALOG_CAPTION, *, parent):
     """Launch file dialog where user is intended to pick out the file for a trained nn-model."""
     filters = [
-        consts.FILE_FILTERS["pytorch"],
-        consts.FILE_FILTERS["whatever"],
+        Consts.FILE_FILTERS["pytorch"],
+        Consts.FILE_FILTERS["whatever"],
     ]
     filepath, _ = for_file(caption, parent=parent, file_filters=filters)
     return filepath
@@ -141,7 +141,7 @@ class LayerDialog(QDialog):
         # Widgets and gidgets
         left_label = QLabel("Start Layer:")
         self.startButton = QComboBox(parent=self)
-        self.startButton.addItem(consts.NIL)
+        self.startButton.addItem(Consts.NIL)
         self.startButton.currentTextChanged.connect(self.startbox_changed)
         left_col = QVBoxLayout()
         left_col.addWidget(left_label)
@@ -149,7 +149,7 @@ class LayerDialog(QDialog):
 
         right_label = QLabel("End Layer:")
         self.endButton = QComboBox(parent=self)
-        self.endButton.addItem(consts.NIL)
+        self.endButton.addItem(Consts.NIL)
         self.endButton.currentTextChanged.connect(self.endbox_changed)
         right_col = QVBoxLayout()
         right_col.addWidget(right_label)
@@ -163,7 +163,7 @@ class LayerDialog(QDialog):
         layout = QVBoxLayout()
         self.textbox = QTextEdit()
         self.textbox.setReadOnly(True)
-        self.textbox.setPlainText(consts.NIL)
+        self.textbox.setPlainText(Consts.NIL)
         subLayout = QHBoxLayout()
 
         subLayout.addLayout(left_col)
@@ -179,8 +179,8 @@ class LayerDialog(QDialog):
     def expand_buttons(self, layers):
         self.startButton.clear()
         #self.endButton.clear()
-        self.startButton.addItem(consts.NIL)
-        #self.endButton.addItem(consts.NIL)
+        self.startButton.addItem(Consts.NIL)
+        #self.endButton.addItem(Consts.NIL)
         self.startButton.addItems(layers)
         #self.endButton.addItems(layers)
 
@@ -190,7 +190,7 @@ class LayerDialog(QDialog):
 
         if start_pos == 0:
             self.endButton.clear()
-            self.endButton.addItem(consts.NIL)
+            self.endButton.addItem(Consts.NIL)
             self.endButton.addItems(self.layer_menu_maker(self.paramdict_lines))
         elif start_pos > end_pos:
             self.endButton.clear()
@@ -263,7 +263,7 @@ class LayerDialog(QDialog):
         end_button_result = self.endButton.currentText()
         start_button_result = self.startButton.currentText()
 
-        if end_button_result == consts.NIL and start_button_result == consts.NIL:
+        if end_button_result == Consts.NIL and start_button_result == Consts.NIL:
             print("Please select a valid layer")
         elif end_button_result is None or start_button_result is None:
             print("Error no layer detected, try again!")
@@ -271,9 +271,9 @@ class LayerDialog(QDialog):
                 print("Start Layer missing")
             if end_button_result is None:
                 print("End Layer missing")
-        elif end_button_result == consts.NIL:
+        elif end_button_result == Consts.NIL:
             return start_button_result, start_button_result
-        elif start_button_result == consts.NIL:
+        elif start_button_result == Consts.NIL:
             return end_button_result, end_button_result
         elif end_button_result != start_button_result:
             return start_button_result, end_button_result

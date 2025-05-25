@@ -22,7 +22,8 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-from visualizer import consts, loading, open_dialog, utils
+from visualizer import loading, open_dialog, utils
+from visualizer.globals import Consts, Flags
 from visualizer.models.segmentation import FCNResNet101
 from visualizer.plottables import SavableData
 from visualizer.plot_widget import PlotWidget
@@ -130,7 +131,7 @@ class PrimaryWindow(QMainWindow):
         self.load_file_action.triggered.connect(self.load_file_wrapper)
 
         # Open the file dialog
-        self.action_to_open_file = QAction(consts.OPEN_FILE_LABEL, self)
+        self.action_to_open_file = QAction(Consts.OPEN_FILE_LABEL, self)
         self.action_to_open_file.triggered.connect(self.load_model_location)
 
         # Scroll to next/previous tabs
@@ -141,8 +142,8 @@ class PrimaryWindow(QMainWindow):
         self.goto_graph_tab.setShortcut(QKeySequence.StandardKey.MoveToNextPage)
         self.goto_stage_tab.setShortcut(QKeySequence.StandardKey.MoveToPreviousPage)
         # Trigger buttons
-        self.goto_graph_tab.triggered.connect(self.goto_tab(1, consts.GRAPH_TITLE))
-        self.goto_stage_tab.triggered.connect(self.goto_tab(0, consts.STAGE_TITLE))
+        self.goto_graph_tab.triggered.connect(self.goto_tab(1, Consts.GRAPH_TITLE))
+        self.goto_stage_tab.triggered.connect(self.goto_tab(0, Consts.STAGE_TITLE))
 
         # =====================================
         # Initialize Selection Menu in load_tab
@@ -239,7 +240,7 @@ class PrimaryWindow(QMainWindow):
         # --------------------
 
         self.resize(1080, 640)
-        self.setWindowTitle(consts.STAGE_TITLE)
+        self.setWindowTitle(Consts.STAGE_TITLE)
         self.setStatusBar(QStatusBar(self))
         widget = QWidget()
         widget.setLayout(greater_layout)
@@ -249,14 +250,14 @@ class PrimaryWindow(QMainWindow):
         # Cheats
         # ------
 
-        if consts.flags["dev"]:
+        if Flags.dev:
 
             def quick_launch():
-                self.data.dataset_location = consts.S_DATASET
+                self.data.dataset_location = Consts.S_DATASET
                 self.data.dim_reduction = "TSNE"
-                self.data.layer = consts.LAYER
+                self.data.layer = Consts.LAYER
                 self.data.model = FCNResNet101()
-                self.data.model_location = consts.MULTILABEL_MODEL
+                self.data.model_location = Consts.MULTILABEL_MODEL
                 self.start_cooking_iii()
 
             quicklaunch_button = QPushButton("Cook")
@@ -273,7 +274,7 @@ class PrimaryWindow(QMainWindow):
     def init_model_selection(self):
         # Elements
         self.model_feedback_label = QLabel("Neural Net Model .pth Checkpoint")
-        openfile_button = QPushButton(consts.CHECKPOINT_DIALOG_CAPTION)
+        openfile_button = QPushButton(Consts.CHECKPOINT_DIALOG_CAPTION)
         # Functionality
         openfile_button.clicked.connect(self.load_model_location)
         # Layout
@@ -285,7 +286,7 @@ class PrimaryWindow(QMainWindow):
     def init_layer_selection(self):
         # Elements
         self.layer_feedback_label = QLabel("Layer to Hook")
-        self.layer_button = QPushButton(consts.LAYER_SELECT_DIALOG_CAPTION)
+        self.layer_button = QPushButton(Consts.LAYER_SELECT_DIALOG_CAPTION)
         # Functionality
         self.layer_button.setEnabled(False)
         self.layer_button.clicked.connect(self.find_layer)
@@ -298,7 +299,7 @@ class PrimaryWindow(QMainWindow):
     def init_dataset_selection(self):
         # Elements
         self.dataset_feedback_label = QLabel("Dataset Location")
-        dataset_selection_button = QPushButton(consts.DATASET_DIALOG_CAPTION)
+        dataset_selection_button = QPushButton(Consts.DATASET_DIALOG_CAPTION)
         # Functionality
         dataset_selection_button.clicked.connect(self.find_dataset)
         row_dataset_selection = QHBoxLayout()
@@ -340,8 +341,8 @@ class PrimaryWindow(QMainWindow):
 
         # Dropdown Menu
         type_dropdown = QComboBox(parent=self)
-        type_dropdown.addItem(consts.NIL)
-        for model_type in consts.MODEL_TYPES:
+        type_dropdown.addItem(Consts.NIL)
+        for model_type in Consts.MODEL_TYPES:
             type_dropdown.addItem(model_type)
 
         # Functionality
@@ -370,7 +371,7 @@ class PrimaryWindow(QMainWindow):
         #     self.model = getattr(models.whatever, model_type)()
         #     self.try_to_load_model()
 
-        elif model_type == consts.NIL:
+        elif model_type == Consts.NIL:
             print(f"Model is {model_type}? Whatever. I don't care.")
             self.layer_button.setEnabled(False)
 
@@ -384,7 +385,7 @@ class PrimaryWindow(QMainWindow):
 
         # Dropdown Menu
         reduction_dropdown = QComboBox(parent=self)
-        reduction_dropdown.addItem(consts.NIL)
+        reduction_dropdown.addItem(Consts.NIL)
         for technique in dim_reduction_techs.keys():
             reduction_dropdown.addItem(technique)
 
@@ -438,7 +439,7 @@ class PrimaryWindow(QMainWindow):
         For use in buttons and actions.
         """
         model_path = open_dialog.for_trained_model_file(
-            caption=consts.CHECKPOINT_DIALOG_CAPTION,
+            caption=Consts.CHECKPOINT_DIALOG_CAPTION,
             parent=self,
         )
 
@@ -493,7 +494,7 @@ class PrimaryWindow(QMainWindow):
         For use in buttons and actions.
         """
         self.data.dataset_location = open_dialog.for_directory(
-            parent=self, caption=consts.DATASET_DIALOG_CAPTION
+            parent=self, caption=Consts.DATASET_DIALOG_CAPTION
         )
         if self.data.dataset_location:
             paths = utils.grab_image_paths_in_dir(self.data.dataset_location)
@@ -512,7 +513,7 @@ class PrimaryWindow(QMainWindow):
         else:
             selected_layer, _ = open_dialog.for_layer_select(
                 self.data.model,
-                consts.LAYER_SELECT_DIALOG_CAPTION,
+                Consts.LAYER_SELECT_DIALOG_CAPTION,
                 parent=self,
             )
             print("*** selected_layer:", selected_layer)
@@ -609,7 +610,7 @@ class PrimaryWindow(QMainWindow):
 
         if self.data.model is not None:
             self.utilize_data()
-            self.goto_tab(1, consts.GRAPH_TITLE)()
+            self.goto_tab(1, Consts.GRAPH_TITLE)()
         else:
             # @Wilhelmsen: Find something to do with this
             print("There's nothing here! TODO")
@@ -630,7 +631,7 @@ class PrimaryWindow(QMainWindow):
 
         if self.data is not None:
             self.utilize_data()
-            self.goto_tab(1, consts.GRAPH_TITLE)()
+            self.goto_tab(1, Consts.GRAPH_TITLE)()
 
 
 class ProgressBar(QProgressBar):

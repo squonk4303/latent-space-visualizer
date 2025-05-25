@@ -15,7 +15,7 @@ See also: "cook one's goose"
 """
 
 from torchvision.models import resnet101, ResNet101_Weights
-from visualizer import consts
+from visualizer.globals import Consts
 from visualizer.view_manager import PrimaryWindow
 
 
@@ -25,7 +25,7 @@ def test_cookin_brains(qtbot):
 
     window.data.model = resnet101(weights=ResNet101_Weights.DEFAULT)
     window.data.model.eval()
-    window.data.layer = consts.LAYER
+    window.data.layer = Consts.LAYER
 
     window.start_cooking()
 

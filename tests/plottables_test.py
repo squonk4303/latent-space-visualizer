@@ -4,7 +4,7 @@ import pytest
 
 from torchvision.models import resnet101, ResNet101_Weights
 
-from visualizer import consts
+from visualizer.globals import Consts
 from visualizer.plottables import SavableData
 
 
@@ -17,8 +17,8 @@ def data_object():
     weights = ResNet101_Weights.DEFAULT
     data.model = resnet101(weights=weights)
     data.model.eval()
-    data.layer = consts.LAYER
-    data.dataset_location = consts.MEDIUM_DATASET
+    data.layer = Consts.LAYER
+    data.dataset_location = Consts.MEDIUM_DATASET
     # data.paths
     return data
 

@@ -8,7 +8,8 @@ import torch
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QFileDialog
 
-from visualizer import consts, utils
+from visualizer import utils
+from visualizer.globals import Consts
 from visualizer.models.segmentation import FCNResNet101
 from visualizer.plottables import SavableData
 from visualizer.view_manager import PrimaryWindow
@@ -30,10 +31,10 @@ def window(qtbot):
 def data_object():
     data = SavableData()
     data.model = FCNResNet101()
-    data.model.load(consts.MULTILABEL_MODEL)
-    data.layer = consts.LAYER
-    data.paths = utils.grab_image_paths_in_dir(consts.S_DATASET)
-    data.dataset_location = consts.S_DATASET
+    data.model.load(Consts.MULTILABEL_MODEL)
+    data.layer = Consts.LAYER
+    data.paths = utils.grab_image_paths_in_dir(Consts.S_DATASET)
+    data.dataset_location = Consts.S_DATASET
     data.dataset_intermediary = torch.rand(1, 3, 640, 640)
     return data
 
@@ -41,18 +42,18 @@ def data_object():
 mocked_trained_model_qfiledialog = patch.object(
     QFileDialog,
     "getOpenFileName",
-    return_value=(consts.MULTILABEL_MODEL, consts.FILE_FILTERS["whatever"]),
+    return_value=(Consts.MULTILABEL_MODEL, Consts.FILE_FILTERS["whatever"]),
 )
 
 
 mocked_cancelled_qfiledialog = patch.object(
-    QFileDialog, "getOpenFileName", return_value=("", consts.FILE_FILTERS["whatever"])
+    QFileDialog, "getOpenFileName", return_value=("", Consts.FILE_FILTERS["whatever"])
 )
 
 
 def test_window_basically(window, qtbot):
     """Test that the window is alive and exists."""
-    assert window.windowTitle() == consts.STAGE_TITLE
+    assert window.windowTitle() == Consts.STAGE_TITLE
     assert window.centralWidget()
 
 
@@ -137,10 +138,10 @@ def test_launch_button_activates_on_layer(window):
     # Assert the function doesn't enable the button erroneously
     window.find_layer()
     assert not window.launch_button.isEnabled()
-    window.data.dataset_location = consts.MEDIUM_DATASET
+    window.data.dataset_location = Consts.MEDIUM_DATASET
     window.data.dim_reduction = "TSNE"
     window.data.model = FCNResNet101()
-    window.data.model_location = consts.MULTILABEL_MODEL
+    window.data.model_location = Consts.MULTILABEL_MODEL
     # Assert the final function changes the button state
     window.find_layer()
     assert window.launch_button.isEnabled()
@@ -153,9 +154,9 @@ def test_launch_button_activates_on_model_location(window):
         # Assert the function doesn't enable the button erroneously
         window.load_model_location()
         assert not window.launch_button.isEnabled()
-        window.data.dataset_location = consts.MEDIUM_DATASET
+        window.data.dataset_location = Consts.MEDIUM_DATASET
         window.data.dim_reduction = "TSNE"
-        window.data.layer = consts.LAYER
+        window.data.layer = Consts.LAYER
         window.data.model = FCNResNet101()
         # Assert the final function changes the button state
         window.load_model_location()
@@ -165,16 +166,16 @@ def test_launch_button_activates_on_model_location(window):
 @pytest.mark.stub
 def test_launch_button_activates_on_model_type(window):
     # Assert the function doesn't enable the button erroneously
-    window.suggest_model_type(consts.NIL)
-    window.suggest_model_type(consts.MODEL_TYPES[0])
+    window.suggest_model_type(Consts.NIL)
+    window.suggest_model_type(Consts.MODEL_TYPES[0])
     assert not window.launch_button.isEnabled()
 
-    window.data.dataset_location = consts.MEDIUM_DATASET
+    window.data.dataset_location = Consts.MEDIUM_DATASET
     window.data.dim_reduction = "TSNE"
-    window.data.layer = consts.LAYER
-    window.data.model_location = consts.MULTILABEL_MODEL
+    window.data.layer = Consts.LAYER
+    window.data.model_location = Consts.MULTILABEL_MODEL
     # Assert the final function changes the button state
-    window.suggest_model_type(consts.MODEL_TYPES[0])
+    window.suggest_model_type(Consts.MODEL_TYPES[0])
     assert window.launch_button.isEnabled()
 
 
@@ -184,10 +185,10 @@ def test_launch_button_activates_on_dim_reduction(window):
     window.suggest_dim_reduction("TSNE")
     assert not window.launch_button.isEnabled()
 
-    window.data.dataset_location = consts.MEDIUM_DATASET
-    window.data.layer = consts.LAYER
+    window.data.dataset_location = Consts.MEDIUM_DATASET
+    window.data.layer = Consts.LAYER
     window.data.model = FCNResNet101()
-    window.data.model_location = consts.MULTILABEL_MODEL
+    window.data.model_location = Consts.MULTILABEL_MODEL
     # Assert the final function changes the button state
     window.suggest_dim_reduction("TSNE")
     assert window.launch_button.isEnabled()
@@ -197,16 +198,16 @@ def test_launch_button_activates_on_dim_reduction(window):
 def test_launch_button_activates_on_dataset(window):
     # Mock to assure the function will set a valid dataset
     mocked_directory_dialog = patch.object(
-        QFileDialog, "getExistingDirectory", return_value=consts.MEDIUM_DATASET
+        QFileDialog, "getExistingDirectory", return_value=Consts.MEDIUM_DATASET
     )
     with mocked_directory_dialog:
         # Assert the function doesn't enable the button erroneously
         window.find_dataset()
         assert not window.launch_button.isEnabled()
         window.data.dim_reduction = "TSNE"
-        window.data.layer = consts.LAYER
+        window.data.layer = Consts.LAYER
         window.data.model = FCNResNet101()
-        window.data.model_location = consts.MULTILABEL_MODEL
+        window.data.model_location = Consts.MULTILABEL_MODEL
         # Assert the final function changes the button state
         window.find_dataset()
         assert window.launch_button.isEnabled()
@@ -214,7 +215,7 @@ def test_launch_button_activates_on_dataset(window):
 
 def test_automatic_getting_of_model_types(window):
     """Assert that all model types in the const are valid."""
-    for model in consts.MODEL_TYPES:
+    for model in Consts.MODEL_TYPES:
         window.suggest_model_type(model)
 
 

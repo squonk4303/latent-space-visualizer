@@ -12,7 +12,8 @@ import PIL
 import torch
 import torchvision
 
-from visualizer import consts, open_dialog
+from visualizer import open_dialog
+from visualizer.globals import Consts, Flags
 from visualizer.plottables import SavableData
 
 
@@ -28,7 +29,7 @@ except ImportError:
 
 def preliminary_dim_reduction_iii(model, layer, files, progress):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    size_to_fit = 128 if consts.flags["truncate"] else consts.STANDARD_IMG_SIZE
+    size_to_fit = 128 if Flags.truncate else Consts.STANDARD_IMG_SIZE
     preprocessing = torchvision.transforms.Compose(
         (
             torchvision.transforms.Resize(size_to_fit),
@@ -46,7 +47,7 @@ def preliminary_dim_reduction_iii(model, layer, files, progress):
     hook_location = getattr(model.model.backbone, layer)
     hook_handle = hook_location.register_forward_hook(hooker(features_list))
 
-    files = files[:12] if consts.flags["truncate"] else files
+    files = files[:12] if Flags.truncate else files
     progress.setMaximum(len(files))
     progress.set_visible(True)
     progress.reset()
@@ -149,13 +150,13 @@ def tsne(features, target_dimensions=2):
         tsne_conf = cuTSNE(
             n_components=target_dimensions,
             perplexity=perplexity_value,
-            random_state=consts.seed,
+            random_state=Consts.seed,
         )
     else:
         tsne_conf = TSNE(
             n_components=target_dimensions,
             perplexity=perplexity_value,
-            random_state=consts.seed,
+            random_state=Consts.seed,
         )
 
     reduced_features = tsne_conf.fit_transform(features)
@@ -204,7 +205,7 @@ def hooker(t: list):
     return f
 
 
-def quickload(load_location=consts.QUICKSAVE_PATH):
+def quickload(load_location=Consts.QUICKSAVE_PATH):
     """Load python object from pickle file."""
     with open(load_location, "rb") as f:
         data_obj = pickle.load(f)
@@ -212,7 +213,7 @@ def quickload(load_location=consts.QUICKSAVE_PATH):
     return data_obj
 
 
-def quicksave(data_obj: SavableData, save_location=consts.QUICKSAVE_PATH):
+def quicksave(data_obj: SavableData, save_location=Consts.QUICKSAVE_PATH):
     """Save python object to pickle file."""
     # If parent directory doesn't exist, create it (including its progenitors)
     parent_dir = os.path.abspath(os.path.join(save_location, os.pardir))
@@ -249,7 +250,7 @@ def load_by_dialog(parent) -> object:
     For use in actions and buttons.
     """
     load_location = open_dialog.for_some_file(
-        parent=parent, caption=consts.LOAD_FILE_DIALOG_CAPTION
+        parent=parent, caption=Consts.LOAD_FILE_DIALOG_CAPTION
     )
 
     if load_location:

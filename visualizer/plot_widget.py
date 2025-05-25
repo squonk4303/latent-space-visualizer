@@ -17,26 +17,34 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import PIL
 
-from visualizer import consts
+from visualizer.globals import Consts, Flags
 
 
 class MplCanvas(FigureCanvasQTAgg):
     """Hold a canvas for the plot to render onto."""
 
-    def __init__(self, parent, width=5, height=4, dpi=100, background="0.85", forecolor="1"):
-        fig = Figure(figsize=(width, height), dpi=dpi, layout="constrained", facecolor=background)
+    def __init__(
+        self, parent, width=5, height=4, dpi=100, background="0.85", forecolor="1"
+    ):
+        fig = Figure(
+            figsize=(width, height), dpi=dpi, layout="constrained", facecolor=background
+        )
+
         # Setting Foreground Colors
-        plt.rcParams['text.color'] = forecolor            # All text (titles, annotations)
-        plt.rcParams['axes.labelcolor'] = forecolor       # Axis labels
-        plt.rcParams['xtick.color'] = forecolor           # X tick labels
-        plt.rcParams['ytick.color'] = forecolor           # Y tick labels
+        # fmt:off
+        plt.rcParams["text.color"] = forecolor       # All text (titles, annotations)
+        plt.rcParams["axes.labelcolor"] = forecolor  # Axis labels
+        plt.rcParams["xtick.color"] = forecolor      # X tick labels
+        plt.rcParams["ytick.color"] = forecolor      # Y tick labels
+        # fmt:on
+
         # contextlib.nullcontext being a context manager which does nothing
-        cm = plt.xkcd() if consts.flags["xkcd"] else nullcontext()
+        cm = plt.xkcd() if Flags.xkcd else nullcontext()
         with cm:
             self.input_display, self.scatterplot, self.output_display = fig.subplots(
                 nrows=1, ncols=3
             )
-        
+
         self.input_display.get_xaxis().set_visible(False)
         self.input_display.get_yaxis().set_visible(False)
         self.output_display.get_xaxis().set_visible(False)
@@ -55,39 +63,34 @@ class MplCanvas(FigureCanvasQTAgg):
         self.scatterplot.set_ylabel("Y = Dimension 2")
         self.input_display.set_title("Input Image")
         self.output_display.set_title("Output Image")
+        # fmt:off
         self.input_display.text(
-            0.5, -0.01, in_imgdesc, ha="center", va="top", 
-            transform=self.input_display.transAxes
-            )
+            x=0.5, y=-0.01, s=in_imgdesc, ha="center", va="top",
+            transform=self.input_display.transAxes,
+        )
         self.output_display.text(
-            0.5, -0.01, "Dominant Category: "+out_imgdesc.capitalize(), ha="center", va="top", 
-            transform=self.output_display.transAxes
-            )
-        
+            x=0.5, y=-0.01,
+            s=f"Dominant Category: {out_imgdesc.capitalize()}",
+            ha="center", va="top",
+            transform=self.output_display.transAxes,
+        )
+        # fmt:on
+
 
 class PlotWidget(QWidget):
+    """."""
+
     def __init__(self, parent):
-        """Define and draw a graphical plot."""
         super().__init__(parent)
         self.parent = parent
         layout = QVBoxLayout(self)
-        self.bgcolor = self.get_color()
-        self.fgcolor = self.get_color(consts.COLOR.TEXT)
+        self.bgcolor = self.palette().color(QPalette.ColorRole.Window).name()
+        self.fgcolor = self.palette().color(QPalette.ColorRole.WindowText).name()
         self.canvas = MplCanvas(self, background=self.bgcolor, forecolor=self.fgcolor)
         self.canvas.redraw()
         self.canvas.draw()
         self.canvas.flush_events()
         layout.addWidget(self.canvas)
-
-    def get_color(self, color=consts.COLOR.BACKGROUND):
-        match color:
-            case consts.COLOR.BACKGROUND:
-                background_color = self.palette().color(QPalette.ColorRole.Window)
-                return background_color.name()
-            case consts.COLOR.TEXT:
-                text_color = self.palette().color(QPalette.ColorRole.WindowText)
-                return text_color.name()
-
 
     def the_plottables(self, labels, paths, coords, masks, colormap):
         # @Wilhelmsen: Make it detect whether coords are 2d or 3d and act accordingly
@@ -96,7 +99,6 @@ class PlotWidget(QWidget):
 
         # Make a dict which maps paths and coords to related unique labels
         plottables = {key: {"paths": [], "coords": []} for key in unique_labels}
-
 
         for L, p, c in zip(labels, paths, coords):
             plottables[L]["paths"].append(p)
@@ -110,12 +112,14 @@ class PlotWidget(QWidget):
 
         # Styling
         # @Linnea: Move this to MplCanvas
-        self.canvas.scatterplot.set_facecolor('1')
-        self.canvas.scatterplot.axvline(x=0, linestyle='--', linewidth=0.4, color='0.4')
-        self.canvas.scatterplot.axhline(y=0, linestyle='--', linewidth=0.4, color='0.4')
-        self.canvas.scatterplot.set_xlim(-2,2)
-        self.canvas.scatterplot.set_ylim(-2,2)
-        self.canvas.scatterplot.legend(loc="upper left", bbox_to_anchor=(1,1), framealpha=0)
+        self.canvas.scatterplot.set_facecolor("1")
+        self.canvas.scatterplot.axvline(x=0, linestyle="--", linewidth=0.4, color="0.4")
+        self.canvas.scatterplot.axhline(y=0, linestyle="--", linewidth=0.4, color="0.4")
+        self.canvas.scatterplot.set_xlim(-2, 2)
+        self.canvas.scatterplot.set_ylim(-2, 2)
+        self.canvas.scatterplot.legend(
+            loc="upper left", bbox_to_anchor=(1, 1), framealpha=0
+        )
 
         self.canvas.draw()
         self.canvas.flush_events()
@@ -129,13 +133,13 @@ class PlotWidget(QWidget):
         """
         filename = Path(paths[value]).name
         inpic = PIL.Image.open(paths[value])
-        self.canvas.redraw(filename,labels[value])
+        self.canvas.redraw(filename, labels[value])
         tx, ty = coords[value]
         self.the_plottables(labels, paths, coords, masks, colormap)
         self.canvas.input_display.imshow(inpic)
         self.canvas.output_display.imshow(masks[value])
         self.canvas.scatterplot.scatter(tx, ty, s=500, marker="+", c="black")
-        # Update functionality to display correctly 
+        # Update functionality to display correctly
         self.canvas.draw()
         self.canvas.flush_events()
 

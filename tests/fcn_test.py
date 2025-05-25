@@ -3,16 +3,16 @@ import os
 import pickle
 import pytest
 import torch
-from visualizer import consts
+from visualizer.globals import Consts
 from visualizer.models.segmentation import FCNResNet101
 
-FILE = os.path.join(consts.SAVE_DIR, "fcn.pth")
+FILE = os.path.join(Consts.SAVE_DIR, "fcn.pth")
 
 
 def _test_write_object_to_file():
     """Note that this isn't run when pytest is called."""
     model = FCNResNet101()
-    model.load(consts.TRAINED_MODEL)
+    model.load(Consts.TRAINED_MODEL)
 
     parent_dir = os.path.abspath(os.path.join(FILE, os.pardir))
     os.makedirs(parent_dir, exist_ok=True)
@@ -32,7 +32,7 @@ def test_loaded_model_equal_to_stub():
     Useful when refactoring the class without intending to actually change its effects.
     """
     fresh_model = FCNResNet101()
-    fresh_model.load(consts.TRAINED_MODEL)
+    fresh_model.load(Consts.TRAINED_MODEL)
 
     with open(FILE, "rb") as f:
         stubbed_model = pickle.load(f)

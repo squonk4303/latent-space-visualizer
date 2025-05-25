@@ -9,7 +9,8 @@ import PIL
 import pytest
 import torch
 
-from visualizer import consts, utils
+from visualizer import utils
+from visualizer.globals import Consts, Flags
 from visualizer.models.segmentation import FCNResNet101
 from visualizer.plottables import SavableData
 from visualizer.view_manager import dim_reduction_techs, PrimaryWindow
@@ -19,7 +20,7 @@ from visualizer.view_manager import dim_reduction_techs, PrimaryWindow
 # Consts & Fixtures
 # =================
 
-SAVE_LOCATION = Path(consts.REPO_DIR, "stubs/save_integrity_file.pickle")
+SAVE_LOCATION = Path(Consts.REPO_DIR, "stubs/save_integrity_file.pickle")
 RESOLUTION = 28
 SIZE = 10
 
@@ -34,11 +35,11 @@ def get_savable():
     """
     data = SavableData()
     data.model = FCNResNet101()
-    data.model_location = consts.MULTILABEL_MODEL
+    data.model_location = Consts.MULTILABEL_MODEL
     data.model.load(data.model_location)
-    data.layer = consts.LAYER
+    data.layer = Consts.LAYER
     data.dim_reduction = list(dim_reduction_techs)[0]
-    data.dataset_location = consts.MEDIUM_DATASET
+    data.dataset_location = Consts.MEDIUM_DATASET
 
     # May want to use realer examples
     data.dataset_intermediary = np.random.rand(RESOLUTION, RESOLUTION)
@@ -167,7 +168,7 @@ def test_stubbed_data_onto_plot(window):
 
     If this fails, it may be because dim-reduction requirements are updated.
     """
-    consts.flags["truncate"] = True  # Reduce dataset real quick
+    Flags.truncate = True  # Reduce dataset real quick
     window.data = load_savable()
     window.start_cooking_iii()
 

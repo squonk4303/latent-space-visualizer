@@ -5,7 +5,7 @@ import os
 import random
 import torch
 
-from visualizer import consts
+from visualizer.globals import Consts
 
 
 def arr_is_subset(arr1, arr2):
@@ -18,11 +18,11 @@ def superseed(seed):
     Set seed for numpy and torch.
 
     Used in module 'arguments'
-    Sets 'consts.seed' because it's used by our t-SNE functions.
+    Sets 'Consts.seed' because it's used by our t-SNE functions.
 
     This WILL have to expand if we introduce packages with other random
     number generators. We could also have this function set a variable in
-    consts, so that the seed is available for grabbing, like having it
+    Consts, so that the seed is available for grabbing, like having it
     displayed on-screen so the user and others can know what seed a run is
     based on. Hey that's a good idea. It's just like the binding of isaac.
     Note though that forcing determinism may decrease performance.
@@ -35,7 +35,7 @@ def superseed(seed):
     np.random.seed(seed)
     random.seed(seed)
     torch.manual_seed(seed)
-    consts.seed = seed
+    Consts.seed = seed
 
 
 def grab_image_paths_in_dir(dir_path, *, recursive=False):

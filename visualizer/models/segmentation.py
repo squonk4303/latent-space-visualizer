@@ -3,7 +3,8 @@ import torch
 import random
 from torch import nn
 from torchvision import models
-from visualizer import consts
+# Different import to avoid circular import
+from visualizer import globals
 
 
 class _SegmentationInterface(nn.Module):
@@ -66,7 +67,7 @@ class FCNResNet101(_SegmentationInterface):
             label: color
             for label, color in zip(
                 self.categories,
-                random.sample(consts.COLORS32, k=len(self.categories)),
+                random.sample(globals.Consts.COLORS32, k=len(self.categories)),
             )
         }
 

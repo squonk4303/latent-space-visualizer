@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 import time
-from visualizer import consts
+from visualizer.globals import Consts, Flags
 from visualizer import utils
 
 
@@ -12,7 +12,7 @@ def parse_them():
     Meant to be called as basically the first thing in the program.
     """
     # Set up for command-line arguments
-    parser = argparse.ArgumentParser(description=consts.PROGRAM_DESCRIPTION)
+    parser = argparse.ArgumentParser(description=Consts.PROGRAM_DESCRIPTION)
 
     # Flags
     parser.add_argument(
@@ -43,9 +43,9 @@ def parse_them():
     args = parser.parse_args()
 
     # Handle arguments
-    consts.flags["dev"] = args.dev
-    consts.flags["truncate"] = args.truncate
-    consts.flags["xkcd"] = args.xkcd
+    Flags.dev = args.dev
+    Flags.truncate = args.truncate
+    Flags.xkcd = args.xkcd
 
     if args.seed is not None:
         utils.superseed(int(args.seed))
