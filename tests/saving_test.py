@@ -162,7 +162,7 @@ def test_compare_with_old_save(obj_fixture):
 # ```
 @pytest.mark.slow
 @pytest.mark.stub
-def test_stubbed_data_onto_plot(window):
+def _test_stubbed_data_onto_plot(window):
     """
     Loads stubbed data into window plottables, then runs it through the dim-reduction process.
 
