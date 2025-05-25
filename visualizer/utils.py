@@ -5,7 +5,7 @@ import os
 import random
 import torch
 
-from visualizer.globals import Consts
+from visualizer.globals import Consts, Globals
 
 
 def arr_is_subset(arr1, arr2):
@@ -18,7 +18,7 @@ def superseed(seed):
     Set seed for numpy and torch.
 
     Used in module 'arguments'
-    Sets 'Consts.seed' because it's used by our t-SNE functions.
+    Sets 'Globals.seed' because it's used by our t-SNE functions.
 
     This WILL have to expand if we introduce packages with other random
     number generators. We could also have this function set a variable in
@@ -35,7 +35,7 @@ def superseed(seed):
     np.random.seed(seed)
     random.seed(seed)
     torch.manual_seed(seed)
-    Consts.seed = seed
+    Globals.seed = seed
 
 
 def grab_image_paths_in_dir(dir_path, *, recursive=False):

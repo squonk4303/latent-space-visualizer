@@ -13,7 +13,7 @@ import torch
 import torchvision
 
 from visualizer import open_dialog
-from visualizer.globals import Consts, Flags
+from visualizer.globals import Consts, Flags, Globals
 from visualizer.plottables import SavableData
 
 
@@ -150,13 +150,13 @@ def tsne(features, target_dimensions=2):
         tsne_conf = cuTSNE(
             n_components=target_dimensions,
             perplexity=perplexity_value,
-            random_state=Consts.seed,
+            random_state=Globals.seed,
         )
     else:
         tsne_conf = TSNE(
             n_components=target_dimensions,
             perplexity=perplexity_value,
-            random_state=Consts.seed,
+            random_state=Globals.seed,
         )
 
     reduced_features = tsne_conf.fit_transform(features)

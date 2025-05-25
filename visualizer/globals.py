@@ -115,11 +115,6 @@ class Consts:
         raise Exception(f"Can't instantiate object of class {cls.__name__}.")
 
 
-# -----
-# Flags
-# -----
-
-
 @dataclass()
 class Flags:
     """
@@ -136,8 +131,15 @@ class Flags:
         raise Exception(f"Can't instantiate object of class {cls.__name__}.")
 
 
-# -----------------------------
-# Globally Accessible Variables
-# -----------------------------
+@dataclass()
+class Globals:
+    """
+    Class to track mutable and globally accessible variables.
 
-seed = int()
+    Not to be instantiated.
+    """
+
+    seed = int()
+
+    def __new__(cls):
+        raise Exception(f"Can't instantiate object of class {cls.__name__}.")
