@@ -253,7 +253,7 @@ class PrimaryWindow(QMainWindow):
         if Flags.dev:
 
             def quick_launch():
-                self.data.dataset_location = Consts.S_DATASET
+                self.data.dataset_location = Consts.COCO_EXERPT
                 self.data.dim_reduction = "TSNE"
                 self.data.layer = Consts.LAYER
                 self.data.model = FCNResNet101()

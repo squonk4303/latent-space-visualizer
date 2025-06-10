@@ -88,13 +88,12 @@ class Consts:
         ("pictures", "Image Files (*.png *.jpg *.jpeg *.webp *.bmp *.gif *.tif *.tiff *.svg)"),
         ("pytorch", "PyTorch Files (*.pt *.pth)"),
     ])
-    # fmt: off
+    # fmt: on
 
     # Used for testing only; assumes there's a local dir/symlink with appropriate model
-    MEDIUM_DATASET    =  Path(REPO_DIR,  "pics/medium_dataset")
-    MULTILABEL_MODEL  =  Path(REPO_DIR,  "data_for_testing/fcn_model_0.pth")
-    S_DATASET         =  Path(REPO_DIR,  "data_for_testing/coco_exerpt/")
-    TRAINED_MODEL     =  Path(REPO_DIR,  "data_for_testing/fcn_model_no_augmentation.pth")
+    MULTILABEL_MODEL = Path(REPO_DIR, "data_for_testing/fcn_model_0.pth")
+    COCO_EXERPT = Path(REPO_DIR, "data_for_testing/coco_exerpt/")
+    TRAINED_MODEL = Path(REPO_DIR, "data_for_testing/fcn_model_no_augmentation.pth")
 
     LAYER = "layer4"
 

@@ -18,7 +18,7 @@ def data_object():
     data.model = resnet101(weights=weights)
     data.model.eval()
     data.layer = Consts.LAYER
-    data.dataset_location = Consts.MEDIUM_DATASET
+    data.dataset_location = Consts.COCO_EXERPT
     # data.paths
     return data
 

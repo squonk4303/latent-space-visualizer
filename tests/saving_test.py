@@ -39,7 +39,7 @@ def get_savable():
     data.model.load(data.model_location)
     data.layer = Consts.LAYER
     data.dim_reduction = list(dim_reduction_techs)[0]
-    data.dataset_location = Consts.MEDIUM_DATASET
+    data.dataset_location = Consts.COCO_EXERPT
 
     # May want to use realer examples
     data.dataset_intermediary = np.random.rand(RESOLUTION, RESOLUTION)

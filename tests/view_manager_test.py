@@ -33,8 +33,8 @@ def data_object():
     data.model = FCNResNet101()
     data.model.load(Consts.MULTILABEL_MODEL)
     data.layer = Consts.LAYER
-    data.paths = utils.grab_image_paths_in_dir(Consts.S_DATASET)
-    data.dataset_location = Consts.S_DATASET
+    data.paths = utils.grab_image_paths_in_dir(Consts.COCO_EXERPT)
+    data.dataset_location = Consts.COCO_EXERPT
     data.dataset_intermediary = torch.rand(1, 3, 640, 640)
     return data
 
@@ -138,7 +138,7 @@ def test_launch_button_activates_on_layer(window):
     # Assert the function doesn't enable the button erroneously
     window.find_layer()
     assert not window.launch_button.isEnabled()
-    window.data.dataset_location = Consts.MEDIUM_DATASET
+    window.data.dataset_location = Consts.COCO_EXERPT
     window.data.dim_reduction = "TSNE"
     window.data.model = FCNResNet101()
     window.data.model_location = Consts.MULTILABEL_MODEL
@@ -154,7 +154,7 @@ def test_launch_button_activates_on_model_location(window):
         # Assert the function doesn't enable the button erroneously
         window.load_model_location()
         assert not window.launch_button.isEnabled()
-        window.data.dataset_location = Consts.MEDIUM_DATASET
+        window.data.dataset_location = Consts.COCO_EXERPT
         window.data.dim_reduction = "TSNE"
         window.data.layer = Consts.LAYER
         window.data.model = FCNResNet101()
@@ -170,7 +170,7 @@ def test_launch_button_activates_on_model_type(window):
     window.suggest_model_type(Consts.MODEL_TYPES[0])
     assert not window.launch_button.isEnabled()
 
-    window.data.dataset_location = Consts.MEDIUM_DATASET
+    window.data.dataset_location = Consts.COCO_EXERPT
     window.data.dim_reduction = "TSNE"
     window.data.layer = Consts.LAYER
     window.data.model_location = Consts.MULTILABEL_MODEL
@@ -185,7 +185,7 @@ def test_launch_button_activates_on_dim_reduction(window):
     window.suggest_dim_reduction("TSNE")
     assert not window.launch_button.isEnabled()
 
-    window.data.dataset_location = Consts.MEDIUM_DATASET
+    window.data.dataset_location = Consts.COCO_EXERPT
     window.data.layer = Consts.LAYER
     window.data.model = FCNResNet101()
     window.data.model_location = Consts.MULTILABEL_MODEL
@@ -198,7 +198,7 @@ def test_launch_button_activates_on_dim_reduction(window):
 def test_launch_button_activates_on_dataset(window):
     # Mock to assure the function will set a valid dataset
     mocked_directory_dialog = patch.object(
-        QFileDialog, "getExistingDirectory", return_value=Consts.MEDIUM_DATASET
+        QFileDialog, "getExistingDirectory", return_value=Consts.COCO_EXERPT
     )
     with mocked_directory_dialog:
         # Assert the function doesn't enable the button erroneously
