@@ -91,13 +91,10 @@ class Consts:
     # fmt: off
 
     # Used for testing only; assumes there's a local dir/symlink with appropriate model
-    GRAPHICAL_IMAGE = Path(REPO_DIR, "pics/crouton.png")
-    IMAGE_DATASET = Path(REPO_DIR, "pics/testing_dataset")
-    MEDIUM_DATASET = Path(REPO_DIR, "pics/medium_dataset")
-    MULTILABEL_MODEL = Path(REPO_DIR, "models.ignore/rgb-aug0/best_model.pth")
-    S_DATASET = Path(REPO_DIR, "models.ignore/dataset_w_json")
-    SMALL_DATASET = Path(REPO_DIR, "pics/small_dataset")
-    TRAINED_MODEL = Path(REPO_DIR, "models.ignore/RGB_no_augmentation.pth")
+    MEDIUM_DATASET    =  Path(REPO_DIR,  "pics/medium_dataset")
+    MULTILABEL_MODEL  =  Path(REPO_DIR,  "data_for_testing/fcn_model_0.pth")
+    S_DATASET         =  Path(REPO_DIR,  "data_for_testing/coco_exerpt/")
+    TRAINED_MODEL     =  Path(REPO_DIR,  "data_for_testing/fcn_model_no_augmentation.pth")
 
     LAYER = "layer4"
 
